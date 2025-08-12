@@ -64,6 +64,23 @@ export class Sprite extends Shape {
         return this.speed ?? 1;
     }
 
+    public _isClicked() : boolean {
+        const mouseVector = this._render.mousePositionRelative();
+        const spriteWidth = this._getWidthFrame();
+        const spriteHeight = this._getHeightFrame();
+        
+        return mouseVector.x >= this.position.x && 
+               mouseVector.x <= this.position.x + spriteWidth &&
+               mouseVector.y >= this.position.y && 
+               mouseVector.y <= this.position.y + spriteHeight;
+    }
+
+    public drawMask() : void {
+        const spriteWidth = this._getWidthFrame();
+        const spriteHeight = this._getHeightFrame();
+        this._ctx.rect(this.position.x, this.position.y, spriteWidth, spriteHeight);
+    }
+
     private _setup() : void {
         this._loading = true;
         this._image.src = this.src;

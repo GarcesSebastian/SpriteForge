@@ -33,6 +33,8 @@ export default function FloatingToolbar({
     y: 100
   });
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [circleForm, setCircleForm] = useState({
     radius: 50,
     color: '#3b82f6',
@@ -58,6 +60,18 @@ export default function FloatingToolbar({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setSpriteForm({...spriteForm, src: dataUrl});
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleCreateSprite = () => {
     if (!spriteForm.src.trim()) {
@@ -102,13 +116,43 @@ export default function FloatingToolbar({
       <div className="space-y-3">
         <div>
           <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Image Source</label>
-          <input
-            type="text"
-            value={spriteForm.src}
-            onChange={(e) => setSpriteForm({...spriteForm, src: e.target.value})}
-            placeholder="Enter image URL or path"
-            className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          />
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={spriteForm.src}
+              onChange={(e) => setSpriteForm({...spriteForm, src: e.target.value})}
+              placeholder="Enter image URL or path"
+              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-gray-500 dark:text-gray-400">or</span>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center space-x-2 px-3 py-2 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <span>Upload Image</span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </div>
+            {spriteForm.src && spriteForm.src.startsWith('data:') && (
+              <div className="flex items-center space-x-2 text-xs text-green-600 dark:text-green-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Image uploaded successfully</span>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -154,27 +198,6 @@ export default function FloatingToolbar({
               step="0.1"
               value={spriteForm.speed}
               onChange={(e) => setSpriteForm({...spriteForm, speed: parseFloat(e.target.value) || 1})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Position X</label>
-            <input
-              type="number"
-              value={spriteForm.x}
-              onChange={(e) => setSpriteForm({...spriteForm, x: parseInt(e.target.value) || 0})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Position Y</label>
-            <input
-              type="number"
-              value={spriteForm.y}
-              onChange={(e) => setSpriteForm({...spriteForm, y: parseInt(e.target.value) || 0})}
               className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
@@ -235,27 +258,6 @@ export default function FloatingToolbar({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Position X</label>
-            <input
-              type="number"
-              value={circleForm.x}
-              onChange={(e) => setCircleForm({...circleForm, x: parseInt(e.target.value) || 0})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Position Y</label>
-            <input
-              type="number"
-              value={circleForm.y}
-              onChange={(e) => setCircleForm({...circleForm, y: parseInt(e.target.value) || 0})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
         <button
           onClick={handleCreateCircle}
           className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg"
@@ -308,27 +310,6 @@ export default function FloatingToolbar({
               value={rectForm.color}
               onChange={(e) => setRectForm({...rectForm, color: e.target.value})}
               className="flex-1 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Position X</label>
-            <input
-              type="number"
-              value={rectForm.x}
-              onChange={(e) => setRectForm({...rectForm, x: parseInt(e.target.value) || 0})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Position Y</label>
-            <input
-              type="number"
-              value={rectForm.y}
-              onChange={(e) => setRectForm({...rectForm, y: parseInt(e.target.value) || 0})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
         </div>

@@ -23,16 +23,50 @@ export default function Home() {
 
   useEffect(() => {
     if (!render) return;
-    const circle = render.creator.Circle({
+    const circle1 = render.creator.Circle({
       position: render.creator.Vector(100, 100),
       radius: 50,
+      zIndex: 1
     })
-    circle.manager.bodyVelocity(render.creator.Vector(1, 0), 5);
+
+    const circle2 = render.creator.Circle({
+      position: render.creator.Vector(100, 100),
+      radius: 30,
+      zIndex: 2,
+      color: "red",
+      mask: true,
+      dragging: true
+    })
+    
+    const rect = render.creator.Rect({
+      position: render.creator.Vector(100, 100),
+      width: 30,
+      height: 100,
+      color: "red",
+      zIndex: 3,
+      mask: true,
+      dragging: true
+    });
+
+    // circle1.on("click", (event) => {
+    //   console.log("Circle1 clicked", event);
+    // })
+
+    // circle2.on("click", (event) => {
+    //   console.log("Circle2 clicked", event);
+    // })
+
+    render.on("click", (event) => {
+      console.log("Canvas clicked", event);
+    })
+
+    // circle.manager.bodyVelocity(render.creator.Vector(1, 0), 5);
 
     const sprite = render.creator.Sprite({
       position: render.creator.Vector(200, 200),
       src: "/Animations/Ground_Slam.png",
       spriteGrid: { rows: 1, cols: 12 },
+      scale: 0.5,
       speed: 1
     });
 
@@ -40,18 +74,12 @@ export default function Home() {
       position: render.creator.Vector(400, 200),
       src: "/Animations/Ise_Strice.png",
       spriteGrid: { rows: 1, cols: 10 },
+      scale: 0.5,
       speed: 1
     });
     
-    const rect = render.creator.Rect({
-      position: render.creator.Vector(600, 200),
-      width: 100,
-      height: 100,
-      color: "red"
-    });
-    
     setSprites((prev) => [...prev, sprite, sprite2]);
-    setCircles((prev) => [...prev, circle]);
+    setCircles((prev) => [...prev, circle1, circle2]);
     setRects((prev) => [...prev, rect]);
   }, [render]);
 
@@ -96,7 +124,7 @@ export default function Home() {
       <canvas 
         ref={canvasRef} 
         id="canvas" 
-        className="w-full h-full"
+        className="w-[800px] h-[500px] border border-gray-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
       />
       
       <FloatingToolbar

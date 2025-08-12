@@ -1,29 +1,48 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Vector } from "../common/Vector";
 import { Render } from "../Render";
+import { RenderEvents, RenderEventsProps, RenderEventsType } from "../helpers/Render.events";
 import { BodyVelocity } from "../common/BodyVelocity";
 import { ShapeManager } from "../managers/Shape.manager";
 
 export interface ShapeProps {
+    dragging?: boolean;
     position: Vector;
+    zIndex?: number;
+    mask?: boolean;
+    rotation?: number;
 }
 
 export abstract class Shape {
+    protected _events: RenderEvents;
     protected _render: Render;
     private _id: string;
+    
     public position: Vector;
     public bodyVelocity: BodyVelocity | null = null;
-
+    public zIndex: number;
+    public mask: boolean;
+    public rotation: number;
+    public dragging: boolean;
+    
     public manager: ShapeManager;
 
     public constructor(props: ShapeProps, render: Render) {
         this.position = props.position ?? new Vector(0, 0);
+        this.zIndex = props.zIndex ?? 0;
+        this.mask = props.mask ?? false;
+        this.rotation = props.rotation ?? 0;
         this._id = uuidv4();
         this.manager = new ShapeManager(this);
+        this.dragging = props.dragging ?? false;
 
         this._render = render;
         this._render.manager.addChild(this);
+        this._events = new RenderEvents();
     }
+
+    public abstract _isClicked() : boolean;
+    public abstract drawMask() : void;
 
     public get id() : string {
         return this._id;
@@ -31,6 +50,18 @@ export abstract class Shape {
 
     public get render() : Render {
         return this._render;
+    }
+
+    public on(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : void {
+        this._events.on(event, callback);
+    }
+
+    public off(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : void {
+        this._events.off(event, callback);
+    }
+
+    public emit(event: RenderEventsType, args: RenderEventsProps) : void {
+        this._events.emit(event, args);
     }
 
     public draw() : void {
