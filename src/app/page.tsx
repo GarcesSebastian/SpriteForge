@@ -2,9 +2,9 @@
 
 import { useApp } from "@/hooks/useApp";
 import { useEffect, useRef, useState } from "react";
-import { Sprite } from "@/lib/instances/_shapes/Sprite";
-import { Circle } from "@/lib/instances/_shapes/Circle";
-import { Rect } from "@/lib/instances/_shapes/Rect";
+import { Sprite, SpriteGrid, SpriteProps } from "@/lib/instances/_shapes/Sprite";
+import { Circle, CircleProps } from "@/lib/instances/_shapes/Circle";
+import { Rect, RectProps } from "@/lib/instances/_shapes/Rect";
 import TestPanel from "@/components/client/TestPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
 
@@ -69,16 +69,26 @@ export default function Home() {
     spriteToDelete.destroy();
   };
 
-  const handleCreateSprite = () => {
-    console.log("Create Sprite clicked");
+  const handleCreateSprite = (props: SpriteProps) => {
+    if (!render) return;
+
+    const sprite = render.creator.Sprite(props);
+
+    setSprites((prev) => [...prev, sprite]);
   };
 
-  const handleCreateCircle = () => {
-    console.log("Create Circle clicked");
+  const handleCreateCircle = (props: CircleProps) => {
+    if (!render) return;
+
+    const circle = render.creator.Circle(props);
+    setCircles((prev) => [...prev, circle]);
   };
 
-  const handleCreateRect = () => {
-    console.log("Create Rectangle clicked");
+  const handleCreateRect = (props: RectProps) => {
+    if (!render) return;
+
+    const rect = render.creator.Rect(props);
+    setRects((prev) => [...prev, rect]);
   };
 
   return (
