@@ -3,6 +3,7 @@ import { Vector as _Vector } from "../common/Vector";
 import { Render } from "../Render";
 import { Sprite as _Sprite, SpriteProps } from "../instances/_shapes/Sprite";
 import { Rect as _Rect, RectProps } from "../instances/_shapes/Rect";
+import { Transformer as _Transformer } from "../common/Transformer";
 
 export class RenderCreator {
     private _render: Render;
@@ -25,5 +26,9 @@ export class RenderCreator {
     
     public Vector(x: number, y: number): _Vector {
         return new _Vector(x, y);
+    }
+
+    public Transformer(): _Transformer {
+        return new _Transformer(this._render.ctx, this._render)
     }
 }

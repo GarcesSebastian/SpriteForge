@@ -33,7 +33,6 @@ export default function TestPanel({
       shadow-2xl transition-transform duration-300 ease-in-out
       ${isCollapsed ? 'translate-x-full' : 'translate-x-0'}
     `}>
-        {/* Collapse Button */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="

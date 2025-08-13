@@ -22,6 +22,8 @@ export default function Home() {
   useEffect(() => {
     if (!render) return;
 
+    const tr = render.creator.Transformer();
+
     for (let i = 0; i < 1; i++) {
       const sprite = render.creator.Sprite({
         position: render.creator.Vector(Utils.randomInt(0, render.canvas.width - 200), Utils.randomInt(0, render.canvas.height - 200)),
@@ -29,10 +31,6 @@ export default function Home() {
         spriteGrid: { rows: 1, cols: 12 },
         dragging: true
       }).setDebug(true);
-
-      setInterval(() => {
-        sprite.rotation += 0.01;
-      }, 10);
 
       setSprites((prev) => [...prev, sprite]);
     }
@@ -50,11 +48,6 @@ export default function Home() {
       rotation: 0,
       dragging: true
     });
-
-    setInterval(() => {
-      rect.rotation += 0.01;
-    }, 10);
-
   }, [render]);
 
   const handlePlay = () => {

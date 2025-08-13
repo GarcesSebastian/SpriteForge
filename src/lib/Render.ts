@@ -3,12 +3,14 @@ import { RenderCreator } from "./helpers/Render.creator";
 import { RenderEvents, RenderEventsProps, RenderEventsType } from "./helpers/Render.events";
 import { Shape } from "./instances/Shape";
 import { RenderManager } from "./managers/Render.manager";
+import { Transformer } from "./common/Transformer";
 
 export class Render {
     public canvas: HTMLCanvasElement;
     public ctx: CanvasRenderingContext2D;
 
     public childrens: Map<string, Shape> = new Map();
+    public _transformers: Map<string, Transformer> = new Map();
 
     private _mouseVector: Vector = new Vector(0, 0);
     private _target: Shape | this = this;
@@ -213,6 +215,10 @@ export class Render {
             } else {
                 shape.update();
             }
+        });
+
+        this._transformers.forEach(transformer => {
+            transformer.update();
         });
 
         this._updateFps();

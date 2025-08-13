@@ -126,6 +126,24 @@ export class Sprite extends Shape {
         };
     }
 
+    public getWidth(): number {
+        return this._getWidthFrame();
+    }
+
+    public getHeight(): number {
+        return this._getHeightFrame();
+    }
+
+    public setWidth(width: number) : Sprite {
+        this._width = width;
+        return this;
+    }
+
+    public setHeight(height: number) : Sprite {
+        this._height = height;
+        return this;
+    }
+
     public setDebug(debugged: boolean) : Sprite {
         this._debugged = debugged;
         return this;

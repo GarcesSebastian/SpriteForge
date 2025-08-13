@@ -31,21 +31,6 @@ export default function FloatingToolbar({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [circleForm, setCircleForm] = useState({
-    radius: 50,
-    color: '#3b82f6',
-    x: 100,
-    y: 100
-  });
-
-  const [rectForm, setRectForm] = useState({
-    width: 100,
-    height: 100,
-    color: '#10b981',
-    x: 100,
-    y: 100
-  });
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -81,7 +66,8 @@ export default function FloatingToolbar({
       spriteGrid: { rows: spriteForm.rows, cols: spriteForm.cols },
       scale: spriteForm.scale,
       speed: spriteForm.speed,
-      loop: spriteForm.loop
+      loop: spriteForm.loop,
+      dragging: true
     });
     setActiveDropdown(null);
   };

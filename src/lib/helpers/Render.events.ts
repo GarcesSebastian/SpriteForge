@@ -10,7 +10,7 @@ export interface RenderEventsProps {
     target: Shape | Render;
 }
 
-export type RenderEventsType = "click" | "dragstart" | "dragend" | "drag" | "mousemove" | "mousedown" | "mouseup";
+export type RenderEventsType = "click" | "dragstart" | "dragend" | "drag" | "mousemove" | "mousedown" | "mouseup" | "trmove";
 
 export class RenderEvents {
     private _listeners: Record<string, ((args: RenderEventsProps) => void)[]> = {};
