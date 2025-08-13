@@ -6,8 +6,6 @@ import { Sprite, SpriteProps } from "@/lib/instances/_shapes/Sprite";
 import TestPanel from "@/components/client/TestPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
 import { Utils } from "@/lib/lib/Utils";
-import { Vector } from "@/lib/common/Vector";
-import { Circle } from "@/lib/instances/_shapes/Circle";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -48,6 +46,8 @@ export default function Home() {
       rotation: 0,
       dragging: true
     });
+
+    console.log(tr, circle, rect);
   }, [render]);
 
   const handlePlay = () => {

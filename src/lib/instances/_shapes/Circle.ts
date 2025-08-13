@@ -1,6 +1,5 @@
 import { Shape, ShapeProps } from "../Shape";
 import { Render } from "../../Render";
-import { RenderEventsType, RenderEventsProps } from "@/lib/helpers/Render.events";
 
 export interface CircleProps extends ShapeProps {
     radius: number;

@@ -2,8 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { SpriteProps } from "@/lib/instances/_shapes/Sprite";
-import { CircleProps } from "@/lib/instances/_shapes/Circle";
-import { RectProps } from "@/lib/instances/_shapes/Rect";
 import { Vector } from "@/lib/common/Vector";
 
 interface FloatingToolbarProps {

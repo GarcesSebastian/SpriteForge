@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useEffect, useRef, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { Render } from "@/lib/Render";
 
 interface AppContextProps {
@@ -34,7 +34,7 @@ export const AppContextProvider = ({ children } : { children: React.ReactNode })
         if (!render) return;
         if (isPlaying) render.start();
         else render.stop();
-    }, [isPlaying]);
+    }, [isPlaying, render]);
 
     return (
         <AppContext.Provider value={{ setup, render, isPlaying, setIsPlaying }}>

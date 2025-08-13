@@ -1,6 +1,5 @@
 import { Shape, ShapeProps } from "../Shape";
 import { Render } from "../../Render";
-import { RenderEventsProps, RenderEventsType } from "@/lib/helpers/Render.events";
 
 export interface RectProps extends ShapeProps {
     width: number;

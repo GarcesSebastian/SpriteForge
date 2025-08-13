@@ -120,13 +120,13 @@ export class Transformer {
         return isInTransformerArea || isInBoundary;
     }
 
-    private _onMouseDown(e: MouseEvent): void {
+    private _onMouseDown(): void {
         if (!this._isClicked()) return;
         this._isDragging = true;
         this._dragStart = this._render.mousePositionRelative();
     }
 
-    private _onMouseMove(e: MouseEvent): void {
+    private _onMouseMove(): void {
         if (!this._isDragging) return;
         const mouseVector = this._render.mousePositionRelative();
         const delta = mouseVector.sub(this._dragStart!);
@@ -140,7 +140,7 @@ export class Transformer {
         this._events.emit("trmove", { pointer: { absolute: this._render.mousePositionAbsolute(), relative: this._render.mousePositionRelative() }, target: this._render });
     }
 
-    private _onMouseUp(e: MouseEvent): void {
+    private _onMouseUp(): void {
         if (this._isDragging) {
             this._justFinishedDrag = true;
         }
@@ -201,7 +201,7 @@ export class Transformer {
         const transformerWidth = width + this.padding * 2;
         const transformerHeight = height + this.padding * 2;
         
-        Object.entries(this._boundarys).forEach(([key, value]) => {
+        Object.entries(this._boundarys).forEach(([key]) => {
             const boundary = this._boundarys[key as keyof typeof this._boundarys];
             
             const rx = transformerX + boundary.x * transformerWidth - radius / 2;
