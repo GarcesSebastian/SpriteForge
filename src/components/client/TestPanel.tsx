@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react";
 import { Sprite } from "@/lib/instances/_shapes/Sprite";
 import CollapsibleSection from "@/components/common/CollapsibleSection";
 import PanelHeader from "./panel/PanelHeader";
@@ -9,8 +10,6 @@ import StatusSection from "./panel/StatusSection";
 import SpritesSection from "./panel/SpritesSection";
 
 interface TestPanelProps {
-  isOpen: boolean;
-  onClose: () => void;
   isPlaying: boolean;
   onPlay: () => void;
   onStop: () => void;
@@ -19,52 +18,50 @@ interface TestPanelProps {
 }
 
 export default function TestPanel({
-  isOpen,
-  onClose,
   isPlaying,
   onPlay,
   onStop,
   sprites,
   onDeleteSprite
 }: TestPanelProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <>
-      <button
-        onClick={onClose}
-        className={`
-          fixed top-6 right-6 z-50
-          w-12 h-12 rounded-full
-          bg-gradient-to-r from-purple-600 to-blue-600
-          hover:from-purple-700 hover:to-blue-700
-          text-white shadow-lg hover:shadow-xl
-          transition-all duration-300 ease-in-out
-          flex items-center justify-center
-          group
-          ${isOpen ? 'rotate-45' : 'hover:scale-110'}
-        `}
-      >
-        <svg 
-          className="w-6 h-6 transition-transform duration-300" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
+    <div className={`
+      fixed top-0 right-0 h-full w-96 z-40
+      bg-gray-800/95 backdrop-blur-lg border-l border-gray-700
+      shadow-2xl transition-transform duration-300 ease-in-out
+      ${isCollapsed ? 'translate-x-full' : 'translate-x-0'}
+    `}>
+        {/* Collapse Button */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="
+            absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full
+            w-8 h-16 bg-gray-800/95 backdrop-blur-lg
+            border border-r-0 border-gray-700 rounded-l-lg
+            flex items-center justify-center
+            hover:bg-gray-700/95 transition-colors duration-200
+            shadow-lg z-10
+          "
         >
-          {isOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          )}
-        </svg>
-      </button>
+          <svg 
+            className={`w-4 h-4 text-gray-300 transition-transform duration-300 ${
+              isCollapsed ? 'rotate-180' : ''
+            }`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M9 5l7 7-7 7" 
+            />
+          </svg>
+        </button>
 
-      <div className={`
-        fixed top-0 right-0 h-full w-96 z-40
-        bg-gray-800/95 backdrop-blur-lg border-l border-gray-700
-        transform transition-transform duration-500 ease-in-out
-        ${isOpen ? 'translate-x-0' : 'translate-x-full'}
-        shadow-2xl
-      `}>
         <div className="p-6 h-full flex flex-col overflow-y-auto">
           <PanelHeader />
 
@@ -111,14 +108,6 @@ export default function TestPanel({
 
           <PanelFooter />
         </div>
-      </div>
-
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-30"
-          onClick={onClose}
-        />
-      )}
-    </>
+    </div>
   );
 }

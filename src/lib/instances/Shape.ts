@@ -42,7 +42,7 @@ export abstract class Shape {
     }
 
     public abstract _isClicked() : boolean;
-    public abstract drawMask() : void;
+    public abstract _mask() : void;
 
     public get id() : string {
         return this._id;

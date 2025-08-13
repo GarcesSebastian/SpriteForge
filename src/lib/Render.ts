@@ -10,15 +10,24 @@ export class Render {
 
     public childrens: Map<string, Shape> = new Map();
 
-    private _draget: Shape | null = null;
     private _mouseVector: Vector = new Vector(0, 0);
-    private _target: Shape | null = null;
+    private _target: Shape | this = this;
     private _events: RenderEvents;
     private _frameId: number | null = null;
     private _resizeBind: () => void = this.resize.bind(this);
     private _renderBind: () => void = this.render.bind(this);
     private _onClickedBind: (event: MouseEvent) => void = this._onClicked.bind(this);
     private _onMouseMoveBind: (event: MouseEvent) => void = this._onMouseMove.bind(this);
+    private _onMouseDownBind: (event: MouseEvent) => void = this._onMouseDown.bind(this);
+    private _onMouseUpBind: (event: MouseEvent) => void = this._onMouseUp.bind(this);
+    
+    private _dragging: boolean = false;
+    private _dragTarget: Shape | null = null;
+    private _dragStart: Vector | null = null;
+
+    private _fps: number = 0;
+    private _lastFrameTime: number = performance.now();
+    private _frameCount: number = 0;
     
     public creator: RenderCreator;
     public manager: RenderManager;
@@ -52,12 +61,31 @@ export class Render {
         window.addEventListener("resize", this._resizeBind);
         window.addEventListener("click", this._onClickedBind);
         window.addEventListener("mousemove", this._onMouseMoveBind);
+        window.addEventListener("mousedown", this._onMouseDownBind);
+        window.addEventListener("mouseup", this._onMouseUpBind);
     }
 
     private _onMouseMove(event: MouseEvent) : void {
         const { clientX, clientY } = event;
         const { left, top } = this.canvas.getBoundingClientRect();
         this._mouseVector = this.creator.Vector(clientX - left, clientY - top);
+        
+        if (this._dragging && this._dragTarget && this._dragStart) {
+            const mouseVector = this.creator.Vector(clientX - left, clientY - top);
+            this._dragTarget.position = mouseVector.sub(this._dragStart);
+            
+            const args = {
+                pointer: {
+                    absolute: this.creator.Vector(clientX, clientY),
+                    relative: mouseVector
+                },
+                target: this._dragTarget
+            };
+            
+            this._dragTarget.emit("drag", args);
+        }
+
+        this._events.emit("mousemove", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
 
     private _onClicked(event: MouseEvent) : void {
@@ -68,19 +96,91 @@ export class Render {
 
         if (x < 0 || x > width || y < 0 || y > height) return;
 
-        const childrensFormatted: Shape[] = [...this.childrens.values()].sort((a, b) => a.zIndex - b.zIndex);
-        childrensFormatted.forEach((child) => {
-            if (child._isClicked()) {
-                this._target = child;
-                return;
-            }
-        });
-
-        if (!this._target) {
-            this._target = this as unknown as Shape;
-        }
+        this._target = [...this.childrens.values()].sort((a, b) => b.zIndex - a.zIndex)
+            .find((child) => child._isClicked()) ?? this;
 
         this._events.emit("click", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
+        
+        if (this._target instanceof Shape) {
+            this._target.emit("click", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
+        }
+    }
+    
+    private _onMouseDown(event: MouseEvent) : void {
+        const { clientX, clientY } = event;
+        const { left, top, width, height } = this.canvas.getBoundingClientRect();
+        const x = clientX - left;
+        const y = clientY - top;
+
+        if (x < 0 || x > width || y < 0 || y > height) return;
+
+        const draggableTarget = [...this.childrens.values()]
+            .filter(child => child.dragging)
+            .sort((a, b) => b.zIndex - a.zIndex)
+            .find((child) => child._isClicked());
+            
+        if (draggableTarget) {
+            this._dragging = true;
+            this._dragTarget = draggableTarget;
+            const mouseVector = this.creator.Vector(x, y);
+            this._dragStart = mouseVector.sub(draggableTarget.position);
+            
+            const args = {
+                pointer: {
+                    absolute: this.creator.Vector(clientX, clientY),
+                    relative: mouseVector
+                },
+                target: draggableTarget
+            };
+            
+            draggableTarget.emit("dragstart", args);
+        }
+
+        this._events.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: draggableTarget ?? this });
+    }
+    
+    private _onMouseUp(event: MouseEvent) : void {
+        if (this._dragging && this._dragTarget) {
+            const { clientX, clientY } = event;
+            const { left, top } = this.canvas.getBoundingClientRect();
+            
+            const args = {
+                pointer: {
+                    absolute: this.creator.Vector(clientX, clientY),
+                    relative: this.creator.Vector(clientX - left, clientY - top)
+                },
+                target: this._dragTarget
+            };
+            
+            this._dragTarget.emit("dragend", args);
+        }
+        
+        this._dragging = false;
+        this._dragTarget = null;
+        this._dragStart = null;
+
+        const { clientX, clientY } = event;
+        const { left, top } = this.canvas.getBoundingClientRect();
+        
+        this._events.emit("mouseup", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target ?? this });
+    }
+
+    private _updateFps() : void {
+        const now = performance.now();
+        const deltaTime = (now - this._lastFrameTime) / 1000;
+        this._frameCount++;
+
+        if (deltaTime >= 1) {
+            this._fps = this._frameCount / deltaTime;
+            this._frameCount = 0;   
+            this._lastFrameTime = now;
+        }
+    }
+
+    private _showFps() : void {
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "16px Arial";
+        this.ctx.fillText(`FPS: ${this._fps.toFixed(2)}`, 10, this.canvas.height - 10);
     }
 
     private clear() : void {
@@ -105,7 +205,7 @@ export class Render {
                 this.ctx.globalCompositeOperation = 'destination-out';
                 affectingMasks.forEach(mask => {
                     this.ctx.beginPath();
-                    mask.drawMask();
+                    mask._mask();
                     this.ctx.fill();
                 });
                 
@@ -115,15 +215,9 @@ export class Render {
             }
         });
 
+        this._updateFps();
+        this._showFps();
         this._frameId = requestAnimationFrame(this._renderBind);
-    }
-
-    public _dragTarget(shape: Shape | null) : void {
-        this._draget = shape;
-    }
-
-    public _isDragTarget(shape: Shape) : boolean {
-        return this._draget === shape || this._draget === null;
     }
 
     public mousePositionAbsolute() : Vector {
@@ -159,5 +253,8 @@ export class Render {
         this.stop();
         window.removeEventListener("resize", this._resizeBind);
         window.removeEventListener("click", this._onClickedBind);
+        window.removeEventListener("mousemove", this._onMouseMoveBind);
+        window.removeEventListener("mousedown", this._onMouseDownBind);
+        window.removeEventListener("mouseup", this._onMouseUpBind);
     }
 }

@@ -28,8 +28,16 @@ export class Sprite extends Shape {
     private _debugged: boolean = false;
     private _loading: boolean = true;
     private _frameIndex: number = 0;
-    private _frameTime: number = performance.now();
+    private _frameTime: number = 0;
     private _frameDuration: number = 60;
+    
+    private static _globalTime: number = 0;
+    private static _lastGlobalUpdate: number = performance.now();
+    private _lastFrameUpdate: number = 0;
+    
+    private _debugText: string = "";
+    private _debugTextDirty: boolean = true;
+    private _lastDebugUpdate: number = 0;
 
     public src: string;
     public scale: number | undefined;
@@ -69,13 +77,29 @@ export class Sprite extends Shape {
         const spriteWidth = this._getWidthFrame();
         const spriteHeight = this._getHeightFrame();
         
-        return mouseVector.x >= this.position.x && 
-               mouseVector.x <= this.position.x + spriteWidth &&
-               mouseVector.y >= this.position.y && 
-               mouseVector.y <= this.position.y + spriteHeight;
+        if (this.rotation === 0) {
+            return mouseVector.x >= this.position.x && 
+                   mouseVector.x <= this.position.x + spriteWidth &&
+                   mouseVector.y >= this.position.y && 
+                   mouseVector.y <= this.position.y + spriteHeight;
+        }
+        
+        const dx = mouseVector.x - this.position.x;
+        const dy = mouseVector.y - this.position.y;
+        
+        const cos = Math.cos(-this.rotation);
+        const sin = Math.sin(-this.rotation);
+        
+        const localX = dx * cos - dy * sin;
+        const localY = dx * sin + dy * cos;
+        
+        return localX >= 0 && 
+               localX <= spriteWidth &&
+               localY >= 0 && 
+               localY <= spriteHeight;
     }
 
-    public drawMask() : void {
+    public _mask() : void {
         const spriteWidth = this._getWidthFrame();
         const spriteHeight = this._getHeightFrame();
         this._ctx.rect(this.position.x, this.position.y, spriteWidth, spriteHeight);
@@ -135,14 +159,26 @@ export class Sprite extends Shape {
         return this._debugged;
     }
 
+    private static updateGlobalTime(): void {
+        const now = performance.now();
+        if (now - Sprite._lastGlobalUpdate > 16) {
+            Sprite._globalTime = now;
+            Sprite._lastGlobalUpdate = now;
+        }
+    }
+
     public draw(): void {
         if (!this._running) return;
 
-        while (this.ignoreFrames.map((frame) => frame - 1).includes(this._frameIndex)) {
-            this._frameIndex++;
-            if (this._frameIndex >= this.spriteGrid.rows * this.spriteGrid.cols) {
-                this._frameIndex = 0;
-                break;
+        Sprite.updateGlobalTime();
+
+        if (this.ignoreFrames.length > 0) {
+            while (this.ignoreFrames.includes(this._frameIndex)) {
+                this._frameIndex++;
+                if (this._frameIndex >= this.spriteGrid.rows * this.spriteGrid.cols) {
+                    this._frameIndex = 0;
+                    break;
+                }
             }
         }
         
@@ -152,73 +188,44 @@ export class Sprite extends Shape {
         const sourceX = currentCol * this._widthFrame;
         const sourceY = currentRow * this._heightFrame;
 
+        this._ctx.save();
+        this._ctx.translate(this.position.x, this.position.y);
+        this._ctx.rotate(this.rotation);
+
         if (this._debugged) {
-            this._ctx.beginPath();
-            this._ctx.rect(this.position.x, this.position.y, this._getWidthFrame(), this._getHeightFrame());
-            this._ctx.fillStyle = "rgba(255, 0, 0, 0.1)";
-            this._ctx.fill();
-            this._ctx.strokeStyle = "rgba(255, 0, 0, 0.8)";
-            this._ctx.lineWidth = 2;
-            this._ctx.stroke();
-            this._ctx.closePath();
-
-            const debugLines = [
-                `Frame: ${this._frameIndex}`,
-                `Speed: ${this._getSpeed()}x`,
-                `Loop: ${this.loop ? 'Yes' : 'No'}`
-            ];
-
-            this._ctx.font = "14px Arial";
-            this._ctx.textAlign = "left";
-            this._ctx.textBaseline = "top";
-
-            const lineHeight = 18;
-            const padding = 8;
-            let maxWidth = 0;
-            
-            debugLines.forEach(line => {
-                const textMeasure = this._ctx.measureText(line);
-                maxWidth = Math.max(maxWidth, textMeasure.width);
-            });
-
-            const textBoxWidth = maxWidth + (padding * 2);
-            const textBoxHeight = (debugLines.length * lineHeight) + (padding * 2);
-
-            const textX = this.position.x;
-            const textY = this.position.y - textBoxHeight - 5;
-
-            this._ctx.beginPath();
-            this._ctx.rect(textX, textY, textBoxWidth, textBoxHeight);
-            this._ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-            this._ctx.fill();
-            this._ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+            this._ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
+            this._ctx.fillRect(0, 0, this._getWidthFrame(), this._getHeightFrame());
+            this._ctx.strokeStyle = "red";
             this._ctx.lineWidth = 1;
-            this._ctx.stroke();
-            this._ctx.closePath();
-
+            this._ctx.strokeRect(0, 0, this._getWidthFrame(), this._getHeightFrame());
+            
+            if (this._debugTextDirty || Sprite._globalTime - this._lastDebugUpdate > 166) {
+                this._debugText = `F:${this._frameIndex} S:${this._getSpeed()}x`;
+                this._debugTextDirty = false;
+                this._lastDebugUpdate = Sprite._globalTime;
+            }
+            
+            this._ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+            this._ctx.fillRect(0, -20, 80, 18);
             this._ctx.fillStyle = "white";
-            debugLines.forEach((line, index) => {
-                this._ctx.fillText(
-                    line, 
-                    textX + padding, 
-                    textY + padding + (index * lineHeight)
-                );
-            });
+            this._ctx.font = "12px Arial";
+            this._ctx.fillText(this._debugText, 2, -6);
         }
 
         this._ctx.drawImage(
             this._image,
             sourceX, sourceY,
             this._widthFrame, this._heightFrame,
-            this.position.x, this.position.y,
+            0, 0,
             this._getWidthFrame(), this._getHeightFrame()
         );
 
-        if (!this.isPlaying()) return;
+        this._ctx.restore();
 
-        if (performance.now() - this._frameTime >= this._frameDuration / this._getSpeed()) {
-            this._frameTime = performance.now();
+        if (this.isPlaying() && Sprite._globalTime - this._lastFrameUpdate >= this._frameDuration / this._getSpeed()) {
+            this._lastFrameUpdate = Sprite._globalTime;
             this._frameIndex++;
+            this._debugTextDirty = true;
 
             if (this._frameIndex >= this.spriteGrid.cols * this.spriteGrid.rows) {
                 if (!this.loop) this._paused = true;
@@ -229,26 +236,8 @@ export class Sprite extends Shape {
 
     public update(): void {
         if (this._loading) {
-            const centerX = this.position.x + this._getWidthFrame() / 2;
-            const centerY = this.position.y + this._getHeightFrame() / 2;
-        
-            const minSize = Math.min(this._getWidthFrame(), this._getHeightFrame());
-        
-            const outerRadius = minSize * 0.10;
-            const innerRadius = minSize * 0.07;
-        
-            this._ctx.beginPath();
-            this._ctx.rect(this.position.x, this.position.y, this._getWidthFrame(), this._getHeightFrame());
             this._ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-            this._ctx.fill();
-            this._ctx.closePath();
-        
-            this._ctx.beginPath();
-            this._ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
-            this._ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
-            this._ctx.fillStyle = "white";
-            this._ctx.fill("evenodd");
-            this._ctx.closePath();
+            this._ctx.fillRect(this.position.x, this.position.y, this._getWidthFrame(), this._getHeightFrame());
             return;
         }
 

@@ -1,15 +1,16 @@
 import { Vector } from "../common/Vector";
 import { Shape } from "../instances/Shape";
+import { Render } from "../Render";
 
 export interface RenderEventsProps {
     pointer: {
         relative: Vector;
         absolute: Vector;
     },
-    target?: Shape;
+    target: Shape | Render;
 }
 
-export type RenderEventsType = "click" | "dragstart" | "dragend" | "drag";
+export type RenderEventsType = "click" | "dragstart" | "dragend" | "drag" | "mousemove" | "mousedown" | "mouseup";
 
 export class RenderEvents {
     private _listeners: Record<string, ((args: RenderEventsProps) => void)[]> = {};

@@ -8,16 +8,12 @@ import { Vector } from "@/lib/common/Vector";
 
 interface FloatingToolbarProps {
   onCreateSprite: (props: SpriteProps) => void;
-  onCreateCircle: (props: CircleProps) => void;
-  onCreateRect: (props: RectProps) => void;
 }
 
 type DropdownType = 'sprite' | 'circle' | 'rect' | null;
 
 export default function FloatingToolbar({
   onCreateSprite,
-  onCreateCircle,
-  onCreateRect
 }: FloatingToolbarProps) {
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -86,25 +82,6 @@ export default function FloatingToolbar({
       scale: spriteForm.scale,
       speed: spriteForm.speed,
       loop: spriteForm.loop
-    });
-    setActiveDropdown(null);
-  };
-
-  const handleCreateCircle = () => {
-    onCreateCircle({
-      position: new Vector(circleForm.x, circleForm.y),
-      radius: circleForm.radius,
-      color: circleForm.color
-    });
-    setActiveDropdown(null);
-  };
-
-  const handleCreateRect = () => {
-    onCreateRect({
-      position: new Vector(rectForm.x, rectForm.y),
-      width: rectForm.width,
-      height: rectForm.height,
-      color: rectForm.color
     });
     setActiveDropdown(null);
   };
@@ -224,106 +201,6 @@ export default function FloatingToolbar({
     </div>
   );
 
-  const renderCircleDropdown = () => (
-    <div className="absolute top-full left-0 mt-2 w-72 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-xl p-4 z-50">
-      <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Create Circle</h3>
-      
-      <div className="space-y-3">
-        <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Radius</label>
-          <input
-            type="number"
-            min="1"
-            value={circleForm.radius}
-            onChange={(e) => setCircleForm({...circleForm, radius: parseInt(e.target.value) || 1})}
-            className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Color</label>
-          <div className="flex space-x-2">
-            <input
-              type="color"
-              value={circleForm.color}
-              onChange={(e) => setCircleForm({...circleForm, color: e.target.value})}
-              className="w-12 h-10 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer"
-            />
-            <input
-              type="text"
-              value={circleForm.color}
-              onChange={(e) => setCircleForm({...circleForm, color: e.target.value})}
-              className="flex-1 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <button
-          onClick={handleCreateCircle}
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg"
-        >
-          Create Circle
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderRectDropdown = () => (
-    <div className="absolute top-full left-0 mt-2 w-72 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-xl p-4 z-50">
-      <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Create Rectangle</h3>
-      
-      <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Width</label>
-            <input
-              type="number"
-              min="1"
-              value={rectForm.width}
-              onChange={(e) => setRectForm({...rectForm, width: parseInt(e.target.value) || 1})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Height</label>
-            <input
-              type="number"
-              min="1"
-              value={rectForm.height}
-              onChange={(e) => setRectForm({...rectForm, height: parseInt(e.target.value) || 1})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Color</label>
-          <div className="flex space-x-2">
-            <input
-              type="color"
-              value={rectForm.color}
-              onChange={(e) => setRectForm({...rectForm, color: e.target.value})}
-              className="w-12 h-10 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer"
-            />
-            <input
-              type="text"
-              value={rectForm.color}
-              onChange={(e) => setRectForm({...rectForm, color: e.target.value})}
-              className="flex-1 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <button
-          onClick={handleCreateRect}
-          className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg"
-        >
-          Create Rectangle
-        </button>
-      </div>
-    </div>
-  );
-
   return (
     <div className="fixed top-6 left-6 z-40" ref={dropdownRef}>
       <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl p-3">
@@ -344,42 +221,6 @@ export default function FloatingToolbar({
               </div>
             </button>
             {activeDropdown === 'sprite' && renderSpriteDropdown()}
-          </div>
-
-          <div className="relative">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'circle' ? null : 'circle')}
-              className={`group relative flex items-center justify-center w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 ${
-                activeDropdown === 'circle' ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''
-              }`}
-              title="Create Circle"
-            >
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" strokeWidth={2} />
-              </svg>
-              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                Circle
-              </div>
-            </button>
-            {activeDropdown === 'circle' && renderCircleDropdown()}
-          </div>
-
-          <div className="relative">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'rect' ? null : 'rect')}
-              className={`group relative flex items-center justify-center w-11 h-11 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-xl transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 ${
-                activeDropdown === 'rect' ? 'ring-2 ring-green-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''
-              }`}
-              title="Create Rectangle"
-            >
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth={2} />
-              </svg>
-              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                Rectangle
-              </div>
-            </button>
-            {activeDropdown === 'rect' && renderRectDropdown()}
           </div>
         </div>
       </div>
