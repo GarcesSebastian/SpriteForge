@@ -18,10 +18,10 @@ export class RenderManager {
     }
 
     public addTransformer(transformer: Transformer) : void {
-        this._render._transformers.set(transformer.id, transformer);
+        this._render._transformer = transformer;
     }
 
-    public removeTransformer(transformer: Transformer) : void {
-        this._render._transformers.delete(transformer.id);
+    public removeTransformer() : void {
+        this._render._transformer = null;
     }
 }
