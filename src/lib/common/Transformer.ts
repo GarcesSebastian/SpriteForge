@@ -115,7 +115,7 @@ export class Transformer {
         }
     }
 
-    private _onMouseUpTr(args: RenderEventsProps): void {
+    private _onMouseUpTr(): void {
         if (this._isDragging) {
             this._isDragging = false;
             this._dragStart = null;
