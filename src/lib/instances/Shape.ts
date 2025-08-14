@@ -17,7 +17,7 @@ export interface ShapeProps {
 
 export abstract class Shape {
     protected _events: RenderEvents;
-    protected _destroyEvents: ((args?: any) => void)[] = [];
+    protected _destroyEvents: (() => void)[] = [];
     protected _render: Render;
     private _id: string;
     
@@ -59,7 +59,7 @@ export abstract class Shape {
         return this._render;
     }
 
-    public onDestroy(callback: (args?: any) => void) : Shape {
+    public onDestroy(callback: () => void) : Shape {
         if (!this._destroyEvents) this._destroyEvents = [];
         this._destroyEvents.push(callback);
         return this;
