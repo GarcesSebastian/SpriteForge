@@ -269,7 +269,7 @@ export class Transformer {
 
     private _saveInitialNodeStates(): void {
         this._initialNodeStates = this._nodes.map(node => {
-            const state: any = {
+            const state: { position: Vector, width?: number, height?: number, radius?: number, scale?: number } = {
                 position: new Vector(node.position.x, node.position.y)
             };
 
