@@ -4,6 +4,7 @@ import { Render } from "../Render";
 import { RenderEvents, RenderEventsProps, RenderEventsType } from "../helpers/Render.events";
 import { BodyVelocity } from "../common/BodyVelocity";
 import { ShapeManager } from "../managers/Shape.manager";
+import { Transformer } from "../common/Transformer";
 
 export interface ShapeProps {
     dragging?: boolean;
@@ -16,6 +17,7 @@ export interface ShapeProps {
 
 export abstract class Shape {
     protected _events: RenderEvents;
+    protected _destroyEvents: ((args?: any) => void)[] = [];
     protected _render: Render;
     private _id: string;
     
@@ -28,6 +30,7 @@ export abstract class Shape {
     public visible: boolean;
     
     public manager: ShapeManager;
+    public _transformer: Transformer | null = null;
 
     public constructor(props: ShapeProps, render: Render) {
         this.position = props.position ?? new Vector(0, 0);
@@ -56,6 +59,12 @@ export abstract class Shape {
         return this._render;
     }
 
+    public onDestroy(callback: (args?: any) => void) : Shape {
+        if (!this._destroyEvents) this._destroyEvents = [];
+        this._destroyEvents.push(callback);
+        return this;
+    }
+
     public on(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : Shape {
         this._events.on(event, callback);
         return this;
@@ -80,6 +89,14 @@ export abstract class Shape {
     }
 
     public destroy() : void {
+        if (this._destroyEvents && this._destroyEvents.length > 0) {
+            this._destroyEvents.forEach(callback => callback());
+        }
+        
         this._render.manager.removeChild(this);
+        
+        if (this._transformer && this._transformer.hasNode(this)) {
+            this._transformer.remove(this);
+        }
     }
 }

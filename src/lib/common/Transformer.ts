@@ -63,7 +63,6 @@ export class Transformer {
     }
 
     private _onClickedTr(args: RenderEventsProps): void {
-        console.log(args.target);
         if (this._justFinishedDrag) {
             this._justFinishedDrag = false;
             return;
@@ -165,6 +164,12 @@ export class Transformer {
     private _onKeyDown(e: KeyboardEvent): void {
         if (e.key === "Shift") {
             this._shifted = true;
+        }
+
+        if (e.ctrlKey && e.key.toLowerCase() === "x") {
+            const nodesToDestroy = [...this._nodes];
+            nodesToDestroy.forEach(node => node.destroy());
+            this.clear();
         }
     }
 
@@ -377,6 +382,7 @@ export class Transformer {
     public add(node: Shape) : Transformer {
         this._nodes.push(node);
         node.dragging = false;
+        node._transformer = this;
         return this;
     }
 
@@ -394,7 +400,12 @@ export class Transformer {
     public remove(node: Shape) : Transformer {
         this._nodes = this._nodes.filter(n => n.id !== node.id);
         node.dragging = true;
+        node._transformer = null;
         return this;
+    }
+
+    public hasNode(node: Shape) : boolean {
+        return this._nodes.some(n => n.id === node.id);
     }
 
     public update() : void {

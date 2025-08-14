@@ -55,8 +55,4 @@ export class Circle extends Shape {
         
         return distance <= this.radius;
     }
-
-    public destroy(): void {
-        super.destroy();
-    }
 }

@@ -20,6 +20,17 @@ export default function Home() {
   useEffect(() => {
     if (!render) return;
 
+    sprites.forEach(sprite => {
+      sprite.onDestroy(() => {
+        setSprites((prev) => prev.filter(s => s.id !== sprite.id));
+      })
+    });
+    
+  }, [render, sprites]);
+
+  useEffect(() => {
+    if (!render) return;
+
     const tr = render.creator.Transformer();
 
     for (let i = 0; i < 1; i++) {
