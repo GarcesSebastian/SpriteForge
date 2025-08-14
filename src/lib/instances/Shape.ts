@@ -56,16 +56,19 @@ export abstract class Shape {
         return this._render;
     }
 
-    public on(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : void {
+    public on(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : Shape {
         this._events.on(event, callback);
+        return this;
     }
 
-    public off(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : void {
+    public off(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : Shape {
         this._events.off(event, callback);
+        return this;
     }
 
-    public emit(event: RenderEventsType, args: RenderEventsProps) : void {
+    public emit(event: RenderEventsType, args: RenderEventsProps) : Shape {
         this._events.emit(event, args);
+        return this;
     }
 
     public draw() : void {

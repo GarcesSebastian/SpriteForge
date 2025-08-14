@@ -20,6 +20,18 @@ export class Transformer {
     private _shifted: boolean = false;
     private _justFinishedDrag: boolean = false;
 
+    private _isResizing: boolean = false;
+    private _resizeStart: Vector | null = null;
+    private _resizeHandle: TransformerBounds | null = null;
+    private _initialDimensions: { width: number, height: number, x: number, y: number } | null = null;
+    private _initialNodeStates: Array<{
+        position: Vector,
+        width?: number,
+        height?: number,
+        radius?: number,
+        scale?: number
+    }> = [];
+
     private _nodes: Shape[] = [];
     private _boundarys: Record<TransformerBounds, Vector> = {
         "top-left": new Vector(0, 0),
@@ -51,6 +63,7 @@ export class Transformer {
     }
 
     private _onClickedTr(args: RenderEventsProps): void {
+        console.log(args.target);
         if (this._justFinishedDrag) {
             this._justFinishedDrag = false;
             return;
@@ -76,6 +89,17 @@ export class Transformer {
     }
 
     private _onMouseDownTr(args: RenderEventsProps): void {
+        const clickedHandle = this._getClickedHandle();
+        if (clickedHandle) {
+            this._isResizing = true;
+            this._resizeStart = args.pointer.relative;
+            this._resizeHandle = clickedHandle;
+            this._initialDimensions = this._dimension();
+            this._saveInitialNodeStates();
+            this._render._cancelSelect();
+            return;
+        }
+
         if (args.target instanceof Shape) {
             const targetShape = args.target as Shape;
             const isNodeInTransformer = this._nodes.some(node => node.id === targetShape.id);
@@ -94,7 +118,7 @@ export class Transformer {
             }
         }
 
-        if (args.target instanceof Transformer) {
+        if (this._isClicked() && !this._isResizing) {
             this._isDragging = true;
             this._dragStart = args.pointer.relative;
         }
@@ -111,7 +135,12 @@ export class Transformer {
                 node.position.y += delta.y;
             });
 
+            this._render._cancelSelect();
             this._events.emit("trmove", { pointer: { absolute: this._render.mousePositionAbsolute(), relative: this._render.mousePositionRelative() }, target: this._render });
+        }
+
+        if (this._isResizing && this._resizeHandle && this._initialDimensions) {
+            this._performResize(args.pointer.relative);
         }
     }
 
@@ -120,6 +149,16 @@ export class Transformer {
             this._isDragging = false;
             this._dragStart = null;
             this._justFinishedDrag = true;
+            this._render._enableSelect();
+        }
+
+        if (this._isResizing) {
+            this._isResizing = false;
+            this._resizeStart = null;
+            this._resizeHandle = null;
+            this._initialDimensions = null;
+            this._initialNodeStates = [];
+            this._render._enableSelect();
         }
     }
 
@@ -133,34 +172,6 @@ export class Transformer {
         if (e.key === "Shift") {
             this._shifted = false;
         }
-    }
-
-    public _isClicked(): boolean {
-        const mouseVector = this._render.mousePositionRelative();
-        const { x, y, width, height } = this._dimension();
-        
-        const transformerX = x - this.padding;
-        const transformerY = y - this.padding;
-        const transformerWidth = width + this.padding * 2;
-        const transformerHeight = height + this.padding * 2;
-        
-        const isInTransformerArea = mouseVector.x >= transformerX && 
-                                   mouseVector.x <= transformerX + transformerWidth && 
-                                   mouseVector.y >= transformerY && 
-                                   mouseVector.y <= transformerY + transformerHeight;
-        
-        const radius = 10;
-        const isInBoundary = Object.values(this._boundarys).some(boundary => {
-            const rx = transformerX + boundary.x * transformerWidth - radius / 2;
-            const ry = transformerY + boundary.y * transformerHeight - radius / 2;
-            
-            return mouseVector.x >= rx && 
-                   mouseVector.x <= rx + radius && 
-                   mouseVector.y >= ry && 
-                   mouseVector.y <= ry + radius;
-        });
-        
-        return isInTransformerArea || isInBoundary;
     }
 
     private _dimension(): { width: number, height: number, x: number, y: number } {
@@ -228,6 +239,131 @@ export class Transformer {
             this._ctx.fill();
             this._ctx.closePath();
         })
+    }
+
+    private _getClickedHandle(): TransformerBounds | null {
+        const mouseVector = this._render.mousePositionRelative();
+        const { x, y, width, height } = this._dimension();
+        
+        const transformerX = x - this.padding;
+        const transformerY = y - this.padding;
+        const transformerWidth = width + this.padding * 2;
+        const transformerHeight = height + this.padding * 2;
+        
+        const radius = 10;
+        
+        for (const [key, boundary] of Object.entries(this._boundarys)) {
+            const rx = transformerX + boundary.x * transformerWidth - radius / 2;
+            const ry = transformerY + boundary.y * transformerHeight - radius / 2;
+            
+            if (mouseVector.x >= rx && 
+                mouseVector.x <= rx + radius && 
+                mouseVector.y >= ry && 
+                mouseVector.y <= ry + radius) {
+                return key as TransformerBounds;
+            }
+        }
+        
+        return null;
+    }
+
+    private _saveInitialNodeStates(): void {
+        this._initialNodeStates = this._nodes.map(node => {
+            const state: any = {
+                position: new Vector(node.position.x, node.position.y)
+            };
+
+            if (node instanceof Rect) {
+                state.width = node.width;
+                state.height = node.height;
+            } else if (node instanceof Circle) {
+                state.radius = node.radius;
+            } else if (node instanceof Sprite) {
+                state.scale = node.scale || 1;
+            }
+
+            return state;
+        });
+    }
+
+    private _performResize(currentMouse: Vector): void {
+        if (!this._resizeStart || !this._resizeHandle || !this._initialDimensions || this._initialNodeStates.length === 0) return;
+
+        const delta = currentMouse.sub(this._resizeStart);
+        const { x: initialX, y: initialY, width: initialWidth, height: initialHeight } = this._initialDimensions;
+
+        let newX = initialX;
+        let newY = initialY;
+        let newWidth = initialWidth;
+        let newHeight = initialHeight;
+
+        switch (this._resizeHandle) {
+            case "top-left":
+                newX = initialX + delta.x;
+                newY = initialY + delta.y;
+                newWidth = initialWidth - delta.x;
+                newHeight = initialHeight - delta.y;
+                break;
+            case "top-right":
+                newY = initialY + delta.y;
+                newWidth = initialWidth + delta.x;
+                newHeight = initialHeight - delta.y;
+                break;
+            case "bottom-left":
+                newX = initialX + delta.x;
+                newWidth = initialWidth - delta.x;
+                newHeight = initialHeight + delta.y;
+                break;
+            case "bottom-right":
+                newWidth = initialWidth + delta.x;
+                newHeight = initialHeight + delta.y;
+                break;
+        }
+
+        if (newWidth < 20 || newHeight < 20) return;
+
+        const scaleX = newWidth / initialWidth;
+        const scaleY = newHeight / initialHeight;
+
+        this._nodes.forEach((node, index) => {
+            const initialState = this._initialNodeStates[index];
+            if (!initialState) return;
+
+            const relativeX = (initialState.position.x - initialX) / initialWidth;
+            const relativeY = (initialState.position.y - initialY) / initialHeight;
+
+            node.position.x = newX + relativeX * newWidth;
+            node.position.y = newY + relativeY * newHeight;
+
+            if (node instanceof Rect && initialState.width !== undefined && initialState.height !== undefined) {
+                const nodeRelativeWidth = initialState.width / initialWidth;
+                const nodeRelativeHeight = initialState.height / initialHeight;
+                node.width = nodeRelativeWidth * newWidth;
+                node.height = nodeRelativeHeight * newHeight;
+            } else if (node instanceof Circle && initialState.radius !== undefined) {
+                const nodeRelativeRadius = initialState.radius / Math.min(initialWidth, initialHeight);
+                node.radius = nodeRelativeRadius * Math.min(newWidth, newHeight);
+            } else if (node instanceof Sprite && initialState.scale !== undefined) {
+                node.scale = initialState.scale * Math.min(scaleX, scaleY);
+            }
+        });
+    }
+
+    public _isClicked(): boolean {
+        const mouseVector = this._render.mousePositionRelative();
+        const { x, y, width, height } = this._dimension();
+        
+        const transformerX = x - this.padding;
+        const transformerY = y - this.padding;
+        const transformerWidth = width + this.padding * 2;
+        const transformerHeight = height + this.padding * 2;
+        
+        const isInTransformerArea = mouseVector.x >= transformerX && 
+                                   mouseVector.x <= transformerX + transformerWidth && 
+                                   mouseVector.y >= transformerY && 
+                                   mouseVector.y <= transformerY + transformerHeight;
+        
+        return isInTransformerArea;
     }
 
     public get id(): string {

@@ -31,6 +31,7 @@ export class Render {
     private _boundary: Rect | null = null;
     private _boundaryStart: Vector | null = null;
     private _isSelecting: boolean = false;
+    private _allowSelect: boolean = true;
 
     private _fps: number = 0;
     private _lastFrameTime: number = performance.now();
@@ -71,7 +72,7 @@ export class Render {
 
     private boundary(): void {
         this.on("mousedown", (args) => {
-            if (!(args.target instanceof Render)) return;
+            if (!(args.target instanceof Render) || !this._allowSelect) return;
 
             this._isSelecting = true;
             this._boundaryStart = args.pointer.relative;
@@ -89,7 +90,7 @@ export class Render {
         });
 
         this.on("mousemove", (args) => {
-            if (!this._isSelecting || !this._boundaryStart || !this._boundary) return;
+            if (!this._isSelecting || !this._boundaryStart || !this._boundary || !this._allowSelect) return;
 
             const startX = this._boundaryStart.x;
             const startY = this._boundaryStart.y;
@@ -108,7 +109,7 @@ export class Render {
         });
 
         this.on("mouseup", () => {
-            if (!this._isSelecting || !this._boundary || !this._transformer) return;
+            if (!this._isSelecting || !this._boundary || !this._transformer || !this._allowSelect) return;
 
             const selectedNodes = this._getNodesInBoundary();
             
@@ -187,10 +188,6 @@ export class Render {
         this._target = [...this.childrens.values()].sort((a, b) => b.zIndex - a.zIndex)
             .find((child) => child._isClicked()) ?? this;
 
-        if (this._transformer?._isClicked()) {
-            this._target = this._transformer as unknown as Shape;
-        }
-            
         if (this._target instanceof Shape) {
             this._dragging = true;
             this._dragTarget = this._target;
@@ -303,6 +300,28 @@ export class Render {
         this._frameId = requestAnimationFrame(this._renderBind);
     }
 
+    public _enableSelect() : Render {
+        this._allowSelect = true;
+        return this;
+    }
+
+    public _disableSelect() : Render {
+        this._allowSelect = false;
+        return this;
+    }
+
+    public _cancelSelect() : Render {
+        if (this._isSelecting && this._boundary) {
+            this._boundary.destroy();
+            this._boundary = null;
+        }
+        
+        this._isSelecting = false;
+        this._boundaryStart = null;
+        this._allowSelect = false;
+        return this;
+    }
+
     public mousePositionAbsolute() : Vector {
         const { left, top } = this.canvas.getBoundingClientRect();
         return this.creator.Vector(this._mouseVector.x + left, this._mouseVector.y + top);
@@ -312,24 +331,28 @@ export class Render {
         return this._mouseVector;
     }
 
-    public on(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : void {
+    public on(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : Render {
         this._events.on(event, callback);
+        return this;
     }
 
-    public off(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : void {
+    public off(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : Render {
         this._events.off(event, callback);
+        return this;
     }
 
-    public start() : void {
-        if (this._frameId) return;
+    public start() : Render {
+        if (this._frameId) return this;
         this._frameId = requestAnimationFrame(this._renderBind);
+        return this;
     }
 
-    public stop() : void {
+    public stop() : Render {
         if (this._frameId) {
             cancelAnimationFrame(this._frameId);
             this._frameId = null;
         }
+        return this;
     }
 
     public destroy() : void {

@@ -30,7 +30,6 @@ export class Sprite extends Shape {
     private _debugged: boolean = false;
     private _loading: boolean = true;
     private _frameIndex: number = 0;
-    private _frameTime: number = 0;
     private _frameDuration: number = 60;
     
     private static _globalTime: number = 0;
@@ -141,6 +140,15 @@ export class Sprite extends Shape {
             }, 1000);
         };
     }
+    
+    private static _updateGlobalTime() : void {
+        const now = performance.now();
+        if (now - Sprite._lastGlobalUpdate > 16) {
+            Sprite._globalTime = now;
+            Sprite._lastGlobalUpdate = now;
+        }
+    }
+
 
     public getWidth(): number {
         return this._getWidthFrame();
@@ -193,20 +201,10 @@ export class Sprite extends Shape {
         return this._debugged;
     }
 
-    private static updateGlobalTime(): void {
-        const now = performance.now();
-        if (now - Sprite._lastGlobalUpdate > 16) {
-            Sprite._globalTime = now;
-            Sprite._lastGlobalUpdate = now;
-        }
-    }
-
     public draw(): void {
         if (!this._running || !this.visible) return;
 
-        Sprite.updateGlobalTime();
-
-        console.log(this._frameIndex, this.endFrame);
+        Sprite._updateGlobalTime();
 
         if (this.endFrame == -1) {
             this.endFrame = this.spriteGrid.rows * this.spriteGrid.cols - 1;

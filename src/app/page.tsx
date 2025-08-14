@@ -36,6 +36,7 @@ export default function Home() {
     const circle = render.creator.Circle({
       position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
       radius: 50,
+      zIndex: 2,
       dragging: true
     });
 
@@ -45,7 +46,7 @@ export default function Home() {
       height: 100,
       rotation: 0,
       dragging: true
-    });
+    })
 
     console.log(tr, circle, rect);
   }, [render]);
