@@ -20,9 +20,9 @@ export default function FloatingToolbar({
     src: '',
     rows: 1,
     cols: 1,
-    scale: 1,
-    speed: 1,
-    loop: true,
+    ignoreFrames: '',
+    startFrame: 0,
+    endFrame: -1,
     x: 100,
     y: 100
   });
@@ -57,14 +57,31 @@ export default function FloatingToolbar({
       alert('Please provide an image source');
       return;
     }
+
+    const ignoreFrames: number[] = [];
+
+    const ignoreFramesSplited = spriteForm.ignoreFrames.trim().split(",");
+    ignoreFramesSplited.forEach((frame) => {
+      const frameFormatted = Number(frame);
+      if (!isNaN(frameFormatted)) {
+        ignoreFrames.push(frameFormatted);
+      }
+
+      if (frame.includes(":")) {
+        const [start, end] = frame.split(":").map(Number);
+        for (let i = start; i <= end; i++) {
+          ignoreFrames.push(i);
+        }
+      }
+    });
     
     onCreateSprite({
       position: new Vector(spriteForm.x, spriteForm.y),
       src: spriteForm.src,
       spriteGrid: { rows: spriteForm.rows, cols: spriteForm.cols },
-      scale: spriteForm.scale,
-      speed: spriteForm.speed,
-      loop: spriteForm.loop,
+      ignoreFrames,
+      startFrame: spriteForm.startFrame,
+      endFrame: spriteForm.endFrame,
       dragging: true
     });
     setActiveDropdown(null);
@@ -141,38 +158,31 @@ export default function FloatingToolbar({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Scale</label>
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Ignore Frames</label>
             <input
-              type="number"
-              min="0.1"
-              step="0.1"
-              value={spriteForm.scale}
-              onChange={(e) => setSpriteForm({...spriteForm, scale: parseFloat(e.target.value) || 1})}
+              type="text"
+              placeholder="Example: 0, 1, 2"
+              value={spriteForm.ignoreFrames}
+              onChange={(e) => setSpriteForm({...spriteForm, ignoreFrames: e.target.value})}
               className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Speed</label>
-            <input
-              type="number"
-              min="0.1"
-              step="0.1"
-              value={spriteForm.speed}
-              onChange={(e) => setSpriteForm({...spriteForm, speed: parseFloat(e.target.value) || 1})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-        </div>
 
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="loop"
-            checked={spriteForm.loop}
-            onChange={(e) => setSpriteForm({...spriteForm, loop: e.target.checked})}
-            className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 dark:focus:ring-purple-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-          />
-          <label htmlFor="loop" className="ml-2 text-xs font-medium text-gray-700 dark:text-gray-300">Loop Animation</label>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Start/End Frame</label>
+            <input
+              type="text"
+              placeholder="Example: 0:10"
+              value={spriteForm.startFrame + ":" + (spriteForm.endFrame === -1 ? "" : spriteForm.endFrame)}
+              onChange={(e) => {
+                const parts = e.target.value.split(":");
+                const startFrame = parts[0] ? (isNaN(Number(parts[0])) ? 0 : Number(parts[0])) : 0;
+                const endFrame = parts[1] ? (isNaN(Number(parts[1])) ? -1 : Number(parts[1])) : -1;
+                setSpriteForm({...spriteForm, startFrame, endFrame});
+              }}
+              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+          </div>
         </div>
 
         <button

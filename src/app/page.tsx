@@ -25,8 +25,8 @@ export default function Home() {
     for (let i = 0; i < 1; i++) {
       const sprite = render.creator.Sprite({
         position: render.creator.Vector(Utils.randomInt(0, render.canvas.width - 200), Utils.randomInt(0, render.canvas.height - 200)),
-        src: "/Animations/Ground_Slam.png",
-        spriteGrid: { rows: 1, cols: 12 },
+        src: "/Animations/Explosive_Strike.png",
+        spriteGrid: { rows: 1, cols: 9 },
         dragging: true
       }).setDebug(true);
 

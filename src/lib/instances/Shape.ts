@@ -11,6 +11,7 @@ export interface ShapeProps {
     zIndex?: number;
     mask?: boolean;
     rotation?: number;
+    visible?: boolean;
 }
 
 export abstract class Shape {
@@ -24,6 +25,7 @@ export abstract class Shape {
     public mask: boolean;
     public rotation: number;
     public dragging: boolean;
+    public visible: boolean;
     
     public manager: ShapeManager;
 
@@ -35,6 +37,7 @@ export abstract class Shape {
         this._id = uuidv4();
         this.manager = new ShapeManager(this);
         this.dragging = props.dragging ?? false;
+        this.visible = props.visible ?? true;
 
         this._render = render;
         this._render.manager.addChild(this);
@@ -42,6 +45,7 @@ export abstract class Shape {
     }
 
     public abstract _isClicked() : boolean;
+    public abstract _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean;
     public abstract _mask() : void;
 
     public get id() : string {

@@ -1,5 +1,6 @@
 import { Shape, ShapeProps } from "../Shape";
 import { Render } from "../../Render";
+import { Vector } from "@/lib/common/Vector";
 
 export interface CircleProps extends ShapeProps {
     radius: number;
@@ -20,6 +21,7 @@ export class Circle extends Shape {
     }
 
     public draw() : void {
+        if (!this.visible) return;
         this._ctx.beginPath();
         this._ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
         this._ctx.fillStyle = this.color;
@@ -34,6 +36,18 @@ export class Circle extends Shape {
     public update() : void {
         super.update();
         this.draw();
+    }
+
+    public _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean {
+        const shapeX = this.position.x - this.radius;
+        const shapeY = this.position.y - this.radius;
+        const shapeWidth = this.radius * 2;
+        const shapeHeight = this.radius * 2;
+        
+        return !(shapeX + shapeWidth < boundaryX || 
+            shapeX > boundaryX + boundaryWidth ||
+            shapeY + shapeHeight < boundaryY || 
+            shapeY > boundaryY + boundaryHeight);
     }
 
     public _isClicked() : boolean {

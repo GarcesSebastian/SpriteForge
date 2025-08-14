@@ -5,6 +5,8 @@ export interface RectProps extends ShapeProps {
     width: number;
     height: number;
     color?: string;
+    borderWidth?: number;
+    borderColor?: string;
 }
 
 export class Rect extends Shape {
@@ -13,6 +15,8 @@ export class Rect extends Shape {
     public width: number;
     public height: number;
     public color: string;
+    public borderWidth: number;
+    public borderColor: string;
 
     public constructor(props: RectProps, render: Render) {
         super(props, render);
@@ -20,6 +24,15 @@ export class Rect extends Shape {
         this.width = props.width;
         this.height = props.height;
         this.color = props.color ?? "white";
+        this.borderWidth = props.borderWidth ?? 0;
+        this.borderColor = props.borderColor ?? "transparent";
+    }
+
+    public _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean {
+        return !(this.position.x + this.width < boundaryX || 
+            this.position.x > boundaryX + boundaryWidth ||
+            this.position.y + this.height < boundaryY || 
+            this.position.y > boundaryY + boundaryHeight);
     }
 
     public _isClicked() : boolean {
@@ -52,14 +65,22 @@ export class Rect extends Shape {
     }
 
     public draw(): void {
+        if (!this.visible) return;
         this._ctx.save();
         this._ctx.translate(this.position.x, this.position.y);
         this._ctx.rotate(this.rotation);
+
         this._ctx.beginPath();
+
         this._ctx.rect(0, 0, this.width, this.height);
         this._ctx.fillStyle = this.color;
         this._ctx.fill();
+        this._ctx.lineWidth = this.borderWidth;
+        this._ctx.strokeStyle = this.borderColor;
+        this._ctx.stroke();
+
         this._ctx.closePath();
+
         this._ctx.restore();
     }
 

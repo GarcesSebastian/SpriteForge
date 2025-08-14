@@ -36,6 +36,8 @@ export class Render {
     private _lastFrameTime: number = performance.now();
     private _frameCount: number = 0;
     
+    public _selectedNodes: Shape[] = [];
+
     public creator: RenderCreator;
     public manager: RenderManager;
 
@@ -59,23 +61,31 @@ export class Render {
         this.boundary();
     }
 
+    private events() : void {
+        window.addEventListener("resize", this._resizeBind);
+        window.addEventListener("click", this._onClickedBind);
+        window.addEventListener("mousemove", this._onMouseMoveBind);
+        window.addEventListener("mousedown", this._onMouseDownBind);
+        window.addEventListener("mouseup", this._onMouseUpBind);
+    }
+
     private boundary(): void {
         this.on("mousedown", (args) => {
-            if (args.target === this) {
-                this._isSelecting = true;
-                this._boundaryStart = args.pointer.relative;
-                
-                this._boundary = this.creator.Rect({
-                    position: this.creator.Vector(args.pointer.relative.x, args.pointer.relative.y),
-                    width: 0,
-                    height: 0,
-                    color: "rgba(0, 123, 255, 0.2)",
-                    zIndex: 1000
-                });
-                
-                this._boundary.mask = false;
-                this._boundary.dragging = false;
-            }
+            if (!(args.target instanceof Render)) return;
+
+            this._isSelecting = true;
+            this._boundaryStart = args.pointer.relative;
+            
+            this._boundary = this.creator.Rect({
+                position: this.creator.Vector(args.pointer.relative.x, args.pointer.relative.y),
+                width: 0,
+                height: 0,
+                color: "rgba(0, 123, 255, 0.2)",
+                zIndex: 1000
+            });
+            
+            this._boundary.mask = false;
+            this._boundary.dragging = false;
         });
 
         this.on("mousemove", (args) => {
@@ -103,14 +113,7 @@ export class Render {
             const selectedNodes = this._getNodesInBoundary();
             
             if (selectedNodes.length > 0) {
-                this._transformer?.clear();
-                
-                selectedNodes.forEach(node => {
-                    this._transformer?.add(node);
-                });
-
-                console.log(selectedNodes);
-                console.log(this._transformer);
+                this._selectedNodes = selectedNodes;
             }
 
             if (this._boundary) {
@@ -123,60 +126,10 @@ export class Render {
         });
     }
 
-    private _getNodesInBoundary(): Shape[] {
-        if (!this._boundary) return [];
-
-        const boundaryX = this._boundary.position.x;
-        const boundaryY = this._boundary.position.y;
-        const boundaryWidth = this._boundary.width;
-        const boundaryHeight = this._boundary.height;
-
-        return [...this.childrens.values()].filter(shape => {
-            if (shape === this._boundary) return false;
-
-            return this._isShapeInBoundary(shape, boundaryX, boundaryY, boundaryWidth, boundaryHeight);
-        });
-    }
-
-    private _isShapeInBoundary(shape: Shape, boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean {
-        let shapeX = shape.position.x;
-        let shapeY = shape.position.y;
-        let shapeWidth = 0;
-        let shapeHeight = 0;
-
-        if (shape instanceof Rect) {
-            shapeWidth = shape.width;
-            shapeHeight = shape.height;
-        } else if (shape.constructor.name === 'Circle') {
-            const circle = shape as any;
-            shapeX = circle.position.x - circle.radius;
-            shapeY = circle.position.y - circle.radius;
-            shapeWidth = circle.radius * 2;
-            shapeHeight = circle.radius * 2;
-        } else if (shape.constructor.name === 'Sprite') {
-            const sprite = shape as any;
-            shapeWidth = sprite.getWidth();
-            shapeHeight = sprite.getHeight();
-        }
-
-        return !(shapeX + shapeWidth < boundaryX || 
-                 shapeX > boundaryX + boundaryWidth ||
-                 shapeY + shapeHeight < boundaryY || 
-                 shapeY > boundaryY + boundaryHeight);
-    }
-
     private resize(): void {
         const rect = this.canvas.getBoundingClientRect();
         this.canvas.width = rect.width;
         this.canvas.height = rect.height;
-    }
-
-    private events() : void {
-        window.addEventListener("resize", this._resizeBind);
-        window.addEventListener("click", this._onClickedBind);
-        window.addEventListener("mousemove", this._onMouseMoveBind);
-        window.addEventListener("mousedown", this._onMouseDownBind);
-        window.addEventListener("mouseup", this._onMouseUpBind);
     }
 
     private _onMouseMove(event: MouseEvent) : void {
@@ -208,6 +161,9 @@ export class Render {
         const x = clientX - left;
         const y = clientY - top;
 
+        const { target } = event;
+        
+        if (target !== this.canvas) return;
         if (x < 0 || x > width || y < 0 || y > height) return;
 
         this._target = [...this.childrens.values()].sort((a, b) => b.zIndex - a.zIndex)
@@ -228,29 +184,31 @@ export class Render {
 
         if (x < 0 || x > width || y < 0 || y > height) return;
 
-        const draggableTarget = [...this.childrens.values()]
-            .filter(child => child.dragging)
-            .sort((a, b) => b.zIndex - a.zIndex)
-            .find((child) => child._isClicked());
+        this._target = [...this.childrens.values()].sort((a, b) => b.zIndex - a.zIndex)
+            .find((child) => child._isClicked()) ?? this;
+
+        if (this._transformer?._isClicked()) {
+            this._target = this._transformer as unknown as Shape;
+        }
             
-        if (draggableTarget) {
+        if (this._target instanceof Shape) {
             this._dragging = true;
-            this._dragTarget = draggableTarget;
+            this._dragTarget = this._target;
             const mouseVector = this.creator.Vector(x, y);
-            this._dragStart = mouseVector.sub(draggableTarget.position);
+            this._dragStart = mouseVector.sub(this._target.position);
             
             const args = {
                 pointer: {
                     absolute: this.creator.Vector(clientX, clientY),
                     relative: mouseVector
                 },
-                target: draggableTarget
+                target: this._target
             };
             
-            draggableTarget.emit("dragstart", args);
+            this._target.emit("dragstart", args);
         }
 
-        this._events.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: draggableTarget ?? this });
+        this._events.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
     }
     
     private _onMouseUp(event: MouseEvent) : void {
@@ -276,7 +234,16 @@ export class Render {
         const { clientX, clientY } = event;
         const { left, top } = this.canvas.getBoundingClientRect();
         
-        this._events.emit("mouseup", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target ?? this });
+        this._events.emit("mouseup", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
+    }
+
+    private _getNodesInBoundary(): Shape[] {
+        if (!this._boundary) return [];
+
+        return [...this.childrens.values()].filter(shape => {
+            if (shape === this._boundary) return false;
+            return shape._isShapeInBoundary(this._boundary!.position.x, this._boundary!.position.y, this._boundary!.width, this._boundary!.height);
+        });
     }
 
     private _updateFps() : void {

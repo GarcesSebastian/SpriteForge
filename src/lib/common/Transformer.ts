@@ -1,5 +1,5 @@
 import { Render } from "../Render";
-import { RenderEvents } from "../helpers/Render.events";
+import { RenderEvents, RenderEventsProps } from "../helpers/Render.events";
 import { Shape } from "../instances/Shape";
 import { Circle } from "../instances/_shapes/Circle";
 import { Rect } from "../instances/_shapes/Rect";
@@ -38,46 +38,89 @@ export class Transformer {
         this._events = new RenderEvents();
 
         this.events();
-        this.setup();
-    }
-
-    private setup(): void {
-        this._render.on("click", (args) => {
-            if (this._justFinishedDrag) {
-                this._justFinishedDrag = false;
-                return;
-            }
-
-            if (args.target instanceof Render) {
-                this.clear();
-            }
-
-            if (args.target instanceof Shape) {
-                if (!this._shifted) {
-                    this.clear();
-                }
-
-                this.add(args.target);
-            }
-        })
-
-        this._render.on("mousedown", (args) => {
-            if (args.target instanceof Shape) {
-                if (!this._shifted) {
-                    this.clear();
-                }
-
-                this.add(args.target);
-            }
-        })
     }
 
     private events(): void {
-        window.addEventListener("mousedown", this._onMouseDown.bind(this));
-        window.addEventListener("mousemove", this._onMouseMove.bind(this));
-        window.addEventListener("mouseup", this._onMouseUp.bind(this));
+        this._render.on("click", this._onClickedTr.bind(this));
+        this._render.on("mousedown", this._onMouseDownTr.bind(this));
+        this._render.on("mousemove", this._onMouseMoveTr.bind(this));
+        this._render.on("mouseup", this._onMouseUpTr.bind(this));
+
         window.addEventListener("keydown", this._onKeyDown.bind(this));
         window.addEventListener("keyup", this._onKeyUp.bind(this));
+    }
+
+    private _onClickedTr(args: RenderEventsProps): void {
+        if (this._justFinishedDrag) {
+            this._justFinishedDrag = false;
+            return;
+        }
+
+        if (args.target instanceof Render) {
+            this.clear();
+        }
+
+        if (this._render._selectedNodes.length > 0) {
+            this.clear();
+            this.list([...this._render._selectedNodes]);
+            this._render._selectedNodes = [];
+        }
+
+        if (args.target instanceof Shape) {
+            if (!this._shifted) {
+                this.clear();
+            }
+
+            this.add(args.target);
+        }
+    }
+
+    private _onMouseDownTr(args: RenderEventsProps): void {
+        if (args.target instanceof Shape) {
+            const targetShape = args.target as Shape;
+            const isNodeInTransformer = this._nodes.some(node => node.id === targetShape.id);
+            
+            if (!this._shifted && !isNodeInTransformer) {
+                this.clear();
+            }
+
+            if (!isNodeInTransformer) {
+                this.add(targetShape);
+            }
+            
+            if (isNodeInTransformer || this._nodes.length > 0) {
+                this._isDragging = true;
+                this._dragStart = args.pointer.relative;
+            }
+        }
+
+        if (args.target instanceof Transformer) {
+            this._isDragging = true;
+            this._dragStart = args.pointer.relative;
+        }
+    }
+
+    private _onMouseMoveTr(args: RenderEventsProps): void {
+        if (this._isDragging) {
+            const mouseVector = args.pointer.relative;
+            const delta = mouseVector.sub(this._dragStart!);
+            this._dragStart = mouseVector;
+
+            this._nodes.forEach(node => {
+                node.position.x += delta.x;
+                node.position.y += delta.y;
+            });
+
+            this._events.emit("trmove", { pointer: { absolute: this._render.mousePositionAbsolute(), relative: this._render.mousePositionRelative() }, target: this._render });
+        }
+    }
+
+    private _onMouseUpTr(args: RenderEventsProps): void {
+        if (this._isDragging) {
+            this._isDragging = false;
+            this._dragStart = null;
+            this._justFinishedDrag = true;
+        }
     }
 
     private _onKeyDown(e: KeyboardEvent): void {
@@ -92,7 +135,7 @@ export class Transformer {
         }
     }
 
-    private _isClicked(): boolean {
+    public _isClicked(): boolean {
         const mouseVector = this._render.mousePositionRelative();
         const { x, y, width, height } = this._dimension();
         
@@ -118,34 +161,6 @@ export class Transformer {
         });
         
         return isInTransformerArea || isInBoundary;
-    }
-
-    private _onMouseDown(): void {
-        if (!this._isClicked()) return;
-        this._isDragging = true;
-        this._dragStart = this._render.mousePositionRelative();
-    }
-
-    private _onMouseMove(): void {
-        if (!this._isDragging) return;
-        const mouseVector = this._render.mousePositionRelative();
-        const delta = mouseVector.sub(this._dragStart!);
-        this._dragStart = mouseVector;
-
-        this._nodes.forEach(node => {
-            node.position.x += delta.x;
-            node.position.y += delta.y;
-        });
-
-        this._events.emit("trmove", { pointer: { absolute: this._render.mousePositionAbsolute(), relative: this._render.mousePositionRelative() }, target: this._render });
-    }
-
-    private _onMouseUp(): void {
-        if (this._isDragging) {
-            this._justFinishedDrag = true;
-        }
-        this._isDragging = false;
-        this._dragStart = null;
     }
 
     private _dimension(): { width: number, height: number, x: number, y: number } {
@@ -219,9 +234,18 @@ export class Transformer {
         return this._id;
     }
 
+    public get nodes(): Shape[] {
+        return this._nodes;
+    }
+
     public add(node: Shape) : Transformer {
         this._nodes.push(node);
         node.dragging = false;
+        return this;
+    }
+
+    public list(nodes: Shape[]) : Transformer {
+        this._nodes = nodes;
         return this;
     }
 

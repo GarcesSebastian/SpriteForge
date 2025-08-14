@@ -10,6 +10,8 @@ export interface SpriteProps extends ShapeProps {
     src: string;
     spriteGrid: SpriteGrid;
     ignoreFrames?: number[]; 
+    startFrame?: number;
+    endFrame?: number;
     scale?: number;
     speed?: number;
     loop?: boolean;
@@ -43,6 +45,8 @@ export class Sprite extends Shape {
     public scale: number | undefined;
     public spriteGrid: SpriteGrid;
     public ignoreFrames: number[];
+    public startFrame: number;
+    public endFrame: number;
     public speed: number | undefined;
     public loop: boolean | undefined;
 
@@ -52,6 +56,8 @@ export class Sprite extends Shape {
         this.src = props.src;
         this.spriteGrid = props.spriteGrid ?? { rows: 1, cols: 1 };
         this.ignoreFrames = props.ignoreFrames ?? [];
+        this.startFrame = props.startFrame ?? 0;
+        this.endFrame = props.endFrame ?? this.spriteGrid.rows * this.spriteGrid.cols - 1;
         this.speed = props.speed ?? 1;
         this.loop = props.loop ?? true;
 
@@ -70,6 +76,16 @@ export class Sprite extends Shape {
 
     private _getSpeed() : number {
         return this.speed ?? 1;
+    }
+
+    public _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean {
+        const spriteWidth = this._getWidthFrame();
+        const spriteHeight = this._getHeightFrame();
+
+        return !(this.position.x + spriteWidth < boundaryX || 
+            this.position.x > boundaryX + boundaryWidth ||
+            this.position.y + spriteHeight < boundaryY || 
+            this.position.y > boundaryY + boundaryHeight);
     }
 
     public _isClicked() : boolean {
@@ -186,15 +202,21 @@ export class Sprite extends Shape {
     }
 
     public draw(): void {
-        if (!this._running) return;
+        if (!this._running || !this.visible) return;
 
         Sprite.updateGlobalTime();
+
+        console.log(this._frameIndex, this.endFrame);
+
+        if (this.endFrame == -1) {
+            this.endFrame = this.spriteGrid.rows * this.spriteGrid.cols - 1;
+        }
 
         if (this.ignoreFrames.length > 0) {
             while (this.ignoreFrames.includes(this._frameIndex)) {
                 this._frameIndex++;
-                if (this._frameIndex >= this.spriteGrid.rows * this.spriteGrid.cols) {
-                    this._frameIndex = 0;
+                if (this._frameIndex > this.endFrame) {
+                    this._frameIndex = this.startFrame;
                     break;
                 }
             }
@@ -245,9 +267,9 @@ export class Sprite extends Shape {
             this._frameIndex++;
             this._debugTextDirty = true;
 
-            if (this._frameIndex >= this.spriteGrid.cols * this.spriteGrid.rows) {
+            if (this._frameIndex > this.endFrame) {
                 if (!this.loop) this._paused = true;
-                this._frameIndex = 0;
+                this._frameIndex = this.startFrame;
             }
         }
     }
