@@ -308,6 +308,14 @@ export class Render {
         return this;
     }
 
+    public offCreate(callback: (args: { shape: Shape }) => void) : Render {
+        const index = this._createEvents.indexOf(callback);
+        if (index > -1) {
+            this._createEvents.splice(index, 1);
+        }
+        return this;
+    }
+
     public _enableSelect() : Render {
         this._allowSelect = true;
         return this;

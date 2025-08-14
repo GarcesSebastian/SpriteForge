@@ -6,6 +6,7 @@ import { Sprite, SpriteProps } from "@/lib/instances/_shapes/Sprite";
 import TestPanel from "@/components/client/TestPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
 import { Utils } from "@/lib/lib/Utils";
+import { Shape } from "@/lib/instances/Shape";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,17 +21,26 @@ export default function Home() {
   useEffect(() => {
     if (!render) return;
 
-    render.onCreate((args) => {
-      console.log("Created Shape", args)
-    })
+    const onCreateCallback = (args: { shape: Shape }) => {
+      if (args.shape instanceof Sprite) {
+        setSprites((prev) => [...prev, args.shape as unknown as Sprite]);
+      }
+    };
 
+    render.onCreate(onCreateCallback);
+
+    return () => {
+      render.offCreate(onCreateCallback);
+    };
+  }, [render]);
+
+  useEffect(() => {
     sprites.forEach(sprite => {
       sprite.onDestroy(() => {
         setSprites((prev) => prev.filter(s => s.id !== sprite.id));
       })
     });
-    
-  }, [render, sprites]);
+  }, [sprites]);
 
   useEffect(() => {
     if (!render) return;
@@ -38,14 +48,12 @@ export default function Home() {
     const tr = render.creator.Transformer();
 
     for (let i = 0; i < 1; i++) {
-      const sprite = render.creator.Sprite({
+      render.creator.Sprite({
         position: render.creator.Vector(Utils.randomInt(0, render.canvas.width - 200), Utils.randomInt(0, render.canvas.height - 200)),
         src: "/Animations/Explosive_Strike.png",
         spriteGrid: { rows: 1, cols: 9 },
         dragging: true
       }).setDebug(true);
-
-      setSprites((prev) => [...prev, sprite]);
     }
 
     const circle = render.creator.Circle({
