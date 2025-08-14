@@ -13,9 +13,11 @@ export class Render {
     public childrens: Map<string, Shape> = new Map();
     public _transformer: Transformer | null = null;
 
+    public _events: RenderEvents;
+    public _createEvents: ((args: { shape: Shape }) => void)[] = [];
+
     private _mouseVector: Vector = new Vector(0, 0);
     private _target: Shape | this = this;
-    private _events: RenderEvents;
     private _frameId: number | null = null;
     private _resizeBind: () => void = this.resize.bind(this);
     private _renderBind: () => void = this.render.bind(this);
@@ -55,6 +57,7 @@ export class Render {
     private setup() : void {
         this.config();
         this.events();
+        this.canvas.focus();
     }
 
     private config() : void {
@@ -298,6 +301,11 @@ export class Render {
         this._updateFps();
         this._showFps();
         this._frameId = requestAnimationFrame(this._renderBind);
+    }
+
+    public onCreate(callback: (args: { shape: Shape }) => void) : Render {
+        this._createEvents.push(callback);
+        return this;
     }
 
     public _enableSelect() : Render {

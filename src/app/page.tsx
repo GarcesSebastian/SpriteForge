@@ -20,6 +20,10 @@ export default function Home() {
   useEffect(() => {
     if (!render) return;
 
+    render.onCreate((args) => {
+      console.log("Created Shape", args)
+    })
+
     sprites.forEach(sprite => {
       sprite.onDestroy(() => {
         setSprites((prev) => prev.filter(s => s.id !== sprite.id));

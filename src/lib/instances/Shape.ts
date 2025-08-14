@@ -88,6 +88,8 @@ export abstract class Shape {
         if (this.bodyVelocity) this.bodyVelocity.update();
     }
 
+    public abstract clone() : Shape;
+
     public destroy() : void {
         if (this._destroyEvents && this._destroyEvents.length > 0) {
             this._destroyEvents.forEach(callback => callback());

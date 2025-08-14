@@ -87,4 +87,19 @@ export class Rect extends Shape {
     public update(): void {
         this.draw();
     }
+
+    public clone() : Rect {
+        return this._render.creator.Rect({
+            position: this._render.creator.Vector(this.position.x, this.position.y),
+            width: this.width,
+            height: this.height,
+            color: this.color,
+            borderWidth: this.borderWidth,
+            borderColor: this.borderColor,
+            zIndex: this.zIndex,
+            mask: this.mask,
+            rotation: this.rotation,
+            visible: this.visible
+        });
+    }
 }

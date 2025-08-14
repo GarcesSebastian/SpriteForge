@@ -171,6 +171,30 @@ export class Transformer {
             nodesToDestroy.forEach(node => node.destroy());
             this.clear();
         }
+
+        if (e.ctrlKey && e.key.toLowerCase() === "c") {
+            e.preventDefault();
+            this._nodes.forEach(node => node.mask = !node.mask);
+        }
+
+        if (e.ctrlKey && e.key.toLowerCase() === "d") {
+            e.preventDefault();
+            const nodesCloned = this._nodes.map(node => node.clone());
+            nodesCloned.forEach(node => {
+                if (node instanceof Circle) {
+                    node.position.x += node.radius * 4;
+                }
+
+                if (node instanceof Rect) {
+                    node.position.x += node.width * 2;
+                }
+
+                if (node instanceof Sprite) {
+                    node.position.x += node.getWidth() * 2;
+                }
+            });
+        }
+            
     }
 
     private _onKeyUp(e: KeyboardEvent): void {

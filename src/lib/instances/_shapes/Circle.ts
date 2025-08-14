@@ -55,4 +55,16 @@ export class Circle extends Shape {
         
         return distance <= this.radius;
     }
+
+    public clone() : Circle {
+        return this._render.creator.Circle({
+            position: this._render.creator.Vector(this.position.x, this.position.y),
+            radius: this.radius,
+            color: this.color,
+            zIndex: this.zIndex,
+            mask: this.mask,
+            rotation: this.rotation,
+            visible: this.visible
+        });
+    }
 }

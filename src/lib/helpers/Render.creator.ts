@@ -13,15 +13,21 @@ export class RenderCreator {
     }
     
     public Rect(props: RectProps): _Rect {
-        return new _Rect(props, this._render);
+        const rect = new _Rect(props, this._render);
+        this._render._createEvents.forEach(callback => callback({ shape: rect }));
+        return rect;
     }
 
     public Circle(props: CircleProps): _Circle {
-        return new _Circle(props, this._render);
+        const circle = new _Circle(props, this._render);
+        this._render._createEvents.forEach(callback => callback({ shape: circle }));
+        return circle;
     }
 
     public Sprite(props: SpriteProps): _Sprite {
-        return new _Sprite(props, this._render);
+        const sprite = new _Sprite(props, this._render);
+        this._render._createEvents.forEach(callback => callback({ shape: sprite }));
+        return sprite;
     }
     
     public Vector(x: number, y: number): _Vector {

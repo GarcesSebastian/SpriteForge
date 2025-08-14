@@ -282,4 +282,22 @@ export class Sprite extends Shape {
         super.update();
         this.draw();
     }
+
+    public clone() : Sprite {
+        return this._render.creator.Sprite({
+            position: this._render.creator.Vector(this.position.x, this.position.y),
+            src: this.src,
+            spriteGrid: this.spriteGrid,
+            ignoreFrames: this.ignoreFrames,
+            startFrame: this.startFrame,
+            endFrame: this.endFrame,
+            speed: this.speed,
+            loop: this.loop,
+            scale: this.scale,
+            zIndex: this.zIndex,
+            mask: this.mask,
+            rotation: this.rotation,
+            visible: this.visible
+        });
+    }
 }
