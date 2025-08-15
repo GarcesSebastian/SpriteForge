@@ -11,18 +11,26 @@ interface RenderEventTemplate {
 }
 
 export type RenderEventClick = RenderEventTemplate;
+export type RenderEventTouched = RenderEventTemplate;
 export type RenderEventMouseMove = RenderEventTemplate;
 export type RenderEventMouseDown = RenderEventTemplate;
 export type RenderEventMouseUp = RenderEventTemplate;
+export type RenderEventTouchStart = RenderEventTemplate;
+export type RenderEventTouchMove = RenderEventTemplate;
+export type RenderEventTouchEnd = RenderEventTemplate;
 export interface RenderEventCreate {
     shape: Shape;
 }
 
 export interface RenderEventMap {
     "click": RenderEventClick;
+    "touched": RenderEventTouched;
     "mousemove": RenderEventMouseMove;
     "mousedown": RenderEventMouseDown;
     "mouseup": RenderEventMouseUp;
+    "touchstart": RenderEventTouchStart;
+    "touchmove": RenderEventTouchMove;
+    "touchend": RenderEventTouchEnd;
     "create": RenderEventCreate;
 }
 
@@ -39,9 +47,13 @@ export class RenderProvider {
         [K in RenderEventsType]: ListenerCallback<K>[]
     } = {
         "click": [],
+        "touched": [],
         "mousemove": [],
         "mousedown": [],
         "mouseup": [],
+        "touchstart": [],
+        "touchmove": [],
+        "touchend": [],
         "create": []
     };
 

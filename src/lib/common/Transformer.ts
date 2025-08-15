@@ -5,7 +5,7 @@ import { Rect } from "../instances/_shapes/Rect";
 import { Sprite } from "../instances/_shapes/Sprite";
 import { v4 as uuidv4 } from "uuid";
 import { Vector } from "./Vector";
-import { RenderEventClick, RenderEventMouseDown, RenderEventMouseMove } from "../providers/Render.provider";
+import { RenderEventClick, RenderEventMouseDown, RenderEventMouseMove, RenderEventTouched } from "../providers/Render.provider";
 
 export type TransformerBounds = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
@@ -60,14 +60,20 @@ export class Transformer {
     }
 
     /**
-     * Sets up event listeners for mouse and keyboard interactions
+     * Sets up event listeners for mouse, touch and keyboard interactions
      * @private
      */
     private events(): void {
         this._render.on("click", this._onClickedTr.bind(this));
+        this._render.on("touched", this._onTouchedTr.bind(this));
+
         this._render.on("mousedown", this._onMouseDownTr.bind(this));
         this._render.on("mousemove", this._onMouseMoveTr.bind(this));
         this._render.on("mouseup", this._onMouseUpTr.bind(this));
+
+        this._render.on("touchstart", this._onMouseDownTr.bind(this));
+        this._render.on("touchmove", this._onMouseMoveTr.bind(this));
+        this._render.on("touchend", this._onMouseUpTr.bind(this));
 
         window.addEventListener("keydown", this._onKeyDown.bind(this));
         window.addEventListener("keyup", this._onKeyUp.bind(this));
@@ -79,7 +85,7 @@ export class Transformer {
      * @param args - Click event arguments containing target and pointer information
      * @private
      */
-    private _onClickedTr(args: RenderEventClick): void {
+    private _onClickedTr(args: RenderEventTouched): void {
         if (this._justFinishedDrag) {
             this._justFinishedDrag = false;
             return;
@@ -102,6 +108,11 @@ export class Transformer {
 
             this.add(args.target);
         }
+    }
+
+    private _onTouchedTr(args: RenderEventTouched): void {
+        console.log("Touched");
+        this._onClickedTr(args);
     }
 
     /**
@@ -320,12 +331,12 @@ export class Transformer {
 
     /**
      * Draws the resize handles at the corners of the selection rectangle
-     * Renders interactive corner handles for resizing operations
+     * Renders interactive corner handles for resizing operations with larger touch targets
      * @private
      */
     private _bounds(): void {
         const { width, height, x, y } = this._dimension();
-        const radius = 10;
+        const radius = 15;
         
         const transformerX = x - this.padding;
         const transformerY = y - this.padding;
@@ -339,21 +350,30 @@ export class Transformer {
             const ry = transformerY + boundary.y * transformerHeight - radius / 2;
             
             this._ctx.beginPath();
+            this._ctx.rect(rx - 2.5, ry - 2.5, radius + 5, radius + 5);
+            this._ctx.fillStyle = "transparent";
+            this._ctx.fill();
+            this._ctx.closePath();
+            
+            this._ctx.beginPath();
             this._ctx.rect(rx, ry, radius, radius);
             this._ctx.fillStyle = "red";
             this._ctx.fill();
+            this._ctx.strokeStyle = "white";
+            this._ctx.lineWidth = 2;
+            this._ctx.stroke();
             this._ctx.closePath();
         })
     }
 
     /**
-     * Determines which resize handle (if any) was clicked by the mouse
-     * Tests mouse position against all corner handle positions
+     * Determines which resize handle (if any) was clicked by the mouse or touch
+     * Tests pointer position against all corner handle positions with larger touch targets
      * @returns The clicked handle identifier or null if none clicked
      * @private
      */
     private _getClickedHandle(): TransformerBounds | null {
-        const mouseVector = this._render.mousePositionRelative();
+        const pointerVector = this._render.mousePositionRelative();
         const { x, y, width, height } = this._dimension();
         
         const transformerX = x - this.padding;
@@ -361,16 +381,21 @@ export class Transformer {
         const transformerWidth = width + this.padding * 2;
         const transformerHeight = height + this.padding * 2;
         
-        const radius = 10;
+        const radius = 15;
+        const touchRadius = radius + 5;
         
         for (const [key, boundary] of Object.entries(this._boundarys)) {
             const rx = transformerX + boundary.x * transformerWidth - radius / 2;
             const ry = transformerY + boundary.y * transformerHeight - radius / 2;
             
-            if (mouseVector.x >= rx && 
-                mouseVector.x <= rx + radius && 
-                mouseVector.y >= ry && 
-                mouseVector.y <= ry + radius) {
+            const hitRadius = touchRadius;
+            const hitX = rx - (hitRadius - radius) / 2;
+            const hitY = ry - (hitRadius - radius) / 2;
+            
+            if (pointerVector.x >= hitX && 
+                pointerVector.x <= hitX + hitRadius && 
+                pointerVector.y >= hitY && 
+                pointerVector.y <= hitY + hitRadius) {
                 return key as TransformerBounds;
             }
         }
@@ -473,11 +498,11 @@ export class Transformer {
 
     /**
      * Determines if the transformer area is currently being clicked
-     * Tests if mouse position is within the transformer bounds including padding
+     * Tests if pointer position is within the transformer bounds including padding
      * @returns True if transformer is clicked, false otherwise
      */
     public _isClicked(): boolean {
-        const mouseVector = this._render.mousePositionRelative();
+        const pointerVector = this._render.mousePositionRelative();
         const { x, y, width, height } = this._dimension();
         
         const transformerX = x - this.padding;
@@ -485,10 +510,10 @@ export class Transformer {
         const transformerWidth = width + this.padding * 2;
         const transformerHeight = height + this.padding * 2;
         
-        const isInTransformerArea = mouseVector.x >= transformerX && 
-                                   mouseVector.x <= transformerX + transformerWidth && 
-                                   mouseVector.y >= transformerY && 
-                                   mouseVector.y <= transformerY + transformerHeight;
+        const isInTransformerArea = pointerVector.x >= transformerX && 
+                                   pointerVector.x <= transformerX + transformerWidth && 
+                                   pointerVector.y >= transformerY && 
+                                   pointerVector.y <= transformerY + transformerHeight;
         
         return isInTransformerArea;
     }
