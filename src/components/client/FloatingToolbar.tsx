@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react";
-import { SpriteProps } from "@/lib/instances/_shapes/Sprite";
 import { Vector } from "@/lib/common/Vector";
 import { Button, Input } from "@/components/common";
 
