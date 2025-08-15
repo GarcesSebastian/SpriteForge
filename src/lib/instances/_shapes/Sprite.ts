@@ -189,6 +189,7 @@ export class Sprite extends Shape {
             this._heightFrame = this._height / this.spriteGrid.rows;
             setTimeout(() => {
                 this._loading = false;
+                this.play();
             }, 1000);
         };
     }
@@ -200,7 +201,6 @@ export class Sprite extends Shape {
      * - "5" = frame 5  
      * - "6:12" = frames 6,7,8,9,10,11,12
      * - "22:-1" = frames 22 to end of spritesheet
-     * - "2x8" = frames 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 (2×8=16 frames)
      * - "1(5)" = frames 1,1,1,1,1 (repeat frame 1 five times)
      */
     private _parsePattern(pattern: string[]): number[] {
@@ -217,15 +217,6 @@ export class Sprite extends Shape {
                     for (let i = 0; i < repeatCount; i++) {
                         frames.push(frameNumber);
                     }
-                }
-            } else if (item.includes('x')) {
-                const [rowsStr, colsStr] = item.split('x');
-                const rows = parseInt(rowsStr);
-                const cols = parseInt(colsStr);
-                const totalFrames = rows * cols;
-                
-                for (let i = 1; i <= totalFrames; i++) {
-                    frames.push(i);
                 }
             } else if (item.includes(':')) {
                 const [startStr, endStr] = item.split(':');
@@ -332,6 +323,7 @@ export class Sprite extends Shape {
      */
     public pause(): Sprite {
         this._paused = true;
+        this.emit("pause", { target: this });
         return this;
     }
 
@@ -341,6 +333,7 @@ export class Sprite extends Shape {
      */
     public play(): Sprite {
         this._paused = false;
+        this.emit("play", { target: this });
         return this;
     }
 
@@ -409,7 +402,7 @@ export class Sprite extends Shape {
             this._ctx.strokeRect(0, 0, this._getWidthFrame(), this._getHeightFrame());
             
             if (this._debugTextDirty || Sprite._globalTime - this._lastDebugUpdate > 166) {
-                this._debugText = `F:${this._frameIndex} S:${this._getSpeed()}x`;
+                this._debugText = `F:${actualFrameIndex} S:${this._getSpeed()}x`;
                 this._debugTextDirty = false;
                 this._lastDebugUpdate = Sprite._globalTime;
             }
@@ -438,13 +431,13 @@ export class Sprite extends Shape {
             if (this._processedFrames.length > 0) {
                 this._patternIndex++;
                 if (this._patternIndex >= this._processedFrames.length) {
-                    if (!this.loop) this._paused = true;
+                    if (!this.loop) this.pause();
                     this._patternIndex = 0;
                 }
             } else {
                 this._frameIndex++;
                 if (this._frameIndex > this.endFrame) {
-                    if (!this.loop) this._paused = true;
+                    if (!this.loop) this.pause();
                     this._frameIndex = this.startFrame;
                 }
             }

@@ -15,6 +15,7 @@ interface TestPanelProps {
   onStop: () => void;
   sprites: Sprite[];
   selectedSprites: Sprite[];
+  playingSprites: Sprite[];
   onDeleteSprite: (sprite: Sprite) => void;
 }
 
@@ -24,6 +25,7 @@ export default function TestPanel({
   onStop,
   sprites,
   selectedSprites,
+  playingSprites,
   onDeleteSprite
 }: TestPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -89,7 +91,10 @@ export default function TestPanel({
               </svg>
             }
           >
-            <StatusSection isPlaying={isPlaying} />
+            <StatusSection 
+              isPlaying={isPlaying}
+              playingCount={playingSprites.length}
+            />
           </CollapsibleSection>
 
           <CollapsibleSection 
@@ -104,6 +109,7 @@ export default function TestPanel({
             <SpritesSection
               sprites={sprites}
               selectedSprites={selectedSprites}
+              playingSprites={playingSprites}
               onDeleteSprite={onDeleteSprite}
             />
           </CollapsibleSection>

@@ -16,6 +16,8 @@ export type ShapeEventDrag = ShapeEventTemplate;
 export type ShapeEventDestroy = ShapeEventTemplate;
 export type ShapeEventSelect = ShapeEventTemplate;
 export type ShapeEventDeselect = ShapeEventTemplate;
+export type ShapeEventPlay = { target: Shape };
+export type ShapeEventPause = { target: Shape };
 
 export interface ShapeEventsMap {
     "click": ShapeEventClick;
@@ -25,6 +27,8 @@ export interface ShapeEventsMap {
     "destroy": ShapeEventDestroy;
     "select": ShapeEventSelect;
     "deselect": ShapeEventDeselect;
+    "play": ShapeEventPlay;
+    "pause": ShapeEventPause;
 }
 
 export type ShapeEventsType = keyof ShapeEventsMap;
@@ -45,7 +49,9 @@ export class ShapeProvider {
         "drag": [],
         "destroy": [],
         "select": [],
-        "deselect": []
+        "deselect": [],
+        "play": [],
+        "pause": []
     };
 
     /**

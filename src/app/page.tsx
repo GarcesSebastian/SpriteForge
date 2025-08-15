@@ -1,7 +1,7 @@
 "use client"
 
 import { useApp } from "@/hooks/useApp";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sprite, SpriteProps } from "@/lib/instances/_shapes/Sprite";
 import TestPanel from "@/components/client/TestPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
@@ -13,6 +13,7 @@ export default function Home() {
   const { setup, render, isPlaying, setIsPlaying } = useApp();
   const [sprites, setSprites] = useState<Sprite[]>([]);
   const [selectedSprites, setSelectedSprites] = useState<Sprite[]>([]);
+  const [playingSprites, setPlayingSprites] = useState<Sprite[]>([]);
   const createCallbackRef = useRef<((args: RenderEventCreate) => void) | null>(null);
 
   useEffect(() => {
@@ -27,6 +28,8 @@ export default function Home() {
 
         args.shape.on("select", () => setSelectedSprites((prev) => [...prev, args.shape as unknown as Sprite]));
         args.shape.on("deselect", () => setSelectedSprites((prev) => prev.filter(sprite => sprite.id !== args.shape.id)));
+        args.shape.on("play", () => setPlayingSprites((prev) => [...prev, args.shape as unknown as Sprite]));
+        args.shape.on("pause", () => setPlayingSprites((prev) => prev.filter(sprite => sprite.id !== args.shape.id)));
       }
     };
   }
@@ -123,8 +126,6 @@ export default function Home() {
 
   const handleCreateSprite = (props: SpriteProps) => {
     if (!render) return;
-
-    // Only create the sprite, the onCreate callback will handle adding it to state
     render.creator.Sprite(props);
   };
 
@@ -146,6 +147,7 @@ export default function Home() {
         onStop={handleStop}
         sprites={sprites}
         selectedSprites={selectedSprites}
+        playingSprites={playingSprites}
         onDeleteSprite={handleDeleteSprite}
       />
     </div>
