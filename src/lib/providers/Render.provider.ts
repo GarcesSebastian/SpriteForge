@@ -24,7 +24,7 @@ export interface RenderEventCreate {
 
 export interface RenderEventMap {
     "click": RenderEventClick;
-    "touched": RenderEventTouched;
+    "touch": RenderEventTouched;
     "mousemove": RenderEventMouseMove;
     "mousedown": RenderEventMouseDown;
     "mouseup": RenderEventMouseUp;
@@ -47,7 +47,7 @@ export class RenderProvider {
         [K in RenderEventsType]: ListenerCallback<K>[]
     } = {
         "click": [],
-        "touched": [],
+        "touch": [],
         "mousemove": [],
         "mousedown": [],
         "mouseup": [],

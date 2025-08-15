@@ -42,7 +42,7 @@ export class Sprite extends Shape {
     private _lastDebugUpdate: number = 0;
 
     public src: string;
-    public scale: number | undefined;
+    public scale: number;
     public spriteGrid: SpriteGrid;
     public ignoreFrames: number[];
     public startFrame: number;
@@ -69,13 +69,13 @@ export class Sprite extends Shape {
         this.endFrame = props.endFrame ?? this.spriteGrid.rows * this.spriteGrid.cols - 1;
         this.pattern = props.pattern;
         this.speed = props.speed ?? 1;
+        this.scale = props.scale ?? 1;
         this.loop = props.loop ?? true;
         
         if (this.pattern) {
             this._processedFrames = this._parsePattern(this.pattern);
         }
 
-        this.scale = props.scale;
 
         this._setup();
     }
@@ -86,7 +86,7 @@ export class Sprite extends Shape {
      * @private
      */
     private _getWidthFrame() : number {
-        return this._widthFrame * (this.scale ?? 1);
+        return this._widthFrame * this.scale;
     }
 
     /**
@@ -95,7 +95,7 @@ export class Sprite extends Shape {
      * @private
      */
     private _getHeightFrame() : number {
-        return this._heightFrame * (this.scale ?? 1);
+        return this._heightFrame * this.scale;
     }
 
     /**
@@ -354,6 +354,14 @@ export class Sprite extends Shape {
     }
 
     /**
+     * Gets the current debug state
+     * @returns True if debug mode is enabled, false otherwise
+     */
+    public get debug(): boolean {
+        return this._debugged;
+    }
+
+    /**
      * Renders the current sprite frame to the canvas
      * Handles animation timing, frame progression, pattern sequences,
      * debug visualization, and applies transformations (rotation, position)
@@ -466,7 +474,7 @@ export class Sprite extends Shape {
      */
     public clone() : Sprite {
         return this._render.creator.Sprite({
-            position: this._render.creator.Vector(this.position.x, this.position.y),
+            position: this.position.clone(),
             src: this.src,
             spriteGrid: this.spriteGrid,
             ignoreFrames: this.ignoreFrames,

@@ -93,7 +93,7 @@ export class Circle extends Shape {
      */
     public clone() : Circle {
         return this._render.creator.Circle({
-            position: this._render.creator.Vector(this.position.x, this.position.y),
+            position: this.position.clone(),
             radius: this.radius,
             color: this.color,
             zIndex: this.zIndex,

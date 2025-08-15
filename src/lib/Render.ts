@@ -90,9 +90,9 @@ export class Render extends RenderProvider {
     private events() : void {
         window.addEventListener("resize", this._resizeBind);
         window.addEventListener("click", this._onClickedBind);
-        window.addEventListener("touchstart", this._onTouchStartBind);
-        window.addEventListener("touchmove", this._onTouchMoveBind);
-        window.addEventListener("touchend", this._onTouchEndBind);
+        window.addEventListener("touchstart", this._onTouchStartBind, { passive: false });
+        window.addEventListener("touchmove", this._onTouchMoveBind, { passive: false });
+        window.addEventListener("touchend", this._onTouchEndBind, { passive: false });
         window.addEventListener("mousemove", this._onMouseMoveBind);
         window.addEventListener("mousedown", this._onMouseDownBind);
         window.addEventListener("mouseup", this._onMouseUpBind);
@@ -215,6 +215,7 @@ export class Render extends RenderProvider {
      * @private
      */
     private _onTouchStart(event: TouchEvent) : void {
+        event.preventDefault();
         this._isTouched = true;
         const { clientX, clientY } = event.touches[0];
         const { left, top, width, height } = this.canvas.getBoundingClientRect();
@@ -255,6 +256,7 @@ export class Render extends RenderProvider {
      * @private
      */
     private _onTouchMove(event: TouchEvent) : void {
+        event.preventDefault();
         const { clientX, clientY } = event.touches[0];
         const { left, top } = this.canvas.getBoundingClientRect();
         this._mouseVector = this.creator.Vector(clientX - left, clientY - top);
@@ -284,6 +286,7 @@ export class Render extends RenderProvider {
      * @private
      */
     private _onTouchEnd(event: TouchEvent) : void {
+        event.preventDefault();
         if (this._dragging && this._dragTarget && event.changedTouches.length > 0) {
             const { clientX, clientY } = event.changedTouches[0];
             const { left, top } = this.canvas.getBoundingClientRect();
@@ -310,7 +313,7 @@ export class Render extends RenderProvider {
             this.emit("touchend", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
         
             if (this._isTouched) {
-                this.emit("touched", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
+                this.emit("touch", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
                 this._isTouched = false;
             }
         }

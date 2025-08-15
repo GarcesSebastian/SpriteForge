@@ -37,6 +37,11 @@ export default function SpriteSlot({
     onDelete(sprite);
   };
 
+  const handleDebugToggle = () => {
+    sprite.setDebug(!sprite.debug);
+    forceUpdate({});
+  };
+
   return (
     <div 
       className={`
@@ -151,6 +156,19 @@ export default function SpriteSlot({
               }`}
             >
               {sprite.loop ? 'ON' : 'OFF'}
+            </Button>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-gray-400 w-8">Debug</span>
+            <Button
+              onClick={handleDebugToggle}
+              variant={sprite.debug ? "primary" : "ghost"}
+              className={`flex-1 h-6 text-xs ${
+                !sprite.debug ? 'bg-gray-600/50 hover:bg-gray-600 text-gray-300 border border-gray-500/50' : ''
+              }`}
+            >
+              {sprite.debug ? 'ON' : 'OFF'}
             </Button>
           </div>
         </div>

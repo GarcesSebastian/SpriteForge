@@ -125,7 +125,7 @@ export class Rect extends Shape {
      */
     public clone() : Rect {
         return this._render.creator.Rect({
-            position: this._render.creator.Vector(this.position.x, this.position.y),
+            position: this.position.clone(),
             width: this.width,
             height: this.height,
             color: this.color,

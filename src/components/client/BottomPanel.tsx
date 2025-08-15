@@ -110,17 +110,28 @@ export default function BottomPanel({
 
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="
-          absolute top-0 right-4 -translate-y-full
-          w-12 h-8 bg-gray-800/95 backdrop-blur-lg
-          border border-b-0 border-gray-700 rounded-t-lg
-          flex items-center justify-center
-          hover:bg-gray-700/95 transition-colors duration-200
-          shadow-lg z-10
-        "
+        onTouchStart={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsCollapsed(!isCollapsed);
+        }}
+        className={`
+          absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full
+          w-20 h-10 bg-gradient-to-t from-blue-600/90 to-blue-500/90 backdrop-blur-lg
+          border border-b-0 border-blue-400/50 rounded-t-xl
+          flex items-center justify-center space-x-2
+          hover:from-blue-500/90 hover:to-blue-400/90 hover:border-blue-300/60
+          transition-all duration-300 shadow-xl z-10
+          ${isCollapsed ? 'animate-pulse shadow-blue-500/30' : 'shadow-blue-600/20'}
+        `}
+        style={{ touchAction: 'manipulation' }}
       >
         <svg 
-          className={`w-4 h-4 text-gray-300 transition-transform duration-300 ${
+          className={`w-5 h-5 text-white transition-transform duration-300 ${
             isCollapsed ? 'rotate-180' : ''
           }`}
           fill="none" 
@@ -130,10 +141,17 @@ export default function BottomPanel({
           <path 
             strokeLinecap="round" 
             strokeLinejoin="round" 
-            strokeWidth={2} 
+            strokeWidth={2.5} 
             d="M5 15l7-7 7 7" 
           />
         </svg>
+        {isCollapsed && (
+          <div className="flex space-x-0.5">
+            <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
+        )}
       </button>
 
       <div className="h-full flex flex-col pt-2 pb-4 px-6">

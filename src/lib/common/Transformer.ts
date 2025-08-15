@@ -65,15 +65,15 @@ export class Transformer {
      */
     private events(): void {
         this._render.on("click", this._onClickedTr.bind(this));
-        this._render.on("touched", this._onTouchedTr.bind(this));
+        this._render.on("touch", this._onTouchedTr.bind(this));
 
         this._render.on("mousedown", this._onMouseDownTr.bind(this));
         this._render.on("mousemove", this._onMouseMoveTr.bind(this));
         this._render.on("mouseup", this._onMouseUpTr.bind(this));
 
-        this._render.on("touchstart", this._onMouseDownTr.bind(this));
+        this._render.on("touchstart", this._onTouchStartTr.bind(this));
         this._render.on("touchmove", this._onMouseMoveTr.bind(this));
-        this._render.on("touchend", this._onMouseUpTr.bind(this));
+        this._render.on("touchend", this._onTouchEndTr.bind(this));
 
         window.addEventListener("keydown", this._onKeyDown.bind(this));
         window.addEventListener("keyup", this._onKeyUp.bind(this));
@@ -112,6 +112,25 @@ export class Transformer {
 
     private _onTouchedTr(args: RenderEventTouched): void {
         this._onClickedTr(args);
+    }
+
+    /**
+     * Handles touch start events for transformer interactions
+     * Initiates resize operations or drag operations based on touch target
+     * @param args - Touch start event arguments containing target and pointer information
+     * @private
+     */
+    private _onTouchStartTr(args: RenderEventMouseDown): void {
+        this._onMouseDownTr(args);
+    }
+
+    /**
+     * Handles touch end events to finalize transformer operations
+     * Completes drag and resize operations, resets state flags
+     * @private
+     */
+    private _onTouchEndTr(): void {
+        this._onMouseUpTr();
     }
 
     /**
@@ -246,11 +265,11 @@ export class Transformer {
             const nodesCloned = this._nodes.map(node => node.clone());
             nodesCloned.forEach(node => {
                 if (node instanceof Circle) {
-                    node.position.x += node.radius * 4;
+                    node.position.x += node.radius * 2.4;
                 }
 
                 if (node instanceof Rect) {
-                    node.position.x += node.width * 2;
+                    node.position.x += node.width * 1.2;
                 }
 
                 if (node instanceof Sprite) {

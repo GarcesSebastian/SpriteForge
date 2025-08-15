@@ -77,4 +77,12 @@ export class Vector {
         const len = this.len();
         return new Vector(this.x / len, this.y / len);
     }
+
+    /**
+     * Creates a deep copy of this vector with identical properties
+     * @returns A new Vector instance with the same configuration
+     */
+    public clone(): Vector {
+        return new Vector(this.x, this.y);
+    }
 }

@@ -8,6 +8,23 @@ import FloatingToolbar from "@/components/client/FloatingToolbar";
 import { Utils } from "@/lib/lib/Utils";
 import { RenderEventCreate, RenderEventMouseMove } from "@/lib/providers/Render.provider";
 
+interface SpritesDefault {
+    url: string;
+    rows: number;
+    cols: number;
+    pattern?: string[];
+    scale?: number;
+    ignoreFrames?: number[];
+}
+
+const sprites_default: SpritesDefault[] = [
+    { url: "/Animations/Explosive_Strike.png", rows: 1, cols: 9 },
+    { url: "/Warrior/pone.png", rows: 8, cols: 8, pattern: ["8:15"], scale: 3 },
+    { url: "/Warrior/pone.png", rows: 8, cols: 8, pattern: ["16:23"], scale: 3 },
+    { url: "/Warrior/sprite.png", rows: 17, cols: 6, pattern: ["18:25"], scale: 3 },
+    { url: "/Warrior/sprite.png", rows: 17, cols: 6, pattern: ["18:25", "1(30)", "26:36", "36(15)"], scale: 3 }
+]
+
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { setup, render, isPlaying, setIsPlaying } = useApp();
@@ -68,6 +85,8 @@ export default function Home() {
     sprites.forEach(sprite => {
       sprite.on("destroy", () => {
         setSprites((prev) => prev.filter(s => s.id !== sprite.id));
+        setSelectedSprites((prev) => prev.filter(s => s.id !== sprite.id));
+        setPlayingSprites((prev) => prev.filter(s => s.id !== sprite.id));
       })
     });
 
@@ -75,6 +94,8 @@ export default function Home() {
       sprites.forEach(sprite => {
         sprite.off("destroy", () => {
           setSprites((prev) => prev.filter(s => s.id !== sprite.id));
+          setSelectedSprites((prev) => prev.filter(s => s.id !== sprite.id));
+          setPlayingSprites((prev) => prev.filter(s => s.id !== sprite.id));
         })
       })
     }
@@ -85,14 +106,17 @@ export default function Home() {
 
     render.creator.Transformer();
 
-    for (let i = 0; i < 1; i++) {
+    sprites_default.forEach(sprite => {
       render.creator.Sprite({
         position: render.creator.Vector(Utils.randomInt(0, render.canvas.width - 200), Utils.randomInt(0, render.canvas.height - 200)),
-        src: "/Animations/Explosive_Strike.png",
-        spriteGrid: { rows: 1, cols: 9 },
+        src: sprite.url,
+        spriteGrid: { rows: sprite.rows, cols: sprite.cols },
+        pattern: sprite.pattern,
+        ignoreFrames: sprite.ignoreFrames,
+        scale: sprite.scale,
         dragging: true
       }).setDebug(true);
-    }
+    })
 
     const circle = render.creator.Circle({
       position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
