@@ -3,7 +3,7 @@
 import { useApp } from "@/hooks/useApp";
 import { useEffect, useRef, useState } from "react";
 import { Sprite, SpriteProps } from "@/lib/instances/_shapes/Sprite";
-import TestPanel from "@/components/client/TestPanel";
+import BottomPanel from "@/components/client/BottomPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
 import { Utils } from "@/lib/lib/Utils";
 import { RenderEventCreate, RenderEventMouseMove } from "@/lib/providers/Render.provider";
@@ -137,14 +137,13 @@ export default function Home() {
         className="w-full h-full"
       />
       
-      <FloatingToolbar
+      <FloatingToolbar 
         onCreateSprite={handleCreateSprite}
-      />
-      
-      <TestPanel
         isPlaying={isPlaying}
         onPlay={handlePlay}
         onStop={handleStop}
+      />
+      <BottomPanel
         sprites={sprites}
         selectedSprites={selectedSprites}
         playingSprites={playingSprites}

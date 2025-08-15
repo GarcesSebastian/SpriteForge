@@ -6,12 +6,18 @@ import { Vector } from "@/lib/common/Vector";
 
 interface FloatingToolbarProps {
   onCreateSprite: (props: SpriteProps) => void;
+  isPlaying: boolean;
+  onPlay: () => void;
+  onStop: () => void;
 }
 
 type DropdownType = 'sprite' | 'circle' | 'rect' | null;
 
 export default function FloatingToolbar({
   onCreateSprite,
+  isPlaying,
+  onPlay,
+  onStop,
 }: FloatingToolbarProps) {
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -199,6 +205,29 @@ export default function FloatingToolbar({
     <div className="fixed top-6 left-6 z-40" ref={dropdownRef}>
       <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl p-3">
         <div className="flex space-x-1">
+          <button
+            onClick={isPlaying ? onStop : onPlay}
+            className={`group relative flex items-center justify-center w-11 h-11 rounded-xl transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 ${
+              isPlaying 
+                ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' 
+                : 'bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+            }`}
+            title={isPlaying ? "Stop Render" : "Start Render"}
+          >
+            {isPlaying ? (
+              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v6a1 1 0 11-2 0V7zM12 7a1 1 0 012 0v6a1 1 0 11-2 0V7z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+              </svg>
+            )}
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              {isPlaying ? 'Stop' : 'Play'}
+            </div>
+          </button>
+
           <div className="relative">
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'sprite' ? null : 'sprite')}

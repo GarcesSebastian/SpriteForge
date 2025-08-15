@@ -336,9 +336,13 @@ export class Render extends RenderProvider {
      * @private
      */
     private _showFps() : void {
+        const measureText = this.ctx.measureText(`FPS: ${this._fps.toFixed(2)}`);
+        const textWidth = measureText.width;
+        const textHeight = measureText.fontBoundingBoxAscent + measureText.fontBoundingBoxDescent;
+        
         this.ctx.fillStyle = "white";
         this.ctx.font = "16px Arial";
-        this.ctx.fillText(`FPS: ${this._fps.toFixed(2)}`, 10, this.canvas.height - 10);
+        this.ctx.fillText(`FPS: ${this._fps.toFixed(2)}`, this.canvas.width - textWidth - 10, textHeight + 10);
     }
 
     /**
