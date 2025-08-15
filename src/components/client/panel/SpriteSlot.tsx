@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Sprite } from "@/lib/instances/_shapes/Sprite";
+import { Button, Select } from "@/components/common";
 
 interface SpriteSlotProps {
   sprite: Sprite;
@@ -50,7 +51,6 @@ export default function SpriteSlot({
         }
       `}
     >
-      {/* Status Indicators */}
       <div className="absolute top-0 left-0 right-0 h-1 flex rounded-t-lg overflow-hidden">
         {isSelected && (
           <div className="flex-1 bg-gradient-to-r from-blue-400 to-blue-500" />
@@ -60,14 +60,12 @@ export default function SpriteSlot({
         )}
       </div>
 
-      {/* Content */}
       <div className="p-3 h-full flex flex-col">
-        {/* Header */}
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 rounded-full bg-gray-400" />
-            <span className="text-xs font-medium text-gray-300 truncate">
-              Sprite #{sprite.id.slice(-4)}
+          <div className="flex items-center space-x-2 min-w-0 flex-1">
+            <div className="w-2 h-2 rounded-full bg-gray-400 flex-shrink-0" />
+            <span className="text-xs font-medium text-gray-300 truncate min-w-0">
+              Sprite #{sprite.id}
             </span>
           </div>
           
@@ -79,19 +77,19 @@ export default function SpriteSlot({
                 </svg>
               </div>
             )}
-            <button
+            <Button
               onClick={handleDelete}
-              className="w-4 h-4 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors"
+              variant="danger"
+              className="w-4 h-4 bg-red-500/80 hover:bg-red-500 rounded-full p-0 min-h-0 min-w-0"
               title="Delete sprite"
             >
               <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </button>
+            </Button>
           </div>
         </div>
 
-        {/* Preview */}
         <div className="flex-1 bg-gray-800/50 rounded border border-gray-600/30 mb-2 overflow-hidden">
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-xs text-gray-500">
@@ -100,18 +98,11 @@ export default function SpriteSlot({
           </div>
         </div>
 
-        {/* Controls */}
         <div className="space-y-2">
-          {/* Play Button */}
-          <button
+          <Button
             onClick={handleTogglePlay}
-            className={`
-              w-full h-8 rounded flex items-center justify-center space-x-2 transition-all duration-200
-              ${isPlaying 
-                ? 'bg-red-500/80 hover:bg-red-500 text-white' 
-                : 'bg-green-500/80 hover:bg-green-500 text-white'
-              }
-            `}
+            variant={isPlaying ? "danger" : "success"}
+            className="w-full h-8 space-x-2"
           >
             {isPlaying ? (
               <>
@@ -128,15 +119,15 @@ export default function SpriteSlot({
                 <span className="text-xs font-medium">Play</span>
               </>
             )}
-          </button>
+          </Button>
 
-          {/* Speed Control */}
           <div className="flex items-center space-x-2">
             <span className="text-xs text-gray-400 w-8">Speed</span>
-            <select
+            <Select
               value={sprite.speed || 1}
               onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-              className="flex-1 text-xs bg-gray-600/50 border border-gray-500/50 rounded px-2 py-1 text-gray-200 focus:border-blue-400 focus:outline-none"
+              variant="filled"
+              className="flex-1 text-xs px-2 py-1"
             >
               <option value={0.25}>0.25x</option>
               <option value={0.5}>0.5x</option>
@@ -144,27 +135,23 @@ export default function SpriteSlot({
               <option value={1.5}>1.5x</option>
               <option value={2}>2x</option>
               <option value={3}>3x</option>
-            </select>
+            </Select>
           </div>
 
-          {/* Loop Toggle */}
           <div className="flex items-center space-x-2">
             <span className="text-xs text-gray-400 w-8">Loop</span>
-            <button
+            <Button
               onClick={() => {
                 sprite.setLoop(!sprite.loop);
                 forceUpdate({});
               }}
-              className={`
-                flex-1 h-6 rounded text-xs font-medium transition-all duration-200
-                ${sprite.loop 
-                  ? 'bg-blue-500/80 hover:bg-blue-500 text-white' 
-                  : 'bg-gray-600/50 hover:bg-gray-600 text-gray-300 border border-gray-500/50'
-                }
-              `}
+              variant={sprite.loop ? "primary" : "ghost"}
+              className={`flex-1 h-6 text-xs ${
+                !sprite.loop ? 'bg-gray-600/50 hover:bg-gray-600 text-gray-300 border border-gray-500/50' : ''
+              }`}
             >
               {sprite.loop ? 'ON' : 'OFF'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

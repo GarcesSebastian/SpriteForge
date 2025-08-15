@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { SpriteProps } from "@/lib/instances/_shapes/Sprite";
 import { Vector } from "@/lib/common/Vector";
+import { Button, Input } from "@/components/common";
 
 interface FloatingToolbarProps {
   onCreateSprite: (props: SpriteProps) => void;
@@ -80,7 +81,6 @@ export default function FloatingToolbar({
       }
     });
 
-    // Process pattern if provided
     let pattern: string[] | undefined = undefined;
     if (spriteForm.pattern.trim()) {
       pattern = spriteForm.pattern.split(',').map(p => p.trim()).filter(p => p);
@@ -105,25 +105,28 @@ export default function FloatingToolbar({
         <div>
           <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Image Source</label>
           <div className="space-y-2">
-            <input
+            <Input
               type="text"
               value={spriteForm.src}
               onChange={(e) => setSpriteForm({...spriteForm, src: e.target.value})}
               placeholder="Enter image URL or path"
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              variant="default"
+              fullWidth
             />
             <div className="flex items-center space-x-2">
               <span className="text-xs text-gray-500 dark:text-gray-400">or</span>
-              <button
+              <Button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center space-x-2 px-3 py-2 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
+                variant="outline"
+                size="sm"
+                className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700 hover:bg-purple-200 dark:hover:bg-purple-900/50"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <span>Upload Image</span>
-              </button>
+              </Button>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -146,57 +149,60 @@ export default function FloatingToolbar({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Grid Rows</label>
-            <input
+            <Input
               type="number"
-              min="1"
+              min={1}
               value={spriteForm.rows}
               onChange={(e) => setSpriteForm({...spriteForm, rows: parseInt(e.target.value) || 1})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              variant="default"
+              fullWidth
             />
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Grid Cols</label>
-            <input
+            <Input
               type="number"
-              min="1"
+              min={1}
               value={spriteForm.cols}
               onChange={(e) => setSpriteForm({...spriteForm, cols: parseInt(e.target.value) || 1})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              variant="default"
+              fullWidth
             />
           </div>
         </div>
 
         <div>
           <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Pattern</label>
-          <input
+          <Input
             type="text"
             placeholder="Example: 1, 5, 6:12, 22:-1, 2x8, 1(5)"
             value={spriteForm.pattern}
             onChange={(e) => setSpriteForm({...spriteForm, pattern: e.target.value})}
-            className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            variant="default"
+            fullWidth
+            description="Define custom frame sequence. Leave empty to use start/end frames."
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Define custom frame sequence. Leave empty to use start/end frames.
-          </p>
         </div>
 
         <div>
           <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Ignore Frames</label>
-          <input
+          <Input
             type="text"
             placeholder="Example: 0, 1, 2"
             value={spriteForm.ignoreFrames}
             onChange={(e) => setSpriteForm({...spriteForm, ignoreFrames: e.target.value})}
-            className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            variant="default"
+            fullWidth
           />
         </div>
 
-        <button
+        <Button
           onClick={handleCreateSprite}
-          className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg"
+          variant="primary"
+          fullWidth
         >
           Create Sprite
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -205,13 +211,11 @@ export default function FloatingToolbar({
     <div className="fixed top-6 left-6 z-40" ref={dropdownRef}>
       <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl p-3">
         <div className="flex space-x-1">
-          <button
+          <Button
             onClick={isPlaying ? onStop : onPlay}
-            className={`group relative flex items-center justify-center w-11 h-11 rounded-xl transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 ${
-              isPlaying 
-                ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' 
-                : 'bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
-            }`}
+            variant={isPlaying ? "danger" : "success"}
+            size="icon"
+            className="group relative hover:scale-105 active:scale-95"
             title={isPlaying ? "Stop Render" : "Start Render"}
           >
             {isPlaying ? (
@@ -226,12 +230,14 @@ export default function FloatingToolbar({
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
               {isPlaying ? 'Stop' : 'Play'}
             </div>
-          </button>
+          </Button>
 
           <div className="relative">
-            <button
+            <Button
               onClick={() => setActiveDropdown(activeDropdown === 'sprite' ? null : 'sprite')}
-              className={`group relative flex items-center justify-center w-11 h-11 bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-xl transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 ${
+              variant="primary"
+              size="icon"
+              className={`group relative hover:scale-105 active:scale-95 ${
                 activeDropdown === 'sprite' ? 'ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''
               }`}
               title="Create Sprite"
@@ -242,7 +248,7 @@ export default function FloatingToolbar({
               <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                 Sprite
               </div>
-            </button>
+            </Button>
             {activeDropdown === 'sprite' && renderSpriteDropdown()}
           </div>
         </div>

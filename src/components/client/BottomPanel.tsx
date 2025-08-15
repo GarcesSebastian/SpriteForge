@@ -18,7 +18,7 @@ export default function BottomPanel({
   onDeleteSprite
 }: BottomPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [panelHeight, setPanelHeight] = useState(200);
+  const [panelHeight, setPanelHeight] = useState(280);
   const [isResizing, setIsResizing] = useState(false);
   const resizeRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
