@@ -6,6 +6,10 @@ import { Transformer } from "./common/Transformer";
 import { Rect } from "./instances/_shapes/Rect";
 import { RenderProvider } from "./providers/Render.provider";
 
+/**
+ * Main rendering engine for canvas-based 2D graphics and shape management
+ * Handles canvas operations, event management, shape rendering, and animation loops
+ */
 export class Render extends RenderProvider {
     public canvas: HTMLCanvasElement;
     public ctx: CanvasRenderingContext2D;
@@ -41,6 +45,10 @@ export class Render extends RenderProvider {
     public creator: RenderCreator;
     public manager: RenderManager;
 
+    /**
+     * Creates a new render instance for the given canvas element
+     * @param canvas - The HTML canvas element to render to
+     */
     public constructor(canvas: HTMLCanvasElement) {
         super();
         this.canvas = canvas;
@@ -51,17 +59,29 @@ export class Render extends RenderProvider {
         this.setup();
     }
 
+    /**
+     * Initializes the render system with configuration and event listeners
+     * @private
+     */
     private setup() : void {
         this.config();
         this.events();
         this.canvas.focus();
     }
 
+    /**
+     * Configures canvas dimensions and boundary settings
+     * @private
+     */
     private config() : void {
         this.resize();
         this.boundary();
     }
 
+    /**
+     * Sets up global event listeners for window and mouse interactions
+     * @private
+     */
     private events() : void {
         window.addEventListener("resize", this._resizeBind);
         window.addEventListener("click", this._onClickedBind);
@@ -70,6 +90,10 @@ export class Render extends RenderProvider {
         window.addEventListener("mouseup", this._onMouseUpBind);
     }
 
+    /**
+     * Sets up boundary selection functionality for multi-select operations
+     * @private
+     */
     private boundary(): void {
         this.on("mousedown", (args) => {
             if (!(args.target instanceof Render) || !this._allowSelect) return;
@@ -127,12 +151,22 @@ export class Render extends RenderProvider {
         });
     }
 
+    /**
+     * Resizes the canvas to match its container dimensions
+     * @private
+     */
     private resize(): void {
         const rect = this.canvas.getBoundingClientRect();
         this.canvas.width = rect.width;
         this.canvas.height = rect.height;
     }
 
+    /**
+     * Handles mouse movement events and updates mouse position tracking
+     * Updates target detection, handles dragging operations, and emits mousemove events
+     * @param event - The mouse event containing position information
+     * @private
+     */
     private _onMouseMove(event: MouseEvent) : void {
         const { clientX, clientY } = event;
         const { left, top } = this.canvas.getBoundingClientRect();
@@ -156,6 +190,12 @@ export class Render extends RenderProvider {
         this.emit("mousemove", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
 
+    /**
+     * Handles mouse click events and determines click targets
+     * Performs hit testing on shapes, updates target, and emits click events
+     * @param event - The mouse event containing click information
+     * @private
+     */
     private _onClicked(event: MouseEvent) : void {
         const { clientX, clientY } = event;
         const { left, top, width, height } = this.canvas.getBoundingClientRect();
@@ -189,6 +229,12 @@ export class Render extends RenderProvider {
         }
     }
     
+    /**
+     * Handles mouse down events for drag operations and shape interaction
+     * Initiates dragging behavior, sets drag target, and emits mousedown events
+     * @param event - The mouse event containing position information
+     * @private
+     */
     private _onMouseDown(event: MouseEvent) : void {
         const { clientX, clientY } = event;
         const { left, top, width, height } = this.canvas.getBoundingClientRect();
@@ -220,6 +266,12 @@ export class Render extends RenderProvider {
         this.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
     }
     
+    /**
+     * Handles mouse up events and finalizes drag operations
+     * Completes boundary selection, ends dragging, and emits mouseup events
+     * @param event - The mouse event containing position information
+     * @private
+     */
     private _onMouseUp(event: MouseEvent) : void {
         if (this._dragging && this._dragTarget) {
             const { clientX, clientY } = event;
@@ -246,6 +298,12 @@ export class Render extends RenderProvider {
         this.emit("mouseup", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
 
+    /**
+     * Gets all shapes that intersect with the current selection boundary
+     * Used for multi-select operations with boundary rectangle
+     * @returns Array of shapes within the boundary area
+     * @private
+     */
     private _getNodesInBoundary(): Shape[] {
         if (!this._boundary) return [];
 
@@ -255,6 +313,11 @@ export class Render extends RenderProvider {
         });
     }
 
+    /**
+     * Updates the frames per second calculation
+     * Tracks frame count and timing for performance monitoring
+     * @private
+     */
     private _updateFps() : void {
         const now = performance.now();
         const deltaTime = (now - this._lastFrameTime) / 1000;
@@ -267,16 +330,30 @@ export class Render extends RenderProvider {
         }
     }
 
+    /**
+     * Renders the current FPS counter on the canvas
+     * Displays performance information in the bottom-left corner
+     * @private
+     */
     private _showFps() : void {
         this.ctx.fillStyle = "white";
         this.ctx.font = "16px Arial";
         this.ctx.fillText(`FPS: ${this._fps.toFixed(2)}`, 10, this.canvas.height - 10);
     }
 
+    /**
+     * Clears the entire canvas for the next frame
+     * @private
+     */
     private clear() : void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    /**
+     * Main render loop that draws all shapes and UI elements
+     * Handles shape sorting, masking, and frame rate display
+     * @private
+     */
     private render(): void {
         this.clear();
 
@@ -312,16 +389,28 @@ export class Render extends RenderProvider {
         this._frameId = requestAnimationFrame(this._renderBind);
     }
 
+    /**
+     * Enables boundary selection functionality
+     * @returns This render instance for method chaining
+     */
     public _enableSelect() : Render {
         this._allowSelect = true;
         return this;
     }
 
+    /**
+     * Disables boundary selection functionality
+     * @returns This render instance for method chaining
+     */
     public _disableSelect() : Render {
         this._allowSelect = false;
         return this;
     }
 
+    /**
+     * Cancels current selection operation and cleans up selection boundary
+     * @returns This render instance for method chaining
+     */
     public _cancelSelect() : Render {
         if (this._isSelecting && this._boundary) {
             this._boundary.destroy();
@@ -334,21 +423,37 @@ export class Render extends RenderProvider {
         return this;
     }
 
+    /**
+     * Gets the absolute mouse position relative to the page
+     * @returns Vector containing absolute mouse coordinates
+     */
     public mousePositionAbsolute() : Vector {
         const { left, top } = this.canvas.getBoundingClientRect();
         return this.creator.Vector(this._mouseVector.x + left, this._mouseVector.y + top);
     }
 
+    /**
+     * Gets the mouse position relative to the canvas
+     * @returns Vector containing canvas-relative mouse coordinates
+     */
     public mousePositionRelative() : Vector {
         return this._mouseVector;
     }
 
+    /**
+     * Starts the animation loop and begins rendering
+     * @returns This render instance for method chaining
+     */
     public start() : Render {
         if (this._frameId) return this;
         this._frameId = requestAnimationFrame(this._renderBind);
         return this;
     }
 
+    /**
+     * Stops the animation loop and pauses rendering
+     * @returns This render instance for method chaining
+     */
     public stop() : Render {
         if (this._frameId) {
             cancelAnimationFrame(this._frameId);
@@ -357,6 +462,10 @@ export class Render extends RenderProvider {
         return this;
     }
 
+    /**
+     * Destroys the render instance and cleans up all resources
+     * Removes event listeners and stops the animation loop
+     */
     public destroy() : void {
         this.stop();
         window.removeEventListener("resize", this._resizeBind);

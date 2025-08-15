@@ -1,7 +1,7 @@
 "use client"
 
 import { useApp } from "@/hooks/useApp";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Sprite, SpriteProps } from "@/lib/instances/_shapes/Sprite";
 import TestPanel from "@/components/client/TestPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
@@ -13,16 +13,15 @@ export default function Home() {
   const { setup, render, isPlaying, setIsPlaying } = useApp();
   const [sprites, setSprites] = useState<Sprite[]>([]);
   const [selectedSprites, setSelectedSprites] = useState<Sprite[]>([]);
+  const createCallbackRef = useRef<((args: RenderEventCreate) => void) | null>(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     setup(canvasRef.current);
   }, [canvasRef]);
 
-  useEffect(() => {
-    if (!render) return;
-
-    const onCreateCallback = (args: RenderEventCreate) => {
+  if (!createCallbackRef.current) {
+    createCallbackRef.current = (args: RenderEventCreate) => {
       if (args.shape instanceof Sprite) {
         setSprites((prev) => [...prev, args.shape as unknown as Sprite]);
 
@@ -30,6 +29,22 @@ export default function Home() {
         args.shape.on("deselect", () => setSelectedSprites((prev) => prev.filter(sprite => sprite.id !== args.shape.id)));
       }
     };
+  }
+
+  useEffect(() => {
+    if (!render || !createCallbackRef.current) return;
+
+    render.on("create", createCallbackRef.current);
+
+    return () => {
+      if (render && createCallbackRef.current) {
+        render.off("create", createCallbackRef.current);
+      }
+    };
+  }, [render]);
+
+  useEffect(() => {
+    if (!render) return;
 
     const onMouseMove = (args: RenderEventMouseMove) => {
       render.childrens.forEach(child => {
@@ -39,11 +54,9 @@ export default function Home() {
       })
     }
 
-    render.on("create", onCreateCallback);
     render.on("mousemove", onMouseMove);
 
     return () => {
-      render.off("create", onCreateCallback);
       render.off("mousemove", onMouseMove);
     };
   }, [render]);
@@ -111,9 +124,8 @@ export default function Home() {
   const handleCreateSprite = (props: SpriteProps) => {
     if (!render) return;
 
-    const sprite = render.creator.Sprite(props);
-
-    setSprites((prev) => [...prev, sprite]);
+    // Only create the sprite, the onCreate callback will handle adding it to state
+    render.creator.Sprite(props);
   };
 
   return (

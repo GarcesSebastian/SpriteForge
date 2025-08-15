@@ -9,6 +9,10 @@ import { RenderEventClick, RenderEventMouseDown, RenderEventMouseMove } from "..
 
 export type TransformerBounds = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
+/**
+ * Interactive transformation tool for shapes (move, resize, select)
+ * Provides visual handles and drag functionality for shape manipulation
+ */
 export class Transformer {
     private _ctx: CanvasRenderingContext2D;
     private _render: Render;
@@ -41,6 +45,11 @@ export class Transformer {
 
     public padding: number = 10;
 
+    /**
+     * Creates a new transformer for interactive shape manipulation
+     * @param ctx - Canvas rendering context for drawing transformation UI
+     * @param render - Render instance for event handling and shape management
+     */
     public constructor(ctx: CanvasRenderingContext2D, render: Render) {
         this._ctx = ctx;
         this._render = render;
@@ -50,6 +59,10 @@ export class Transformer {
         this.events();
     }
 
+    /**
+     * Sets up event listeners for mouse and keyboard interactions
+     * @private
+     */
     private events(): void {
         this._render.on("click", this._onClickedTr.bind(this));
         this._render.on("mousedown", this._onMouseDownTr.bind(this));
@@ -60,6 +73,12 @@ export class Transformer {
         window.addEventListener("keyup", this._onKeyUp.bind(this));
     }
 
+    /**
+     * Handles click events for transformer selection and management
+     * Manages shape selection, multi-select with Shift key, and selection clearing
+     * @param args - Click event arguments containing target and pointer information
+     * @private
+     */
     private _onClickedTr(args: RenderEventClick): void {
         if (this._justFinishedDrag) {
             this._justFinishedDrag = false;
@@ -85,6 +104,12 @@ export class Transformer {
         }
     }
 
+    /**
+     * Handles mouse down events for transformer interactions
+     * Initiates resize operations or drag operations based on click target
+     * @param args - Mouse down event arguments containing target and pointer information
+     * @private
+     */
     private _onMouseDownTr(args: RenderEventMouseDown): void {
         const clickedHandle = this._getClickedHandle();
         if (clickedHandle) {
@@ -121,6 +146,12 @@ export class Transformer {
         }
     }
 
+    /**
+     * Handles mouse move events during transformer operations
+     * Processes dragging and resizing operations based on current state
+     * @param args - Mouse move event arguments containing pointer information
+     * @private
+     */
     private _onMouseMoveTr(args: RenderEventMouseMove): void {
         if (this._isDragging) {
             const mouseVector = args.pointer.relative;
@@ -140,6 +171,11 @@ export class Transformer {
         }
     }
 
+    /**
+     * Handles mouse up events to finalize transformer operations
+     * Completes drag and resize operations, resets state flags
+     * @private
+     */
     private _onMouseUpTr(): void {
         if (this._isDragging) {
             this._isDragging = false;
@@ -158,6 +194,12 @@ export class Transformer {
         }
     }
 
+    /**
+     * Handles keyboard key down events for transformer shortcuts
+     * Manages Shift key for multi-select and other keyboard interactions
+     * @param e - Keyboard event containing key information
+     * @private
+     */
     private _onKeyDown(e: KeyboardEvent): void {
         if (e.key === "Shift") {
             this._shifted = true;
@@ -209,12 +251,24 @@ export class Transformer {
             
     }
 
+    /**
+     * Handles keyboard key up events for transformer shortcuts
+     * Resets modifier key states like Shift for multi-select
+     * @param e - Keyboard event containing key information
+     * @private
+     */
     private _onKeyUp(e: KeyboardEvent): void {
         if (e.key === "Shift") {
             this._shifted = false;
         }
     }
 
+    /**
+     * Calculates the bounding box dimensions of all selected shapes
+     * Returns the combined width, height, and position of the selection
+     * @returns Object containing width, height, x, and y of the bounding box
+     * @private
+     */
     private _dimension(): { width: number, height: number, x: number, y: number } {
         let minX = Infinity;
         let minY = Infinity;
@@ -250,6 +304,11 @@ export class Transformer {
         return { width, height, x: minX, y: minY };
     }
 
+    /**
+     * Draws the selection rectangle around the selected shapes
+     * Renders the main bounding box with border styling
+     * @private
+     */
     private _rect(): void {
         const { width, height, x, y } = this._dimension();
         this._ctx.beginPath();
@@ -259,6 +318,11 @@ export class Transformer {
         this._ctx.stroke();
     }
 
+    /**
+     * Draws the resize handles at the corners of the selection rectangle
+     * Renders interactive corner handles for resizing operations
+     * @private
+     */
     private _bounds(): void {
         const { width, height, x, y } = this._dimension();
         const radius = 10;
@@ -282,6 +346,12 @@ export class Transformer {
         })
     }
 
+    /**
+     * Determines which resize handle (if any) was clicked by the mouse
+     * Tests mouse position against all corner handle positions
+     * @returns The clicked handle identifier or null if none clicked
+     * @private
+     */
     private _getClickedHandle(): TransformerBounds | null {
         const mouseVector = this._render.mousePositionRelative();
         const { x, y, width, height } = this._dimension();
@@ -308,6 +378,11 @@ export class Transformer {
         return null;
     }
 
+    /**
+     * Saves the initial state of all selected nodes before resize operation
+     * Stores position, dimensions, and scale for proportional resizing
+     * @private
+     */
     private _saveInitialNodeStates(): void {
         this._initialNodeStates = this._nodes.map(node => {
             const state: { position: Vector, width?: number, height?: number, radius?: number, scale?: number } = {
@@ -327,6 +402,12 @@ export class Transformer {
         });
     }
 
+    /**
+     * Performs the resize operation based on current mouse position
+     * Calculates new dimensions and applies them to all selected shapes
+     * @param currentMouse - Current mouse position for resize calculation
+     * @private
+     */
     private _performResize(currentMouse: Vector): void {
         if (!this._resizeStart || !this._resizeHandle || !this._initialDimensions || this._initialNodeStates.length === 0) return;
 
@@ -390,6 +471,11 @@ export class Transformer {
         });
     }
 
+    /**
+     * Determines if the transformer area is currently being clicked
+     * Tests if mouse position is within the transformer bounds including padding
+     * @returns True if transformer is clicked, false otherwise
+     */
     public _isClicked(): boolean {
         const mouseVector = this._render.mousePositionRelative();
         const { x, y, width, height } = this._dimension();
@@ -407,14 +493,27 @@ export class Transformer {
         return isInTransformerArea;
     }
 
+    /**
+     * Gets the unique identifier for this transformer
+     * @returns The UUID string identifier
+     */
     public get id(): string {
         return this._id;
     }
 
+    /**
+     * Gets the array of shapes currently selected by this transformer
+     * @returns Array of Shape instances being transformed
+     */
     public get nodes(): Shape[] {
         return this._nodes;
     }
 
+    /**
+     * Adds a shape to the transformer selection
+     * @param node - The shape to add to selection
+     * @returns This transformer instance for method chaining
+     */
     public add(node: Shape) : Transformer {
         this._nodes.push(node);
         node.dragging = false;
@@ -423,12 +522,21 @@ export class Transformer {
         return this;
     }
 
+    /**
+     * Sets multiple shapes as the transformer selection
+     * @param nodes - Array of shapes to select
+     * @returns This transformer instance for method chaining
+     */
     public list(nodes: Shape[]) : Transformer {
         this._nodes = nodes;
         this._nodes.forEach(node => node.emit("select"));
         return this;
     }
 
+    /**
+     * Clears all shapes from the transformer selection
+     * @returns This transformer instance for method chaining
+     */
     public clear() : Transformer {
         this._nodes.forEach(node => node.emit("deselect"));
         this._nodes.forEach(node => node.dragging = true);
@@ -436,6 +544,11 @@ export class Transformer {
         return this;
     }
 
+    /**
+     * Removes a specific shape from the transformer selection
+     * @param node - The shape to remove from selection
+     * @returns This transformer instance for method chaining
+     */
     public remove(node: Shape) : Transformer {
         this._nodes = this._nodes.filter(n => n.id !== node.id);
         node.dragging = true;
@@ -444,10 +557,19 @@ export class Transformer {
         return this;
     }
 
+    /**
+     * Checks if a shape is currently selected by this transformer
+     * @param node - The shape to check
+     * @returns True if shape is selected, false otherwise
+     */
     public hasNode(node: Shape) : boolean {
         return this._nodes.some(n => n.id === node.id);
     }
 
+    /**
+     * Updates and renders the transformer UI (selection box and handles)
+     * Called each frame to draw transformation controls
+     */
     public update() : void {
         this._rect();
         this._bounds();

@@ -21,8 +21,7 @@ export default function FloatingToolbar({
     rows: 1,
     cols: 1,
     ignoreFrames: '',
-    startFrame: 0,
-    endFrame: -1,
+    pattern: '',
     x: 100,
     y: 100
   });
@@ -74,14 +73,19 @@ export default function FloatingToolbar({
         }
       }
     });
+
+    // Process pattern if provided
+    let pattern: string[] | undefined = undefined;
+    if (spriteForm.pattern.trim()) {
+      pattern = spriteForm.pattern.split(',').map(p => p.trim()).filter(p => p);
+    }
     
     onCreateSprite({
       position: new Vector(spriteForm.x, spriteForm.y),
       src: spriteForm.src,
       spriteGrid: { rows: spriteForm.rows, cols: spriteForm.cols },
       ignoreFrames,
-      startFrame: spriteForm.startFrame,
-      endFrame: spriteForm.endFrame,
+      pattern,
       dragging: true
     });
     setActiveDropdown(null);
@@ -156,33 +160,29 @@ export default function FloatingToolbar({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Ignore Frames</label>
-            <input
-              type="text"
-              placeholder="Example: 0, 1, 2"
-              value={spriteForm.ignoreFrames}
-              onChange={(e) => setSpriteForm({...spriteForm, ignoreFrames: e.target.value})}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Pattern</label>
+          <input
+            type="text"
+            placeholder="Example: 1, 5, 6:12, 22:-1, 2x8, 1(5)"
+            value={spriteForm.pattern}
+            onChange={(e) => setSpriteForm({...spriteForm, pattern: e.target.value})}
+            className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Define custom frame sequence. Leave empty to use start/end frames.
+          </p>
+        </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Start/End Frame</label>
-            <input
-              type="text"
-              placeholder="Example: 0:10"
-              value={spriteForm.startFrame + ":" + (spriteForm.endFrame === -1 ? "" : spriteForm.endFrame)}
-              onChange={(e) => {
-                const parts = e.target.value.split(":");
-                const startFrame = parts[0] ? (isNaN(Number(parts[0])) ? 0 : Number(parts[0])) : 0;
-                const endFrame = parts[1] ? (isNaN(Number(parts[1])) ? -1 : Number(parts[1])) : -1;
-                setSpriteForm({...spriteForm, startFrame, endFrame});
-              }}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Ignore Frames</label>
+          <input
+            type="text"
+            placeholder="Example: 0, 1, 2"
+            value={spriteForm.ignoreFrames}
+            onChange={(e) => setSpriteForm({...spriteForm, ignoreFrames: e.target.value})}
+            className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
         </div>
 
         <button
