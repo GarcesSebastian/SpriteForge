@@ -40,7 +40,7 @@ export default function SpriteSlot({
   return (
     <div 
       className={`
-        relative flex-shrink-0 w-48 h-full bg-gray-700/40 rounded-lg border transition-all duration-200
+        relative flex-shrink-0 w-full h-full bg-gray-700/40 rounded-lg border transition-all duration-200
         ${isSelected 
           ? 'border-blue-400/60 bg-gradient-to-br from-blue-500/10 to-blue-600/5 shadow-lg shadow-blue-500/20' 
           : 'border-gray-600/40 hover:border-gray-500/60'

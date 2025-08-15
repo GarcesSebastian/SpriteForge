@@ -27,33 +27,56 @@ export default function BottomPanel({
   const maxHeight = 400;
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (clientY: number) => {
       if (!isResizing) return;
       
       const rect = panelRef.current?.getBoundingClientRect();
       if (!rect) return;
       
-      const newHeight = window.innerHeight - e.clientY;
+      const newHeight = window.innerHeight - clientY;
       const clampedHeight = Math.min(Math.max(newHeight, minHeight), maxHeight);
       setPanelHeight(clampedHeight);
     };
 
-    const handleMouseUp = () => {
+    const handleMouseMove = (e: MouseEvent) => {
+      handleMove(e.clientY);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      if (touch) {
+        handleMove(touch.clientY);
+      }
+    };
+
+    const handleEnd = () => {
       setIsResizing(false);
     };
 
     if (isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mouseup', handleEnd);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleEnd);
+      document.addEventListener('touchcancel', handleEnd);
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseup', handleEnd);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleEnd);
+      document.removeEventListener('touchcancel', handleEnd);
     };
   }, [isResizing]);
 
   const handleResizeStart = () => {
+    setIsResizing(true);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
     setIsResizing(true);
   };
 
@@ -71,12 +94,19 @@ export default function BottomPanel({
       <div
         ref={resizeRef}
         onMouseDown={handleResizeStart}
+        onTouchStart={handleTouchStart}
         className={`
-          absolute top-0 left-0 right-0 h-1 cursor-ns-resize
+          absolute -top-2 left-0 right-0 h-5 cursor-ns-resize touch-none
+          transition-colors duration-200
+          ${isResizing ? '' : ''}
+        `}
+      >
+        <div className={`
+          absolute top-2 left-0 right-0 h-1
           bg-gray-600 hover:bg-gray-500 transition-colors duration-200
           ${isResizing ? 'bg-blue-500' : ''}
-        `}
-      />
+        `} />
+      </div>
 
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -141,9 +171,7 @@ export default function BottomPanel({
             </div>
           ) : (
             <div className="h-full overflow-y-auto">
-              <div className="grid gap-3 pb-2 auto-rows-max" style={{
-                gridTemplateColumns: 'repeat(auto-fill, minmax(192px, 1fr))'
-              }}>
+              <div className="grid gap-3 pb-2 auto-rows-max grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                 {sprites.map((sprite) => {
                   const isSelected = selectedSprites.some(selected => selected.id === sprite.id);
                   const isPlaying = playingSprites.some(playing => playing.id === sprite.id);
