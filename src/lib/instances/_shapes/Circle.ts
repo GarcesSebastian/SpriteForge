@@ -1,21 +1,32 @@
-import { Shape, ShapeProps } from "../Shape";
+import { Shape } from "../Shape";
 import { Render } from "../../Render";
 
-export interface CircleProps extends ShapeProps {
-    radius: number;
-    color?: string;
-}
-
+/**
+ * Circular shape implementation for the rendering system.
+ * Extends `Shape` to provide position, styling, and collision detection
+ * for circle primitives.
+ *
+ * @example
+ * ```ts
+ * const circle = new Circle({ radius: 50, color: 'blue' }, render);
+ * circle.update();
+ * ```
+ */
 export class Circle extends Shape {
+    /** Canvas rendering context for drawing operations. */
     private _ctx: CanvasRenderingContext2D;
 
+    /** Radius of the circle in pixels. */
     public radius: number;
+    /** Fill color of the circle (CSS color string). */
     public color: string;
 
     /**
-     * Creates a new circular shape with specified radius and color
-     * @param props - Configuration properties for the circle
-     * @param render - Render context for drawing operations
+     * Creates a new circular shape.
+     * @param props - Configuration properties for the circle.
+     * @param props.radius - Radius of the circle in pixels. Defaults to 10.
+     * @param props.color - Fill color of the circle. Defaults to "#fff".
+     * @param render - The main `Render` context for drawing operations.
      */
     public constructor(props: CircleProps, render: Render) {
         super(props, render);
@@ -25,8 +36,13 @@ export class Circle extends Shape {
     }
 
     /**
-     * Renders the circle to the canvas with specified color
-     * Draws a filled circle at the current position with the specified radius
+     * Draws the circle on the canvas with its current properties.
+     * This method applies position and fill color.
+     *
+     * @example
+     * ```ts
+     * circle.draw(); // Manually render the circle on the canvas
+     * ```
      */
     public draw() : void {
         if (!this.visible) return;
@@ -38,16 +54,16 @@ export class Circle extends Shape {
     }
 
     /**
-     * Creates a circular clipping mask for this shape
-     * Used for masking operations on the canvas context
+     * @internal
+     * Creates a circular clipping path on the canvas context.
      */
     public _mask() : void {
         this._ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
     }
 
     /**
-     * Updates the circle state and renders it
-     * Calls parent update for common shape behavior, then draws the circle
+     * Updates the circle's state and re-renders it on the canvas.
+     * Calls the parent `update` method for physics and then draws the circle.
      */
     public update() : void {
         super.update();
@@ -55,13 +71,15 @@ export class Circle extends Shape {
     }
 
     /**
-     * Checks if the circle intersects with a given boundary rectangle
-     * Uses the circle's bounding box for intersection testing
-     * @param boundaryX - X coordinate of the boundary
-     * @param boundaryY - Y coordinate of the boundary
-     * @param boundaryWidth - Width of the boundary
-     * @param boundaryHeight - Height of the boundary
-     * @returns True if circle intersects with boundary, false otherwise
+     * @internal
+     * Checks whether this circle intersects with a specified rectangular boundary.
+     * This check is performed using the circle's axis-aligned bounding box for simplicity.
+     *
+     * @param boundaryX - X coordinate of the boundary's top-left corner (px).
+     * @param boundaryY - Y coordinate of the boundary's top-left corner (px).
+     * @param boundaryWidth - Width of the boundary area (px).
+     * @param boundaryHeight - Height of the boundary area (px).
+     * @returns `true` if the circle's bounding box overlaps the boundary, otherwise `false`.
      */
     public _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean {
         const shapeX = this.position.x - this.radius;
@@ -76,9 +94,10 @@ export class Circle extends Shape {
     }
 
     /**
-     * Determines if the circle is currently being clicked by the mouse
-     * Uses distance calculation from mouse position to circle center
-     * @returns True if mouse is within circle radius, false otherwise
+     * @internal
+     * Determines if a point (usually the mouse cursor) is inside the circle.
+     * It calculates the distance from the point to the circle's center.
+     * @returns `true` if the distance is less than or equal to the radius, otherwise `false`.
      */
     public _isClicked() : boolean {
         const mouseVector = this._render.mousePositionRelative();
@@ -88,18 +107,13 @@ export class Circle extends Shape {
     }
 
     /**
-     * Creates a deep copy of this circle with identical properties
-     * @returns A new Circle instance with the same configuration
+     * Creates a deep copy of this circle.
+     * @returns A new `Circle` instance with the same properties.
      */
     public clone() : Circle {
         return this._render.creator.Circle({
+            ...this,
             position: this.position.clone(),
-            radius: this.radius,
-            color: this.color,
-            zIndex: this.zIndex,
-            mask: this.mask,
-            rotation: this.rotation,
-            visible: this.visible
         });
     }
 }

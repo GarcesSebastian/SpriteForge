@@ -1,27 +1,41 @@
-import { Shape, ShapeProps } from "../Shape";
+import { Shape } from "../Shape";
 import { Render } from "../../Render";
 
-export interface RectProps extends ShapeProps {
-    width: number;
-    height: number;
-    color?: string;
-    borderWidth?: number;
-    borderColor?: string;
-}
-
+/**
+ * Rectangular shape implementation for the rendering system.
+ * Extends `Shape` to provide position, rotation, styling, and
+ * collision detection for rectangle primitives.
+ *
+ * @example
+ * ```ts
+ * const rect = new Rect({ width: 100, height: 50, color: 'red' }, render);
+ * rect.update();
+ * ```
+ */
 export class Rect extends Shape {
+    /** Canvas rendering context for drawing operations. */
     private _ctx: CanvasRenderingContext2D;
 
+    /** Width of the rectangle in pixels. */
     public width: number;
+    /** Height of the rectangle in pixels. */
     public height: number;
+    /** Fill color of the rectangle (CSS color string). */
     public color: string;
+    /** Width of the border in pixels. */
     public borderWidth: number;
+    /** Color of the border (CSS color string). */
     public borderColor: string;
 
     /**
-     * Creates a new rectangular shape with specified dimensions and styling
-     * @param props - Configuration properties for the rectangle
-     * @param render - Render context for drawing operations
+     * Creates a new rectangular shape.
+     * @param props - Configuration properties for the rectangle.
+     * @param props.width - Width of the rectangle in pixels.
+     * @param props.height - Height of the rectangle in pixels.
+     * @param props.color - Fill color of the rectangle. Defaults to "white".
+     * @param props.borderWidth - Border width in pixels. Defaults to 0.
+     * @param props.borderColor - Border color. Defaults to "transparent".
+     * @param render - The main `Render` context for drawing operations.
      */
     public constructor(props: RectProps, render: Render) {
         super(props, render);
@@ -34,12 +48,15 @@ export class Rect extends Shape {
     }
 
     /**
-     * Checks if the rectangle intersects with a given boundary area
-     * @param boundaryX - X coordinate of the boundary
-     * @param boundaryY - Y coordinate of the boundary
-     * @param boundaryWidth - Width of the boundary
-     * @param boundaryHeight - Height of the boundary
-     * @returns True if rectangle intersects with boundary, false otherwise
+     * @internal
+     * Checks whether this rectangle intersects with a specified rectangular boundary.
+     * All coordinates and dimensions are in canvas pixels (top-left origin).
+     *
+     * @param boundaryX - X coordinate of the boundary's top-left corner (px).
+     * @param boundaryY - Y coordinate of the boundary's top-left corner (px).
+     * @param boundaryWidth - Width of the boundary area (px).
+     * @param boundaryHeight - Height of the boundary area (px).
+     * @returns `true` if this rectangle overlaps the boundary area, otherwise `false`.
      */
     public _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean {
         return !(this.position.x + this.width < boundaryX || 
@@ -49,13 +66,16 @@ export class Rect extends Shape {
     }
 
     /**
-     * Determines if the rectangle is currently being clicked by the mouse
-     * Handles both non-rotated and rotated rectangle collision detection
-     * @returns True if mouse is clicking within rectangle bounds, false otherwise
+     * @internal
+     * Determines if a point (usually the mouse cursor) is inside the rectangle.
+     * This method correctly handles rotated rectangles by transforming the point
+     * into the rectangle's local coordinate system.
+     * @returns `true` if the point is inside the rectangle's bounds, otherwise `false`.
      */
     public _isClicked() : boolean {
         const mouseVector = this._render.mousePositionRelative();
         
+        // Fast check for non-rotated rectangles
         if (this.rotation === 0) {
             return mouseVector.x >= this.position.x && 
                    mouseVector.x <= this.position.x + this.width &&
@@ -63,6 +83,7 @@ export class Rect extends Shape {
                    mouseVector.y <= this.position.y + this.height;
         }
         
+        // Handle rotated rectangles
         const dx = mouseVector.x - this.position.x;
         const dy = mouseVector.y - this.position.y;
         
@@ -79,16 +100,21 @@ export class Rect extends Shape {
     }
 
     /**
-     * Creates a rectangular clipping mask for this shape
-     * Used for masking operations on the canvas context
+     * @internal
+     * Creates a rectangular clipping path on the canvas context.
      */
     public _mask() : void {
         this._ctx.rect(this.position.x, this.position.y, this.width, this.height);
     }
 
     /**
-     * Renders the rectangle to the canvas with fill color and optional border
-     * Applies transformations (position, rotation) and styling (color, border)
+     * Draws the rectangle on the canvas with its current properties.
+     * This method applies position, rotation, and styling (fill and border).
+     *
+     * @example
+     * ```ts
+     * rect.draw(); // Manually render the rectangle on the canvas
+     * ```
      */
     public draw(): void {
         if (!this.visible) return;
@@ -101,9 +127,12 @@ export class Rect extends Shape {
         this._ctx.rect(0, 0, this.width, this.height);
         this._ctx.fillStyle = this.color;
         this._ctx.fill();
-        this._ctx.lineWidth = this.borderWidth;
-        this._ctx.strokeStyle = this.borderColor;
-        this._ctx.stroke();
+
+        if (this.borderWidth > 0) {
+            this._ctx.lineWidth = this.borderWidth;
+            this._ctx.strokeStyle = this.borderColor;
+            this._ctx.stroke();
+        }
 
         this._ctx.closePath();
 
@@ -111,8 +140,8 @@ export class Rect extends Shape {
     }
 
     /**
-     * Updates the rectangle state and renders it
-     * Calls parent update for common shape behavior, then draws the rectangle
+     * Updates the rectangle's state and re-renders it on the canvas.
+     * Calls the parent `update` method for physics and then draws the rectangle.
      */
     public update(): void {
         super.update();
@@ -120,21 +149,13 @@ export class Rect extends Shape {
     }
 
     /**
-     * Creates a deep copy of this rectangle with identical properties
-     * @returns A new Rect instance with the same configuration
+     * Creates a deep copy of this rectangle.
+     * @returns A new `Rect` instance with the same properties.
      */
     public clone() : Rect {
         return this._render.creator.Rect({
+            ...this,
             position: this.position.clone(),
-            width: this.width,
-            height: this.height,
-            color: this.color,
-            borderWidth: this.borderWidth,
-            borderColor: this.borderColor,
-            zIndex: this.zIndex,
-            mask: this.mask,
-            rotation: this.rotation,
-            visible: this.visible
         });
     }
 }

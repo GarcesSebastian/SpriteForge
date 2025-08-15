@@ -6,34 +6,54 @@ import { ShapeManager } from "../managers/Shape.manager";
 import { Transformer } from "../common/Transformer";
 import { ShapeProvider } from "../providers/Shape.provider";
 
-export interface ShapeProps {
-    dragging?: boolean;
-    position: Vector;
-    zIndex?: number;
-    mask?: boolean;
-    rotation?: number;
-    visible?: boolean;
-}
-
+/**
+ * Abstract base class for all shape primitives in the rendering system.
+ * It provides common properties like position, rotation, and visibility,
+ * as well as core functionalities such as event handling and updates.
+ * This class is intended to be extended by concrete shape implementations like Rect or Circle.
+ *
+ * @abstract
+ */
 export abstract class Shape extends ShapeProvider {
+    /** The rendering engine instance for drawing operations. */
     protected _render: Render;
+    /** Unique identifier for the shape instance (UUID v4). */
     private _id: string;
     
+    /** Position vector of the shape's origin (top-left corner) in pixels. */
     public position: Vector;
+    /** Manages the shape's physics properties like velocity and acceleration. Null if no physics applied. */
     public bodyVelocity: BodyVelocity | null = null;
+    /** The stacking order of the shape. Higher values are drawn on top. */
     public zIndex: number;
+    /** If true, this shape can be used as a clipping mask. */
     public mask: boolean;
+    /** Rotation of the shape in radians, relative to its origin. */
     public rotation: number;
+    /** Indicates if the shape is currently being dragged by the user. */
     public dragging: boolean;
+    /** If false, the shape will not be rendered. */
     public visible: boolean;
     
+    /** Manages shape-specific functionalities and properties. */
     public manager: ShapeManager;
+    /** 
+     * @internal
+     * The transformer instance attached to this shape, if any. 
+     * Manages resize and rotation handles. Null if not selected.
+     */
     public _transformer: Transformer | null = null;
 
     /**
-     * Creates a new shape instance with common properties and behavior
-     * @param props - Configuration properties for the shape
-     * @param render - Render context for drawing operations
+     * Creates a new Shape instance.
+     * @param props - Configuration properties for the shape.
+     * @param props.position - Initial position of the shape. Defaults to (0, 0).
+     * @param props.zIndex - Stacking order. Defaults to 0.
+     * @param props.mask - Whether the shape acts as a mask. Defaults to false.
+     * @param props.rotation - Initial rotation in radians. Defaults to 0.
+     * @param props.dragging - Initial dragging state. Defaults to false.
+     * @param props.visible - Initial visibility. Defaults to true.
+     * @param render - The main `Render` context for drawing operations.
      */
     public constructor(props: ShapeProps, render: Render) {
         super();
@@ -51,70 +71,80 @@ export abstract class Shape extends ShapeProvider {
     }
 
     /**
-     * Abstract method to determine if the shape is being clicked
-     * Must be implemented by concrete shape classes
-     * @returns True if shape is clicked, false otherwise
+     * @internal
+     * Abstract method to determine if a point (usually the mouse cursor) is inside the shape.
+     * Must be implemented by concrete shape classes.
+     * @returns `true` if the point is inside the shape, otherwise `false`.
      */
     public abstract _isClicked() : boolean;
+
     /**
-     * Abstract method to check if shape intersects with a boundary
-     * Must be implemented by concrete shape classes
-     * @param boundaryX - X coordinate of the boundary
-     * @param boundaryY - Y coordinate of the boundary
-     * @param boundaryWidth - Width of the boundary
-     * @param boundaryHeight - Height of the boundary
-     * @returns True if shape intersects boundary, false otherwise
+     * @internal
+     * Checks whether this shape intersects with a specified rectangular boundary.
+     * All coordinates and dimensions are in canvas pixels (top-left origin).
+     * Must be implemented by concrete shape classes.
+     *
+     * @param boundaryX - X coordinate of the boundary's top-left corner (px).
+     * @param boundaryY - Y coordinate of the boundary's top-left corner (px).
+     * @param boundaryWidth - Width of the boundary area (px).
+     * @param boundaryHeight - Height of the boundary area (px).
+     * @returns `true` if this shape overlaps the boundary area, otherwise `false`.
      */
     public abstract _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean;
+    
     /**
-     * Abstract method to create a clipping mask for the shape
-     * Must be implemented by concrete shape classes
+     * @internal
+     * Abstract method to create a clipping path for the shape on the canvas context.
+     * Must be implemented by concrete shape classes.
      */
     public abstract _mask() : void;
 
     /**
-     * Gets the unique identifier for this shape
-     * @returns The UUID string identifier
+     * Gets the unique identifier for this shape.
+     * @returns The UUID string identifier.
      */
     public get id() : string {
         return this._id;
     }
 
     /**
-     * Gets the render context associated with this shape
-     * @returns The Render instance used for drawing operations
+     * Gets the render instance associated with this shape.
+     * @returns The `Render` instance used for drawing operations.
      */
     public get render() : Render {
         return this._render;
     }
 
     /**
-     * Base draw method that throws an error if not overridden
-     * Concrete shape classes must implement their own draw logic
-     * @throws Error when called without being overridden
+     * Draws the shape on the canvas.
+     * This method is intended to be overridden by concrete shape classes.
+     * Calling it on the base class will throw an error.
+     *
+     * @throws {Error} If the method is not implemented in the extending class.
      */
     public draw() : void {
         throw new Error("Method not implemented.");
     }
 
     /**
-     * Updates the shape's state and physics
-     * Handles body velocity updates if physics is enabled
+     * Updates the shape's state. Typically called once per frame.
+     * Handles physics updates, such as applying velocity.
      */
     public update() : void {
         if (this.bodyVelocity) this.bodyVelocity.update();
     }
 
     /**
-     * Abstract method to create a copy of the shape
-     * Must be implemented by concrete shape classes
-     * @returns A new Shape instance with identical properties
+     * Creates a deep copy of this shape.
+     * Must be implemented by concrete shape classes.
+     * @returns A new `Shape` instance with identical properties.
      */
     public abstract clone() : Shape;
 
     /**
-     * Destroys the shape and cleans up resources
-     * Emits destroy event, removes from render manager, and cleans up transformer
+     * Removes the shape from the rendering engine and performs cleanup.
+     * This emits a 'destroy' event, removes the shape from the render manager,
+     * and detaches it from any active transformer.
      */
     public destroy() : void {
         this.emit("destroy");

@@ -1,21 +1,9 @@
 import { Render } from "../../Render";
-import { Shape, ShapeProps } from "../Shape";
+import { Shape } from "../Shape";
 
 export type SpriteGrid = {
     rows: number,
     cols: number
-}
-
-export interface SpriteProps extends ShapeProps {
-    src: string;
-    spriteGrid: SpriteGrid;
-    ignoreFrames?: number[]; 
-    startFrame?: number;
-    endFrame?: number;
-    pattern?: string[];
-    scale?: number;
-    speed?: number;
-    loop?: boolean;
 }
 
 export class Sprite extends Shape {

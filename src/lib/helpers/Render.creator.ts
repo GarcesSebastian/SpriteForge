@@ -1,8 +1,8 @@
-import { Circle as _Circle, CircleProps } from "../instances/_shapes/Circle";
+import { Circle as _Circle } from "../instances/_shapes/Circle";
 import { Vector as _Vector } from "../common/Vector";
 import { Render } from "../Render";
-import { Sprite as _Sprite, SpriteProps } from "../instances/_shapes/Sprite";
-import { Rect as _Rect, RectProps } from "../instances/_shapes/Rect";
+import { Sprite as _Sprite } from "../instances/_shapes/Sprite";
+import { Rect as _Rect } from "../instances/_shapes/Rect";
 import { Transformer as _Transformer } from "../common/Transformer";
 
 /**

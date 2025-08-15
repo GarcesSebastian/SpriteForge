@@ -5,9 +5,6 @@ import { Rect } from "../instances/_shapes/Rect";
 import { Sprite } from "../instances/_shapes/Sprite";
 import { v4 as uuidv4 } from "uuid";
 import { Vector } from "./Vector";
-import { RenderEventMouseDown, RenderEventMouseMove, RenderEventTouched } from "../providers/Render.provider";
-
-export type TransformerBounds = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
 /**
  * Interactive transformation tool for shapes (move, resize, select)

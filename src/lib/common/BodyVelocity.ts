@@ -1,12 +1,6 @@
 import { Shape } from "../instances/Shape";
 import { Vector } from "./Vector";
 
-export interface BodyVelocityProps {
-    shape: Shape;
-    direction: Vector;
-    speed: number;
-}
-
 /**
  * Physics component that handles velocity-based movement for shapes
  * Applies directional movement with speed to shape positions each frame
