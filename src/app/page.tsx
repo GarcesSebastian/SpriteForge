@@ -85,22 +85,6 @@ export default function Home() {
       dragging: true
     });
 
-    circle.on("click", () => {
-      console.log("Circle clicked");
-    })
-
-    circle.on("dragstart", () => {
-      console.log("Circle dragstart");
-    })
-
-    circle.on("drag", () => {
-      console.log("Circle drag");
-    })
-
-    circle.on("dragend", () => {
-      console.log("Circle dragend");
-    })
-
     const rect = render.creator.Rect({
       position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
       width: 100,

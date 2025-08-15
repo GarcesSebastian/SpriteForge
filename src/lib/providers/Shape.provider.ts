@@ -9,13 +9,13 @@ export interface ShapeEventTemplate {
     target: Shape;
 }
 
-export interface ShapeEventClick extends ShapeEventTemplate {}
-export interface ShapeEventDragStart extends ShapeEventTemplate {}
-export interface ShapeEventDragEnd extends ShapeEventTemplate {}
-export interface ShapeEventDrag extends ShapeEventTemplate {}
-export interface ShapeEventDestroy extends ShapeEventTemplate {}
-export interface ShapeEventSelect extends ShapeEventTemplate {}
-export interface ShapeEventDeselect extends ShapeEventTemplate {}
+export type ShapeEventClick = ShapeEventTemplate;
+export type ShapeEventDragStart = ShapeEventTemplate;
+export type ShapeEventDragEnd = ShapeEventTemplate;
+export type ShapeEventDrag = ShapeEventTemplate;
+export type ShapeEventDestroy = ShapeEventTemplate;
+export type ShapeEventSelect = ShapeEventTemplate;
+export type ShapeEventDeselect = ShapeEventTemplate;
 
 export interface ShapeEventsMap {
     "click": ShapeEventClick;

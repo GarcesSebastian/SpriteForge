@@ -10,10 +10,10 @@ interface RenderEventTemplate {
     target: Shape | Render;
 }
 
-export interface RenderEventClick extends RenderEventTemplate {}
-export interface RenderEventMouseMove extends RenderEventTemplate {}
-export interface RenderEventMouseDown extends RenderEventTemplate {}
-export interface RenderEventMouseUp extends RenderEventTemplate {}
+export type RenderEventClick = RenderEventTemplate;
+export type RenderEventMouseMove = RenderEventTemplate;
+export type RenderEventMouseDown = RenderEventTemplate;
+export type RenderEventMouseUp = RenderEventTemplate;
 export interface RenderEventCreate {
     shape: Shape;
 }
