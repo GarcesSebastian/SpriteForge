@@ -5,7 +5,7 @@ import { Rect } from "../instances/_shapes/Rect";
 import { Sprite } from "../instances/_shapes/Sprite";
 import { v4 as uuidv4 } from "uuid";
 import { Vector } from "./Vector";
-import { RenderEventClick, RenderEventMouseDown, RenderEventMouseMove, RenderEventTouched } from "../providers/Render.provider";
+import { RenderEventMouseDown, RenderEventMouseMove, RenderEventTouched } from "../providers/Render.provider";
 
 export type TransformerBounds = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
@@ -111,7 +111,6 @@ export class Transformer {
     }
 
     private _onTouchedTr(args: RenderEventTouched): void {
-        console.log("Touched");
         this._onClickedTr(args);
     }
 
