@@ -1,20 +1,17 @@
 import { Vector } from "./common/Vector";
 import { RenderCreator } from "./helpers/Render.creator";
-import { RenderEvents, RenderEventsProps, RenderEventsType } from "./helpers/Render.events";
 import { Shape } from "./instances/Shape";
 import { RenderManager } from "./managers/Render.manager";
 import { Transformer } from "./common/Transformer";
 import { Rect } from "./instances/_shapes/Rect";
+import { RenderProvider } from "./providers/Render.provider";
 
-export class Render {
+export class Render extends RenderProvider {
     public canvas: HTMLCanvasElement;
     public ctx: CanvasRenderingContext2D;
 
     public childrens: Map<string, Shape> = new Map();
     public _transformer: Transformer | null = null;
-
-    public _events: RenderEvents;
-    public _createEvents: ((args: { shape: Shape }) => void)[] = [];
 
     private _mouseVector: Vector = new Vector(0, 0);
     private _target: Shape | this = this;
@@ -45,11 +42,11 @@ export class Render {
     public manager: RenderManager;
 
     public constructor(canvas: HTMLCanvasElement) {
+        super();
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d")!;
         this.creator = new RenderCreator(this);
         this.manager = new RenderManager(this);
-        this._events = new RenderEvents();
 
         this.setup();
     }
@@ -156,7 +153,7 @@ export class Render {
             this._dragTarget.emit("drag", args);
         }
 
-        this._events.emit("mousemove", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
+        this.emit("mousemove", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
 
     private _onClicked(event: MouseEvent) : void {
@@ -173,10 +170,22 @@ export class Render {
         this._target = [...this.childrens.values()].sort((a, b) => b.zIndex - a.zIndex)
             .find((child) => child._isClicked()) ?? this;
 
-        this._events.emit("click", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
+        this.emit("click", {
+            pointer: {
+                absolute: this.creator.Vector(clientX, clientY),
+                relative: this.creator.Vector(x, y)
+            },
+            target: this._target
+        });
         
         if (this._target instanceof Shape) {
-            this._target.emit("click", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
+            this._target.emit("click", {
+                pointer: {
+                    absolute: this.creator.Vector(clientX, clientY),
+                    relative: this.creator.Vector(x, y)
+                },
+                target: this._target
+            });
         }
     }
     
@@ -208,7 +217,7 @@ export class Render {
             this._target.emit("dragstart", args);
         }
 
-        this._events.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
+        this.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
     }
     
     private _onMouseUp(event: MouseEvent) : void {
@@ -234,7 +243,7 @@ export class Render {
         const { clientX, clientY } = event;
         const { left, top } = this.canvas.getBoundingClientRect();
         
-        this._events.emit("mouseup", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
+        this.emit("mouseup", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
 
     private _getNodesInBoundary(): Shape[] {
@@ -303,19 +312,6 @@ export class Render {
         this._frameId = requestAnimationFrame(this._renderBind);
     }
 
-    public onCreate(callback: (args: { shape: Shape }) => void) : Render {
-        this._createEvents.push(callback);
-        return this;
-    }
-
-    public offCreate(callback: (args: { shape: Shape }) => void) : Render {
-        const index = this._createEvents.indexOf(callback);
-        if (index > -1) {
-            this._createEvents.splice(index, 1);
-        }
-        return this;
-    }
-
     public _enableSelect() : Render {
         this._allowSelect = true;
         return this;
@@ -345,16 +341,6 @@ export class Render {
 
     public mousePositionRelative() : Vector {
         return this._mouseVector;
-    }
-
-    public on(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : Render {
-        this._events.on(event, callback);
-        return this;
-    }
-
-    public off(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : Render {
-        this._events.off(event, callback);
-        return this;
     }
 
     public start() : Render {

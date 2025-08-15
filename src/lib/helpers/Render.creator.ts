@@ -14,19 +14,19 @@ export class RenderCreator {
     
     public Rect(props: RectProps): _Rect {
         const rect = new _Rect(props, this._render);
-        this._render._createEvents.forEach(callback => callback({ shape: rect }));
+        this._render.emit("create", { shape: rect })
         return rect;
     }
 
     public Circle(props: CircleProps): _Circle {
         const circle = new _Circle(props, this._render);
-        this._render._createEvents.forEach(callback => callback({ shape: circle }));
+        this._render.emit("create", { shape: circle });
         return circle;
     }
 
     public Sprite(props: SpriteProps): _Sprite {
         const sprite = new _Sprite(props, this._render);
-        this._render._createEvents.forEach(callback => callback({ shape: sprite }));
+        this._render.emit("create", { shape: sprite });
         return sprite;
     }
     

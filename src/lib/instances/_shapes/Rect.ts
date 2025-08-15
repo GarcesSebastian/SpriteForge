@@ -85,6 +85,7 @@ export class Rect extends Shape {
     }
 
     public update(): void {
+        super.update();
         this.draw();
     }
 

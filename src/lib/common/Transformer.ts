@@ -1,11 +1,11 @@
 import { Render } from "../Render";
-import { RenderEvents, RenderEventsProps } from "../helpers/Render.events";
 import { Shape } from "../instances/Shape";
 import { Circle } from "../instances/_shapes/Circle";
 import { Rect } from "../instances/_shapes/Rect";
 import { Sprite } from "../instances/_shapes/Sprite";
 import { v4 as uuidv4 } from "uuid";
 import { Vector } from "./Vector";
+import { RenderEventClick, RenderEventMouseDown, RenderEventMouseMove } from "../providers/Render.provider";
 
 export type TransformerBounds = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
@@ -13,7 +13,6 @@ export class Transformer {
     private _ctx: CanvasRenderingContext2D;
     private _render: Render;
     private _id: string;
-    private _events: RenderEvents;
 
     private _isDragging: boolean = false;
     private _dragStart: Vector | null = null;
@@ -47,7 +46,6 @@ export class Transformer {
         this._render = render;
         this._id = uuidv4();
         this._render.manager.addTransformer(this);
-        this._events = new RenderEvents();
 
         this.events();
     }
@@ -62,7 +60,7 @@ export class Transformer {
         window.addEventListener("keyup", this._onKeyUp.bind(this));
     }
 
-    private _onClickedTr(args: RenderEventsProps): void {
+    private _onClickedTr(args: RenderEventClick): void {
         if (this._justFinishedDrag) {
             this._justFinishedDrag = false;
             return;
@@ -87,7 +85,7 @@ export class Transformer {
         }
     }
 
-    private _onMouseDownTr(args: RenderEventsProps): void {
+    private _onMouseDownTr(args: RenderEventMouseDown): void {
         const clickedHandle = this._getClickedHandle();
         if (clickedHandle) {
             this._isResizing = true;
@@ -123,7 +121,7 @@ export class Transformer {
         }
     }
 
-    private _onMouseMoveTr(args: RenderEventsProps): void {
+    private _onMouseMoveTr(args: RenderEventMouseMove): void {
         if (this._isDragging) {
             const mouseVector = args.pointer.relative;
             const delta = mouseVector.sub(this._dragStart!);
@@ -135,7 +133,6 @@ export class Transformer {
             });
 
             this._render._cancelSelect();
-            this._events.emit("trmove", { pointer: { absolute: this._render.mousePositionAbsolute(), relative: this._render.mousePositionRelative() }, target: this._render });
         }
 
         if (this._isResizing && this._resizeHandle && this._initialDimensions) {
@@ -165,6 +162,21 @@ export class Transformer {
         if (e.key === "Shift") {
             this._shifted = true;
         }
+
+        if (e.ctrlKey && e.key.toLowerCase() === "f") {
+            e.preventDefault();
+            this._nodes.forEach(node => {
+                node.manager.bodyVelocity(this._render.creator.Vector(0, 0), 5);
+            })
+        }
+
+        if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "f"){
+            e.preventDefault();
+            this._nodes.forEach(node => {
+                if (node.bodyVelocity) node.bodyVelocity.destroy();
+            })
+        }
+
 
         if (e.ctrlKey && e.key.toLowerCase() === "x") {
             const nodesToDestroy = [...this._nodes];
@@ -407,15 +419,18 @@ export class Transformer {
         this._nodes.push(node);
         node.dragging = false;
         node._transformer = this;
+        node.emit("select");
         return this;
     }
 
     public list(nodes: Shape[]) : Transformer {
         this._nodes = nodes;
+        this._nodes.forEach(node => node.emit("select"));
         return this;
     }
 
     public clear() : Transformer {
+        this._nodes.forEach(node => node.emit("deselect"));
         this._nodes.forEach(node => node.dragging = true);
         this._nodes = [];
         return this;
@@ -425,6 +440,7 @@ export class Transformer {
         this._nodes = this._nodes.filter(n => n.id !== node.id);
         node.dragging = true;
         node._transformer = null;
+        node.emit("deselect");
         return this;
     }
 

@@ -14,6 +14,7 @@ interface TestPanelProps {
   onPlay: () => void;
   onStop: () => void;
   sprites: Sprite[];
+  selectedSprites: Sprite[];
   onDeleteSprite: (sprite: Sprite) => void;
 }
 
@@ -22,6 +23,7 @@ export default function TestPanel({
   onPlay,
   onStop,
   sprites,
+  selectedSprites,
   onDeleteSprite
 }: TestPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -61,7 +63,7 @@ export default function TestPanel({
           </svg>
         </button>
 
-        <div className="p-6 h-full flex flex-col overflow-y-auto">
+        <div className="p-6 h-full flex flex-col overflow-y-auto panel-scroll">
           <PanelHeader />
 
           <CollapsibleSection 
@@ -91,7 +93,7 @@ export default function TestPanel({
           </CollapsibleSection>
 
           <CollapsibleSection 
-            title={`Sprites (${sprites.length})`}
+            title={`Sprites (${sprites.length})${selectedSprites.length > 0 ? ` • ${selectedSprites.length} selected` : ''}`}
             icon={
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
@@ -101,6 +103,7 @@ export default function TestPanel({
           >
             <SpritesSection
               sprites={sprites}
+              selectedSprites={selectedSprites}
               onDeleteSprite={onDeleteSprite}
             />
           </CollapsibleSection>

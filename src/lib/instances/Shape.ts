@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Vector } from "../common/Vector";
 import { Render } from "../Render";
-import { RenderEvents, RenderEventsProps, RenderEventsType } from "../helpers/Render.events";
 import { BodyVelocity } from "../common/BodyVelocity";
 import { ShapeManager } from "../managers/Shape.manager";
 import { Transformer } from "../common/Transformer";
+import { ShapeProvider } from "../providers/Shape.provider";
 
 export interface ShapeProps {
     dragging?: boolean;
@@ -15,9 +15,7 @@ export interface ShapeProps {
     visible?: boolean;
 }
 
-export abstract class Shape {
-    protected _events: RenderEvents;
-    protected _destroyEvents: (() => void)[] = [];
+export abstract class Shape extends ShapeProvider {
     protected _render: Render;
     private _id: string;
     
@@ -33,6 +31,7 @@ export abstract class Shape {
     public _transformer: Transformer | null = null;
 
     public constructor(props: ShapeProps, render: Render) {
+        super();
         this.position = props.position ?? new Vector(0, 0);
         this.zIndex = props.zIndex ?? 0;
         this.mask = props.mask ?? false;
@@ -44,7 +43,6 @@ export abstract class Shape {
 
         this._render = render;
         this._render.manager.addChild(this);
-        this._events = new RenderEvents();
     }
 
     public abstract _isClicked() : boolean;
@@ -59,27 +57,6 @@ export abstract class Shape {
         return this._render;
     }
 
-    public onDestroy(callback: () => void) : Shape {
-        if (!this._destroyEvents) this._destroyEvents = [];
-        this._destroyEvents.push(callback);
-        return this;
-    }
-
-    public on(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : Shape {
-        this._events.on(event, callback);
-        return this;
-    }
-
-    public off(event: RenderEventsType, callback: (args: RenderEventsProps) => void) : Shape {
-        this._events.off(event, callback);
-        return this;
-    }
-
-    public emit(event: RenderEventsType, args: RenderEventsProps) : Shape {
-        this._events.emit(event, args);
-        return this;
-    }
-
     public draw() : void {
         throw new Error("Method not implemented.");
     }
@@ -91,10 +68,7 @@ export abstract class Shape {
     public abstract clone() : Shape;
 
     public destroy() : void {
-        if (this._destroyEvents && this._destroyEvents.length > 0) {
-            this._destroyEvents.forEach(callback => callback());
-        }
-        
+        this.emit("destroy");
         this._render.manager.removeChild(this);
         
         if (this._transformer && this._transformer.hasNode(this)) {

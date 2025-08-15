@@ -6,11 +6,13 @@ import SpriteItem from "./SpriteItem";
 
 interface SpritesSectionProps {
   sprites: Sprite[];
+  selectedSprites?: Sprite[];
   onDeleteSprite: (sprite: Sprite) => void;
 }
 
 export default function SpritesSection({
   sprites,
+  selectedSprites = [],
   onDeleteSprite
 }: SpritesSectionProps) {
   const [, forceUpdate] = useState({});
@@ -55,19 +57,35 @@ export default function SpritesSection({
   }
 
   return (
-    <div className="space-y-3 max-h-80 overflow-y-auto">
-      {sprites.map((sprite, index) => (
-        <SpriteItem
-          key={sprite.id}
-          sprite={sprite}
-          index={index}
-          onToggle={handleSpriteToggle}
-          onDelete={handleSpriteDelete}
-          onSpeedChange={handleSpeedChange}
-          onLoopChange={handleLoopChange}
-          onDebugChange={handleDebugChange}
-        />
-      ))}
+    <div className="space-y-3 max-h-80 overflow-y-auto overflow-x-hidden panel-scroll">
+      {sprites.map((sprite, index) => {
+        const isSelected = selectedSprites.some(selected => selected.id === sprite.id);
+        return (
+          <div 
+            key={sprite.id} 
+            className={`
+              relative transition-all duration-200 mx-1
+              ${isSelected 
+                ? 'bg-blue-500/10 border border-blue-400/40 rounded-lg shadow-lg shadow-blue-500/20' 
+                : ''
+              }
+            `}
+          >
+            {isSelected && (
+              <div className="absolute top-1 right-1 w-2 h-2 bg-blue-400 rounded-full z-10" />
+            )}
+            <SpriteItem
+              sprite={sprite}
+              index={index}
+              onToggle={handleSpriteToggle}
+              onDelete={handleSpriteDelete}
+              onSpeedChange={handleSpeedChange}
+              onLoopChange={handleLoopChange}
+              onDebugChange={handleDebugChange}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }

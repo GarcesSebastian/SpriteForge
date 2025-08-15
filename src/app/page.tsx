@@ -6,12 +6,13 @@ import { Sprite, SpriteProps } from "@/lib/instances/_shapes/Sprite";
 import TestPanel from "@/components/client/TestPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
 import { Utils } from "@/lib/lib/Utils";
-import { Shape } from "@/lib/instances/Shape";
+import { RenderEventCreate, RenderEventMouseMove } from "@/lib/providers/Render.provider";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { setup, render, isPlaying, setIsPlaying } = useApp();
   const [sprites, setSprites] = useState<Sprite[]>([]);
+  const [selectedSprites, setSelectedSprites] = useState<Sprite[]>([]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -21,31 +22,52 @@ export default function Home() {
   useEffect(() => {
     if (!render) return;
 
-    const onCreateCallback = (args: { shape: Shape }) => {
+    const onCreateCallback = (args: RenderEventCreate) => {
       if (args.shape instanceof Sprite) {
         setSprites((prev) => [...prev, args.shape as unknown as Sprite]);
+
+        args.shape.on("select", () => setSelectedSprites((prev) => [...prev, args.shape as unknown as Sprite]));
+        args.shape.on("deselect", () => setSelectedSprites((prev) => prev.filter(sprite => sprite.id !== args.shape.id)));
       }
     };
 
-    render.onCreate(onCreateCallback);
+    const onMouseMove = (args: RenderEventMouseMove) => {
+      render.childrens.forEach(child => {
+        if (!child.bodyVelocity) return;
+        child.bodyVelocity.direction = args.pointer.relative.sub(child.position).normalize();
+        child.bodyVelocity.speed = 5;
+      })
+    }
+
+    render.on("create", onCreateCallback);
+    render.on("mousemove", onMouseMove);
 
     return () => {
-      render.offCreate(onCreateCallback);
+      render.off("create", onCreateCallback);
+      render.off("mousemove", onMouseMove);
     };
   }, [render]);
 
   useEffect(() => {
     sprites.forEach(sprite => {
-      sprite.onDestroy(() => {
+      sprite.on("destroy", () => {
         setSprites((prev) => prev.filter(s => s.id !== sprite.id));
       })
     });
+
+    return () => {
+      sprites.forEach(sprite => {
+        sprite.off("destroy", () => {
+          setSprites((prev) => prev.filter(s => s.id !== sprite.id));
+        })
+      })
+    }
   }, [sprites]);
 
   useEffect(() => {
     if (!render) return;
 
-    const tr = render.creator.Transformer();
+    render.creator.Transformer();
 
     for (let i = 0; i < 1; i++) {
       render.creator.Sprite({
@@ -63,6 +85,22 @@ export default function Home() {
       dragging: true
     });
 
+    circle.on("click", () => {
+      console.log("Circle clicked");
+    })
+
+    circle.on("dragstart", () => {
+      console.log("Circle dragstart");
+    })
+
+    circle.on("drag", () => {
+      console.log("Circle drag");
+    })
+
+    circle.on("dragend", () => {
+      console.log("Circle dragend");
+    })
+
     const rect = render.creator.Rect({
       position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
       width: 100,
@@ -70,8 +108,6 @@ export default function Home() {
       rotation: 0,
       dragging: true
     })
-
-    console.log(tr, circle, rect);
   }, [render]);
 
   const handlePlay = () => {
@@ -113,6 +149,7 @@ export default function Home() {
         onPlay={handlePlay}
         onStop={handleStop}
         sprites={sprites}
+        selectedSprites={selectedSprites}
         onDeleteSprite={handleDeleteSprite}
       />
     </div>
