@@ -1,6 +1,6 @@
 # SpriteTools - Advanced Sprite Testing Platform
 
-**SpriteTools** (also known as **TestMySprites**) is a powerful, web-based platform designed for game developers, animators, and digital artists to test, preview, and fine-tune sprite animations in real-time. Built with Next.js, TypeScript, and HTML5 Canvas, it provides an intuitive workspace for sprite sheet analysis and animation testing.
+**SpriteTools** is a powerful web platform designed for game developers, animators, and digital artists to test, preview, and fine-tune sprite animations in real-time. Built with Next.js, TypeScript, and HTML5 Canvas, it provides an intuitive workspace for sprite sheet analysis and animation testing.
 
 ## Features
 
@@ -8,17 +8,16 @@
 - **Infinite Canvas**: Drag, move, and position sprites freely across the workspace
 - **Real-time Rendering**: See your sprites animate as you make changes
 - **Multi-sprite Support**: Test multiple sprites simultaneously
-- **Zoom & Pan**: Navigate large sprite sheets with ease
 
 ### **Quick Actions Toolbar**
-- **Create Sprite**: Define image source, sprite grid (rows/cols), scale, and ignore specific frames
-- **Create Shapes**: Add circles and rectangles for reference and testing
-- **Instant Creation**: One-click sprite generation with smart defaults
+- **Create Sprite**: Define image source, sprite grid (rows/columns), add animation patterns
+- **Custom Frame Sequences**: Define complex animation patterns
+- **Render Control**: Pause and resume sprite rendering
 
 ### **Advanced Control Panel**
-- **Sprite Management**: View all active sprites in a collapsible, organized panel
+- **Sprite Management**: View all active sprites in an organized and collapsible panel
 - **Animation Controls**: Play, pause, and control individual sprite animations
-- **Speed Control**: Adjust animation speed from 0x to 10x with precision slider
+- **Speed Control**: Adjust animation speed from 0x to 5x with precision
 - **Loop Settings**: Toggle between single-play and continuous loop modes
 - **Debug Mode**: Visual debugging with frame info, boundaries, and performance data
 
@@ -28,48 +27,11 @@
 - **Position Tracking**: Real-time coordinate display
 - **Performance Monitoring**: Debug mode shows detailed sprite information
 
-## Getting Started
-
-### Prerequisites
-- Node.js 18+ 
-- npm, yarn, pnpm, or bun
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd spritev2
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Run the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   # or
-   bun dev
-   ```
-
-4. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000) to start using SpriteTools.
-
 ## Architecture
 
-### Core Components
+### Main Components
 - **Render Engine**: Custom Canvas-based rendering system
-- **Shape System**: Modular shape classes (Sprite, Circle, Rectangle)
+- **Shape System**: Modular shape classes (Sprite)
 - **Animation Manager**: Frame-based animation with timing control
 - **UI Components**: Scalable React component architecture
 
@@ -85,24 +47,17 @@
 - **Drag & Drop**: Import sprite sheets directly from file system
 - **Sprite Sheet Analyzer**: Automatic grid detection and frame counting
 - **Batch Import**: Load multiple sprites at once
-- **Custom Frame Sequences**: Define complex animation patterns
 
 ### **Advanced Canvas Tools**
-- **Sprite Resizing**: Interactive resize handles with aspect ratio lock
-- **Multi-selection**: Select and manipulate multiple sprites
 - **Alignment Tools**: Snap-to-grid, alignment guides, and distribution tools
 - **Layers System**: Organize sprites in layers with z-index control
+- **Zoom & Pan**: Navigate large sprite sheets with ease
 
 ### **Professional Features**
 - **Export Options**: Export animations as GIF, MP4, or sprite sheets
 - **Performance Analytics**: Frame rate monitoring and optimization suggestions
 - **Collaboration**: Share workspaces and collaborate in real-time
 - **Project Management**: Save, load, and organize sprite projects
-
-### **Developer Tools**
-- **Code Generation**: Generate sprite animation code for popular game engines
-- **API Integration**: Connect with game development frameworks
-- **Batch Processing**: Automate sprite optimization and processing
 
 ## Contributing
 
