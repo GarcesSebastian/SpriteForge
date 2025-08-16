@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { Button, Input } from '@/components/common';
-import { useSpriteForm } from '@/controllers/useSpriteForm';
+import { useSpriteForm } from '@/hooks/useSpriteForm';
 import { SpriteProps } from '@/types/sprite';
 
 interface SpriteCreationFormProps {
