@@ -42,22 +42,10 @@
 - **State Management**: React hooks and context
 
 ## Upcoming Features
-
-### **Enhanced Sprite Creation**
-- **Drag & Drop**: Import sprite sheets directly from file system
-- **Sprite Sheet Analyzer**: Automatic grid detection and frame counting
-- **Batch Import**: Load multiple sprites at once
-
-### **Advanced Canvas Tools**
-- **Alignment Tools**: Snap-to-grid, alignment guides, and distribution tools
-- **Layers System**: Organize sprites in layers with z-index control
-- **Zoom & Pan**: Navigate large sprite sheets with ease
-
-### **Professional Features**
 - **Export Options**: Export animations as GIF, MP4, or sprite sheets
-- **Performance Analytics**: Frame rate monitoring and optimization suggestions
 - **Collaboration**: Share workspaces and collaborate in real-time
 - **Project Management**: Save, load, and organize sprite projects
+- **Zoom & Pan**: Navigate large sprite sheets with ease
 
 ## Contributing
 

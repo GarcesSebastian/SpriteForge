@@ -42,22 +42,10 @@
 - **Gestión de Estado**: React hooks y context
 
 ## Características Próximas
-
-### **Creación de Sprites Mejorada**
-- **Arrastrar y Soltar**: Importa hojas de sprites directamente desde el sistema de archivos
-- **Analizador de Hojas de Sprites**: Detección automática de grilla y conteo de frames
-- **Importación en Lote**: Carga múltiples sprites a la vez
-
-### **Herramientas de Canvas Avanzadas**
-- **Herramientas de Alineación**: Ajuste a grilla, guías de alineación y herramientas de distribución
-- **Sistema de Capas**: Organiza sprites en capas con control de z-index
-- **Zoom y Panorámica**: Navega hojas de sprites grandes con facilidad
-
-### **Características Profesionales**
 - **Opciones de Exportación**: Exporta animaciones como GIF, MP4 o hojas de sprites
-- **Análisis de Rendimiento**: Monitoreo de frame rate y sugerencias de optimización
 - **Colaboración**: Comparte espacios de trabajo y colabora en tiempo real
 - **Gestión de Proyectos**: Guarda, carga y organiza proyectos de sprites
+- **Zoom y Panorámica**: Navega hojas de sprites grandes con facilidad
 
 ## Contribuyendo
 
