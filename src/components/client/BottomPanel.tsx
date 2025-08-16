@@ -87,6 +87,7 @@ export default function BottomPanel({
         fixed bottom-0 left-0 right-0 z-40
         bg-gray-800/95 backdrop-blur-lg border-t border-gray-700
         shadow-2xl transition-transform duration-300 ease-in-out
+        overflow-hidden
         ${isCollapsed ? 'translate-y-full' : 'translate-y-0'}
       `}
       style={{ height: isCollapsed ? '40px' : `${panelHeight}px` }}
