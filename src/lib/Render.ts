@@ -215,7 +215,6 @@ export class Render extends RenderProvider {
      * @private
      */
     private _onTouchStart(event: TouchEvent) : void {
-        event.preventDefault();
         this._isTouched = true;
         const { clientX, clientY } = event.touches[0];
         const { left, top, width, height } = this.canvas.getBoundingClientRect();
@@ -256,7 +255,6 @@ export class Render extends RenderProvider {
      * @private
      */
     private _onTouchMove(event: TouchEvent) : void {
-        event.preventDefault();
         const { clientX, clientY } = event.touches[0];
         const { left, top } = this.canvas.getBoundingClientRect();
         this._mouseVector = this.creator.Vector(clientX - left, clientY - top);
@@ -286,7 +284,6 @@ export class Render extends RenderProvider {
      * @private
      */
     private _onTouchEnd(event: TouchEvent) : void {
-        event.preventDefault();
         if (this._dragging && this._dragTarget && event.changedTouches.length > 0) {
             const { clientX, clientY } = event.changedTouches[0];
             const { left, top } = this.canvas.getBoundingClientRect();
