@@ -3,9 +3,10 @@
 import { useRef } from 'react';
 import { Button, Input } from '@/components/common';
 import { useSpriteForm } from '@/controllers/useSpriteForm';
+import { SpriteProps } from '@/types/sprite';
 
 interface SpriteCreationFormProps {
-  onCreateSprite: (props: any) => void;
+  onCreateSprite: (props: SpriteProps) => void;
   onClose: () => void;
 }
 

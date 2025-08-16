@@ -6,7 +6,7 @@ import { useSpriteForm } from '@/controllers/useSpriteForm';
 import { X } from 'lucide-react';
 
 interface MobileSpriteCreationFormProps {
-  onCreateSprite: (props: any) => void;
+  onCreateSprite: (props: SpriteProps) => void;
   onClose: () => void;
 }
 
