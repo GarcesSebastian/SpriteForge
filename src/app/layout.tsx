@@ -15,8 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="en" className="h-full bg-gray-900">
+      <body className="h-full overflow-hidden antialiased">
         <SocketProvider>
           <AppContextProvider>
             {children}
