@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 
 import { AppContextProvider } from "@/contexts/AppContext";
+import { SocketProvider } from "@/contexts/SocketContext";
 
 export const metadata: Metadata = {
   title: "Sprite",
@@ -16,9 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <AppContextProvider>
-          {children}
-        </AppContextProvider>
+        <SocketProvider>
+          <AppContextProvider>
+            {children}
+          </AppContextProvider>
+        </SocketProvider>
       </body>
     </html>
   );

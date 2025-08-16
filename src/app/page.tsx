@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Sprite } from "@/lib/instances/_shapes/Sprite";
 import BottomPanel from "@/components/client/BottomPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
+import { FloatingGitHubButton } from "@/components/client/FloatingGitHubButton";
 import { Utils } from "@/lib/lib/Utils";
 
 interface SpritesDefault {
@@ -172,6 +173,7 @@ export default function Home() {
         playingSprites={playingSprites}
         onDeleteSprite={handleDeleteSprite}
       />
+      <FloatingGitHubButton url="https://github.com/GarcesSebastian/sprite-tools" />
     </div>
   );
 }

@@ -111,11 +111,9 @@ export default function BottomPanel({
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         onTouchStart={(e) => {
-          e.preventDefault();
           e.stopPropagation();
         }}
         onTouchEnd={(e) => {
-          e.preventDefault();
           e.stopPropagation();
           setIsCollapsed(!isCollapsed);
         }}
