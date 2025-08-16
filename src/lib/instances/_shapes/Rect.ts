@@ -75,7 +75,6 @@ export class Rect extends Shape {
     public _isClicked() : boolean {
         const mouseVector = this._render.mousePositionRelative();
         
-        // Fast check for non-rotated rectangles
         if (this.rotation === 0) {
             return mouseVector.x >= this.position.x && 
                    mouseVector.x <= this.position.x + this.width &&
@@ -83,7 +82,6 @@ export class Rect extends Shape {
                    mouseVector.y <= this.position.y + this.height;
         }
         
-        // Handle rotated rectangles
         const dx = mouseVector.x - this.position.x;
         const dy = mouseVector.y - this.position.y;
         
