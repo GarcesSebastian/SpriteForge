@@ -1,5 +1,6 @@
 import { Vector } from "./Vector"
 import { Shape } from "../instances/Shape"
+import { Sprite } from "../instances/_shapes/Sprite";
 
 /**
  * Controller class for handling keyboard input, movement, physics, and animations
@@ -186,8 +187,8 @@ export class Controller {
      * @returns True if the target has a play method, false otherwise
      * @private
      */
-    private _hasPlayMethod(target: Shape): target is Shape & { play: (pattern?: string[]) => any } {
-        return 'play' in target && typeof (target as any).play === 'function';
+    private _hasPlayMethod(target: Shape): target is Shape & { play: (pattern?: string[]) => void } {
+        return 'play' in target && typeof (target as Sprite).play === 'function';
     }
 
     /**
