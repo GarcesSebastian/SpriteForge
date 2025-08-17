@@ -126,8 +126,8 @@ export class Transformer {
      * Completes drag and resize operations, resets state flags
      * @private
      */
-    private _onTouchEndTr(): void {
-        this._onMouseUpTr();
+    private _onTouchEndTr(args: RenderEventMouseUp): void {
+        this._onMouseUpTr(args);
     }
 
     /**
@@ -169,6 +169,11 @@ export class Transformer {
         if (this._isClicked() && !this._isResizing) {
             this._isDragging = true;
             this._dragStart = args.pointer.relative;
+        
+            this._nodes.forEach(node => node.emit("dragstart", {
+                pointer: args.pointer,
+                target: node
+            }));
         }
     }
 
@@ -190,6 +195,10 @@ export class Transformer {
             });
 
             this._render._cancelSelect();
+            this._nodes.forEach(node => node.emit("drag", {
+                pointer: args.pointer,
+                target: node
+            }));
         }
 
         if (this._isResizing && this._resizeHandle && this._initialDimensions) {
@@ -202,12 +211,16 @@ export class Transformer {
      * Completes drag and resize operations, resets state flags
      * @private
      */
-    private _onMouseUpTr(): void {
+    private _onMouseUpTr(args: RenderEventMouseUp): void {
         if (this._isDragging) {
             this._isDragging = false;
             this._dragStart = null;
             this._justFinishedDrag = true;
             this._render._enableSelect();
+            this._nodes.forEach(node => node.emit("dragend", {
+                pointer: args.pointer,
+                target: node
+            }));
         }
 
         if (this._isResizing) {

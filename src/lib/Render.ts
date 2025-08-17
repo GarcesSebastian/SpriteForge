@@ -32,10 +32,6 @@ export class Render extends RenderProvider {
 
     private _isTouched: boolean = false;
     
-    private _dragging: boolean = false;
-    private _dragTarget: Shape | null = null;
-    private _dragStart: Vector | null = null;
-
     private _boundary: Rect | null = null;
     private _boundaryStart: Vector | null = null;
     private _isSelecting: boolean = false;
@@ -250,7 +246,7 @@ export class Render extends RenderProvider {
 
     /**
      * Handles touch movement events and updates touch position tracking
-     * Updates target detection, handles touch dragging operations, and emits touchmove events
+     * Updates target detection, and emits touchmove events
      * @param event - The touch event containing position information
      * @private
      */
@@ -258,56 +254,16 @@ export class Render extends RenderProvider {
         const { clientX, clientY } = event.touches[0];
         const { left, top } = this.canvas.getBoundingClientRect();
         this._mouseVector = this.creator.Vector(clientX - left, clientY - top);
-        
-        if (this._dragging && this._dragTarget) {
-            event.preventDefault();
-        }
-        
-        if (this._dragging && this._dragTarget && this._dragStart) {
-            const mouseVector = this.creator.Vector(clientX - left, clientY - top);
-            this._dragTarget.position = mouseVector.sub(this._dragStart);
-            
-            const args = {
-                pointer: {
-                    absolute: this.creator.Vector(clientX, clientY),
-                    relative: mouseVector
-                },
-                target: this._dragTarget
-            };
-            
-            this._dragTarget.emit("drag", args);
-        }
-
         this.emit("touchmove", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
 
     /**
      * Handles touch end events and finalizes touch drag operations
-     * Completes touch dragging, ends touch interactions, and emits touchend events
+     * Completes touch interactions, and emits touchend events
      * @param event - The touch event containing touch information
      * @private
      */
     private _onTouchEnd(event: TouchEvent) : void {
-        if (this._dragging && this._dragTarget && event.changedTouches.length > 0) {
-            event.preventDefault();
-            const { clientX, clientY } = event.changedTouches[0];
-            const { left, top } = this.canvas.getBoundingClientRect();
-            
-            const args = {
-                pointer: {
-                    absolute: this.creator.Vector(clientX, clientY),
-                    relative: this.creator.Vector(clientX - left, clientY - top)
-                },
-                target: this._dragTarget
-            };
-            
-            this._dragTarget.emit("dragend", args);
-        }
-        
-        this._dragging = false;
-        this._dragTarget = null;
-        this._dragStart = null;
-
         if (event.changedTouches.length > 0) {
             const { clientX, clientY } = event.changedTouches[0];
             const { left, top } = this.canvas.getBoundingClientRect();
@@ -323,7 +279,7 @@ export class Render extends RenderProvider {
 
     /**
      * Handles mouse movement events and updates mouse position tracking
-     * Updates target detection, handles dragging operations, and emits mousemove events
+     * Updates target detection, and emits mousemove events
      * @param event - The mouse event containing position information
      * @private
      */
@@ -331,28 +287,13 @@ export class Render extends RenderProvider {
         const { clientX, clientY } = event;
         const { left, top } = this.canvas.getBoundingClientRect();
         this._mouseVector = this.creator.Vector(clientX - left, clientY - top);
-        
-        if (this._dragging && this._dragTarget && this._dragStart) {
-            const mouseVector = this.creator.Vector(clientX - left, clientY - top);
-            this._dragTarget.position = mouseVector.sub(this._dragStart);
-            
-            const args = {
-                pointer: {
-                    absolute: this.creator.Vector(clientX, clientY),
-                    relative: mouseVector
-                },
-                target: this._dragTarget
-            };
-            
-            this._dragTarget.emit("drag", args);
-        }
 
         this.emit("mousemove", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
     
     /**
      * Handles mouse down events for drag operations and shape interaction
-     * Initiates dragging behavior, sets drag target, and emits mousedown events
+     * Initiates dragging behavior, and emits mousedown events
      * @param event - The mouse event containing position information
      * @private
      */
@@ -367,52 +308,16 @@ export class Render extends RenderProvider {
         this._target = [...this.childrens.values()].sort((a, b) => b.zIndex - a.zIndex)
             .find((child) => child._isClicked()) ?? this;
 
-        if (this._target instanceof Shape) {
-            this._dragging = true;
-            this._dragTarget = this._target;
-            const mouseVector = this.creator.Vector(x, y);
-            this._dragStart = mouseVector.sub(this._target.position);
-            
-            const args = {
-                pointer: {
-                    absolute: this.creator.Vector(clientX, clientY),
-                    relative: mouseVector
-                },
-                target: this._target
-            };
-            
-            this._target.emit("dragstart", args);
-        }
-
         this.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
     }
     
     /**
      * Handles mouse up events and finalizes drag operations
-     * Completes boundary selection, ends dragging, and emits mouseup events
+     * Completes boundary selection, and emits mouseup events
      * @param event - The mouse event containing position information
      * @private
      */
     private _onMouseUp(event: MouseEvent) : void {
-        if (this._dragging && this._dragTarget) {
-            const { clientX, clientY } = event;
-            const { left, top } = this.canvas.getBoundingClientRect();
-            
-            const args = {
-                pointer: {
-                    absolute: this.creator.Vector(clientX, clientY),
-                    relative: this.creator.Vector(clientX - left, clientY - top)
-                },
-                target: this._dragTarget
-            };
-            
-            this._dragTarget.emit("dragend", args);
-        }
-        
-        this._dragging = false;
-        this._dragTarget = null;
-        this._dragStart = null;
-
         const { clientX, clientY } = event;
         const { left, top } = this.canvas.getBoundingClientRect();
         
