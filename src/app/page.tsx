@@ -6,19 +6,11 @@ import { Sprite } from "@/lib/instances/_shapes/Sprite";
 import BottomPanel from "@/components/client/BottomPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
 import { FloatingGitHubButton } from "@/components/client/FloatingGitHubButton";
-
-interface SpritesDefault {
-    url: string;
-    rows: number;
-    cols: number;
-    pattern?: string[];
-    scale?: number;
-    ignoreFrames?: number[];
-}
+import ControllerModal from "@/components/client/ControllerModal";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { setup, render, isPlaying, setIsPlaying } = useApp();
+  const { setup, render, isPlaying, setIsPlaying, isControllerModalOpen, selectedSpriteForController } = useApp();
   const [sprites, setSprites] = useState<Sprite[]>([]);
   const [selectedSprites, setSelectedSprites] = useState<Sprite[]>([]);
   const [playingSprites, setPlayingSprites] = useState<Sprite[]>([]);
@@ -111,7 +103,6 @@ export default function Home() {
       position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
       src: "/character.png",
       spriteGrid: { rows: 4, cols: 4 },
-      pattern: ["0(10)"],
       scale: 3,
       dragging: true
     });
@@ -176,7 +167,12 @@ export default function Home() {
         playingSprites={playingSprites}
         onDeleteSprite={handleDeleteSprite}
       />
+
       <FloatingGitHubButton url="https://github.com/GarcesSebastian/sprite-tools" />
+
+      {isControllerModalOpen && selectedSpriteForController && (
+        <ControllerModal/>
+      )}
     </div>
   );
 }

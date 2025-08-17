@@ -41,6 +41,7 @@ export class Sprite extends Shape {
     
     private _processedFrames: number[] = [];
     private _patternIndex: number = 0;
+    private _patternBackup: string[] | undefined;
 
     /**
      * Creates a new Sprite instance with animation capabilities
@@ -56,6 +57,7 @@ export class Sprite extends Shape {
         this.startFrame = props.startFrame ?? 0;
         this.endFrame = props.endFrame ?? this.spriteGrid.rows * this.spriteGrid.cols - 1;
         this.pattern = props.pattern;
+        this._patternBackup = props.pattern;
         this.speed = props.speed ?? 1;
         this.scale = props.scale ?? 1;
         this.loop = props.loop ?? true;
@@ -236,6 +238,23 @@ export class Sprite extends Shape {
     }
 
     /**
+     * Restores the sprite's pattern to its original state
+     * @private
+     */
+    public _restorePattern() : void {
+        if (!this._patternBackup) {
+            this.pattern = undefined;
+            this._processedFrames = [];
+            this._patternIndex = 0;
+            return;
+        }
+        
+        this.pattern = this._patternBackup;
+        this._processedFrames = this._parsePattern(this._patternBackup);
+        this._patternIndex = 0;
+    }
+
+    /**
      * Gets the current scaled width of the sprite
      * @returns The sprite width including scale factor
      */
@@ -319,6 +338,7 @@ export class Sprite extends Shape {
      * @returns This sprite instance for method chaining
      */
     public play(pattern?: string[]): Sprite {
+        this.pause();
         if (pattern) {
             this.pattern = pattern;
             this._processedFrames = this._parsePattern(pattern);

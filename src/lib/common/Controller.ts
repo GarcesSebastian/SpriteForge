@@ -75,6 +75,17 @@ export class Controller {
     }
 
     /**
+     * Restores the controller to its initial state
+     * @private
+     */
+    private _restore(): void {
+        this._keysPressed.clear();
+        this._currentStatus = null;
+        this._isOnGround = true;
+        this._velocity = Vector.zero;
+    }
+
+    /**
      * Sets up keyboard event listeners for keydown and keyup events
      * Manages the set of currently pressed keys for input handling
      * @private
@@ -192,6 +203,16 @@ export class Controller {
     }
 
     /**
+     * Type guard to check if the target shape has a restorePattern method for animations
+     * @param target - The shape to check for animation capabilities
+     * @returns True if the target has a restorePattern method, false otherwise
+     * @private
+     */
+    private _hasRestorePatternMethod(target: Shape): target is Shape & { _restorePattern: () => void } {
+        return '_restorePattern' in target && typeof (target as Sprite)._restorePattern === 'function';
+    }
+
+    /**
      * Gets the current keyboard mappings for controller actions
      * @returns The keyboard configuration object
      */
@@ -205,6 +226,18 @@ export class Controller {
      */
     public get speed(): number {
         return this._speed;
+    }
+
+    /**
+     * Gets the current controller configuration.
+     * @returns The configuration object containing keywords, status, and speed.
+     */
+    public get config(): ControllerProps {
+        return {
+            keywords: this._keywords,
+            status: this._status,
+            speed: this._speed,
+        };
     }
 
     /**
@@ -230,6 +263,7 @@ export class Controller {
      */
     public bind(shape: Shape): void {
         this._target = shape;
+        this._restore();
     }
 
     /**
@@ -237,7 +271,12 @@ export class Controller {
      * The controller will no longer affect any shape until rebound
      */
     public unbind(): void {
+        if (this._target && this._hasRestorePatternMethod(this._target)) {
+            this._target._restorePattern();
+        }
+
         this._target = null;
+        this._restore();
     }
 
     /**
@@ -249,7 +288,7 @@ export class Controller {
             cancelAnimationFrame(this._animationId);
             this._animationId = null;
         }
+
         this.unbind();
-        this._keysPressed.clear();
     }
 }

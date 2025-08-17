@@ -56,7 +56,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
         </label>
       )}
       
-      <div className="relative">
+      <div className="relative w-full">
         <select
           ref={ref}
           className={selectClasses}

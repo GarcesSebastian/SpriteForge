@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sprite } from "@/lib/instances/_shapes/Sprite";
 import { Button, Select } from "@/components/common";
+import { useApp } from "@/hooks/useApp"
 
 interface SpriteSlotProps {
   sprite: Sprite;
@@ -15,9 +16,10 @@ export default function SpriteSlot({
   sprite,
   isSelected,
   isPlaying,
-  onDelete
+  onDelete,
 }: SpriteSlotProps) {
   const [, forceUpdate] = useState({});
+  const { setIsControllerModalOpen, setSelectedSpriteForController } = useApp();
 
   const handleTogglePlay = () => {
     if (sprite.isPlaying()) {
@@ -40,6 +42,18 @@ export default function SpriteSlot({
   const handleDebugToggle = () => {
     sprite.setDebug(!sprite.debug);
     forceUpdate({});
+  };
+
+  const handleControllerToggle = () => {
+    if (sprite.controller) {
+      sprite._restorePattern();
+      sprite.controller.destroy();
+      sprite.controller = null;
+      forceUpdate({});
+    } else {
+      setIsControllerModalOpen(true);
+      setSelectedSpriteForController(sprite);
+    }
   };
 
   return (
@@ -169,6 +183,19 @@ export default function SpriteSlot({
               }`}
             >
               {sprite.debug ? 'ON' : 'OFF'}
+            </Button>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-gray-400 w-8">Control</span>
+            <Button
+              onClick={handleControllerToggle}
+              variant={sprite.controller ? "danger" : "success"}
+              className={`flex-1 h-6 text-xs ${
+                !sprite.controller ? 'bg-green-600/50 hover:bg-green-600 text-green-300 border border-green-500/50' : 'bg-red-600/50 hover:bg-red-600 text-red-300 border border-red-500/50'
+              }`}
+            >
+              {sprite.controller ? 'Remove' : 'Create'}
             </Button>
           </div>
         </div>
