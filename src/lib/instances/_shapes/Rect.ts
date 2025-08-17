@@ -162,7 +162,7 @@ export class Rect extends Shape {
      * Returns the raw data of the rectangle.
      * @returns The raw data of the rectangle.
      */
-    public _rawData() : any {
+    public _rawData() : RectRawData {
         return {
             id: this.id,
             position: this.position,

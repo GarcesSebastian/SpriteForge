@@ -4,7 +4,7 @@ import { Render } from "../Render";
 import { Sprite as _Sprite } from "../instances/_shapes/Sprite";
 import { Rect as _Rect } from "../instances/_shapes/Rect";
 import { Transformer as _Transformer } from "../common/Transformer";
-import { Arrow as _Arrow, ArrowProps } from "../instances/_shapes/Arrow";
+import { Arrow as _Arrow } from "../instances/_shapes/Arrow";
 
 /**
  * Factory class for creating shapes and utility objects within a render context

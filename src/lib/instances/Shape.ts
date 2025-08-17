@@ -148,7 +148,7 @@ export abstract class Shape extends ShapeProvider {
      * Returns the raw data of the shape.
      * @returns The raw data of the shape.
      */
-    public abstract _rawData() : any;
+    public abstract _rawData() : ShapeRawData;
 
     /**
      * Removes the shape from the rendering engine and performs cleanup.

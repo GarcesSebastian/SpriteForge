@@ -2,12 +2,6 @@ import { Shape } from "../Shape";
 import { Render } from "../../Render";
 import { Vector } from "@/lib/common/Vector";
 
-export interface ArrowProps extends ShapeProps {
-    target: Vector
-    color?: string
-    strokeWidth?: number
-}
-
 export class Arrow extends Shape {
     private _ctx: CanvasRenderingContext2D;
 
@@ -99,7 +93,7 @@ export class Arrow extends Shape {
      * Returns the raw data of the arrow.
      * @returns The raw data of the arrow.
      */
-    public _rawData() : any {
+    public _rawData() : ArrowRawData {
         return {
             id: this.id,
             position: this.position,

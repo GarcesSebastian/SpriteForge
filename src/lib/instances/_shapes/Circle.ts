@@ -122,7 +122,7 @@ export class Circle extends Shape {
      * Returns the raw data of the circle.
      * @returns The raw data of the circle.
      */
-    public _rawData() : any {
+    public _rawData() : CircleRawData {
         return {
             id: this.id,
             position: this.position,

@@ -508,7 +508,7 @@ export class Sprite extends Shape {
      * Returns the raw data of the sprite.
      * @returns The raw data of the sprite.
      */
-    public _rawData() : any {
+    public _rawData() : SpriteRawData {
         return {
             id: this.id,
             position: this.position,
@@ -522,10 +522,10 @@ export class Sprite extends Shape {
             ignoreFrames: this.ignoreFrames,
             startFrame: this.startFrame,
             endFrame: this.endFrame,
-            pattern: this.pattern,
-            speed: this.speed,
-            loop: this.loop,
-            scale: this.scale,
+            pattern: this.pattern ?? [],
+            speed: this.speed ?? 1,
+            loop: this.loop ?? false,
+            scale: this.scale ?? 1,
         };
     }
 }
