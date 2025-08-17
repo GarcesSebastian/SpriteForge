@@ -43,7 +43,7 @@ export class ShapeManager {
             keywords: props.keywords,
             speed: props.speed,
             status: props.status
-        });
+        }, this._shape.render);
 
         this._shape.controller = controller;
     }

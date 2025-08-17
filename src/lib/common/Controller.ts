@@ -1,6 +1,8 @@
 import { Vector } from "./Vector"
 import { Shape } from "../instances/Shape"
 import { Sprite } from "../instances/_shapes/Sprite";
+import { v4 as uuidv4 } from "uuid";
+import { Render } from "../Render";
 
 /**
  * Controller class for handling keyboard input, movement, physics, and animations
@@ -8,6 +10,10 @@ import { Sprite } from "../instances/_shapes/Sprite";
  * Supports binding/unbinding to different shapes for flexible control management
  */
 export class Controller {
+    /** Controller unique identifier */
+    private _id: string;
+    /** The render instance associated with the controller */
+    private _render: Render;
     /** The shape currently being controlled, null if unbound */
     private _target: Shape | null = null;
     /** Keyboard mappings for controller actions */
@@ -54,7 +60,8 @@ export class Controller {
      * @param props.status - Animation patterns for different states
      * @param props.speed - Movement speed multiplier (default: 1)
      */
-    public constructor(props: ControllerProps) {
+    public constructor(props: ControllerProps, render: Render) {
+        this._id = uuidv4();
         this._keywords = props.keywords ?? { up: "w", down: "s", left: "a", right: "d", jump: "space" };
         this._speed = props.speed ?? 1;
         this._jumpForce = new Vector(0, props.jumpForce ?? 15);
@@ -68,6 +75,8 @@ export class Controller {
             idle: ["0"]
         };
 
+        this._render = render;
+        render._controllers.set(this._id, this);
         this._setup();
     }
 
@@ -317,6 +326,7 @@ export class Controller {
             this._animationId = null;
         }
 
+        this._render._controllers.delete(this._id);
         this.unbind();
     }
 }

@@ -5,6 +5,7 @@ import { RenderManager } from "./managers/Render.manager";
 import { Transformer } from "./common/Transformer";
 import { Rect } from "./instances/_shapes/Rect";
 import { RenderProvider } from "./providers/Render.provider";
+import { Controller } from "./common/Controller";
 
 /**
  * Main rendering engine for canvas-based 2D graphics and shape management
@@ -15,6 +16,7 @@ export class Render extends RenderProvider {
     public ctx: CanvasRenderingContext2D;
 
     public childrens: Map<string, Shape> = new Map();
+    public _controllers: Map<string, Controller> = new Map();
     public _transformer: Transformer | null = null;
 
     private _mouseVector: Vector = new Vector(0, 0);

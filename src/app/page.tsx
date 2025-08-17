@@ -29,6 +29,9 @@ export default function Home() {
         args.shape.on("select", () => {
           setSelectedSprites((prev) => [...prev, args.shape as unknown as Sprite])
           if (args.shape instanceof Sprite && args.shape.controller) {
+            render?.childrens.forEach(child => {
+              if (child instanceof Sprite && child.controller && child != args.shape) child.controller.unbind();
+            })
             args.shape.controller.bind(args.shape);
           }
         });
