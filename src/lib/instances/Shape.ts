@@ -111,6 +111,14 @@ export abstract class Shape extends ShapeProvider {
     }
 
     /**
+     * Sets the unique identifier for this shape.
+     * @param id - The new UUID string identifier.
+     */
+    public set id(id: string) {
+        this._id = id;
+    }
+
+    /**
      * Gets the render instance associated with this shape.
      * @returns The `Render` instance used for drawing operations.
      */
@@ -149,6 +157,15 @@ export abstract class Shape extends ShapeProvider {
      * @returns The raw data of the shape.
      */
     public abstract _rawData() : ShapeRawData;
+
+    /**
+     * Creates a new shape instance from raw data.
+     * @param data - The raw data of the shape.
+     * @returns A new `Shape` instance with identical properties.
+     */
+    public static _fromRawData(data: ShapeRawData, render: Render) : Shape {
+        throw new Error("Method not implemented.");
+    }
 
     /**
      * Removes the shape from the rendering engine and performs cleanup.

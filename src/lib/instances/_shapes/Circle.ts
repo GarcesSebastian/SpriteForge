@@ -135,4 +135,25 @@ export class Circle extends Shape {
             color: this.color,
         };
     }
+
+    /**
+     * @internal
+     * Creates a new circle instance from raw data.
+     * @param data - The raw data of the circle.
+     * @returns A new `Circle` instance with identical properties.
+     */
+    public static _fromRawData(data: CircleRawData, render: Render) : Circle {
+        const circle = render.creator.Circle(data);
+        circle.position = data.position;
+        circle.rotation = data.rotation;
+        circle.zIndex = data.zIndex;
+        circle.mask = data.mask;
+        circle.dragging = data.dragging;
+        circle.visible = data.visible;
+        circle.radius = data.radius;
+        circle.color = data.color;
+        circle.id = data.id;
+
+        return circle;
+    }
 }

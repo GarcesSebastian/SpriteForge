@@ -107,4 +107,26 @@ export class Arrow extends Shape {
             strokeWidth: this.strokeWidth,
         };
     }
+
+    /**
+     * @internal
+     * Creates a new arrow instance from raw data.
+     * @param data - The raw data of the arrow.
+     * @returns A new `Arrow` instance with identical properties.
+     */
+    public static _fromRawData(data: ArrowRawData, render: Render) : Arrow {
+        const arrow = render.creator.Arrow(data);
+        arrow.position = data.position;
+        arrow.rotation = data.rotation;
+        arrow.zIndex = data.zIndex;
+        arrow.mask = data.mask;
+        arrow.dragging = data.dragging;
+        arrow.visible = data.visible;
+        arrow.target = data.target;
+        arrow.color = data.color;
+        arrow.strokeWidth = data.strokeWidth;
+        arrow.id = data.id;
+
+        return arrow;
+    }
 }

@@ -178,4 +178,28 @@ export class Rect extends Shape {
             borderColor: this.borderColor,
         };
     }
+
+    /**
+     * @internal
+     * Creates a new rectangle instance from raw data.
+     * @param data - The raw data of the rectangle.
+     * @returns A new `Rect` instance with identical properties.
+     */
+    public static _fromRawData(data: RectRawData, render: Render) : Rect {
+        const rect = render.creator.Rect(data);
+        rect.position = data.position;
+        rect.rotation = data.rotation;
+        rect.zIndex = data.zIndex;
+        rect.mask = data.mask;
+        rect.dragging = data.dragging;
+        rect.visible = data.visible;
+        rect.width = data.width;
+        rect.height = data.height;
+        rect.color = data.color;
+        rect.borderWidth = data.borderWidth;
+        rect.borderColor = data.borderColor;
+        rect.id = data.id;
+
+        return rect;
+    }
 }

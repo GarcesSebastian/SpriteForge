@@ -528,4 +528,32 @@ export class Sprite extends Shape {
             scale: this.scale ?? 1,
         };
     }
+
+    /**
+     * @internal
+     * Creates a new sprite instance from raw data.
+     * @param data - The raw data of the sprite.
+     * @returns A new `Sprite` instance with identical properties.
+     */
+    public static _fromRawData(data: SpriteRawData, render: Render) : Sprite {
+        const sprite = render.creator.Sprite(data);
+        sprite.position = data.position;
+        sprite.rotation = data.rotation;
+        sprite.zIndex = data.zIndex;
+        sprite.mask = data.mask;
+        sprite.dragging = data.dragging;
+        sprite.visible = data.visible;
+        sprite.src = data.src;
+        sprite.spriteGrid = data.spriteGrid;
+        sprite.ignoreFrames = data.ignoreFrames;
+        sprite.startFrame = data.startFrame;
+        sprite.endFrame = data.endFrame;
+        sprite.pattern = data.pattern;
+        sprite.speed = data.speed;
+        sprite.loop = data.loop;
+        sprite.scale = data.scale;
+        sprite.id = data.id;
+
+        return sprite;
+    }
 }

@@ -473,6 +473,25 @@ export class Render extends RenderProvider {
     }
 
     /**
+     * Serializes the render instance and its children into raw data
+     * @returns Array of shape raw data objects
+     */
+    public serialize() : ShapeRawData[] {
+        return [...this.childrens.values()].map((child) => child._rawData());
+    }
+
+    /**
+     * Deserializes raw data into shape instances and adds them to the render
+     * @param data - Array of shape raw data objects
+     */
+    public deserialize(data: ShapeRawData[]) : void {
+        data.forEach((child) => {
+            const shape = Shape._fromRawData(child, this);
+            console.log(shape);
+        });
+    }
+
+    /**
      * Starts the animation loop and begins rendering
      * @returns This render instance for method chaining
      */
