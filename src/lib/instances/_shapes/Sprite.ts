@@ -502,4 +502,30 @@ export class Sprite extends Shape {
             visible: this.visible
         });
     }
+
+    /**
+     * @internal
+     * Returns the raw data of the sprite.
+     * @returns The raw data of the sprite.
+     */
+    public _rawData() : any {
+        return {
+            id: this.id,
+            position: this.position,
+            rotation: this.rotation,
+            zIndex: this.zIndex,
+            mask: this.mask,
+            dragging: this.dragging,
+            visible: this.visible,
+            src: this.src,
+            spriteGrid: this.spriteGrid,
+            ignoreFrames: this.ignoreFrames,
+            startFrame: this.startFrame,
+            endFrame: this.endFrame,
+            pattern: this.pattern,
+            speed: this.speed,
+            loop: this.loop,
+            scale: this.scale,
+        };
+    }
 }

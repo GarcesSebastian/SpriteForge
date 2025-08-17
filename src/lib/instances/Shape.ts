@@ -145,6 +145,12 @@ export abstract class Shape extends ShapeProvider {
     public abstract clone() : Shape;
 
     /**
+     * Returns the raw data of the shape.
+     * @returns The raw data of the shape.
+     */
+    public abstract _rawData() : any;
+
+    /**
      * Removes the shape from the rendering engine and performs cleanup.
      * This emits a 'destroy' event, removes the shape from the render manager,
      * and detaches it from any active transformer.

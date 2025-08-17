@@ -93,4 +93,24 @@ export class Arrow extends Shape {
             position: this.position.clone(),
         });
     }
+
+    /**
+     * @internal
+     * Returns the raw data of the arrow.
+     * @returns The raw data of the arrow.
+     */
+    public _rawData() : any {
+        return {
+            id: this.id,
+            position: this.position,
+            rotation: this.rotation,
+            zIndex: this.zIndex,
+            mask: this.mask,
+            dragging: this.dragging,
+            visible: this.visible,
+            target: this.target,
+            color: this.color,
+            strokeWidth: this.strokeWidth,
+        };
+    }
 }

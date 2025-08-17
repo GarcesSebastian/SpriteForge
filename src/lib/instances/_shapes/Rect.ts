@@ -156,4 +156,26 @@ export class Rect extends Shape {
             position: this.position.clone(),
         });
     }
+
+    /**
+     * @internal
+     * Returns the raw data of the rectangle.
+     * @returns The raw data of the rectangle.
+     */
+    public _rawData() : any {
+        return {
+            id: this.id,
+            position: this.position,
+            rotation: this.rotation,
+            zIndex: this.zIndex,
+            mask: this.mask,
+            dragging: this.dragging,
+            visible: this.visible,
+            width: this.width,
+            height: this.height,
+            color: this.color,
+            borderWidth: this.borderWidth,
+            borderColor: this.borderColor,
+        };
+    }
 }
