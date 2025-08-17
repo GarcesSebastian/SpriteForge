@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react";
-import { Button, Input, Select } from "@/components/common";
+import { useState, useEffect } from "react";
+import { Button, Input, Select, Range } from "@/components/common";
 import { X } from "lucide-react";
 import { KEY_MAPPING } from "@/config/key-mapping";
 import { useApp } from "@/hooks/useApp";
+import { Vector } from "@/lib/common/Vector";
 
 export default function ControllerModal() {
   const { setIsControllerModalOpen, setSelectedSpriteForController, selectedSpriteForController, isControllerModalOpen } = useApp();
@@ -17,25 +18,57 @@ export default function ControllerModal() {
         jump: " "
       },
       status: {
-        up: ["0(10)"],
-        down: ["0(10)"],
-        left: ["0(10)"],
-        right: ["0(10)"],
-        jump: ["0(10)"],
-        idle: ["0(10)"]
+        up: ["0"],
+        down: ["0"],
+        left: ["0"],
+        right: ["0"],
+        jump: ["0"],
+        fall: ["0"],
+        idle: ["0"]
       },
-      speed: 5
+      speed: 5,
+      jumpForce: 15
     }
   );
 
+  const isEditing = selectedSpriteForController?.controller !== null && selectedSpriteForController?.controller !== undefined;
+
+  useEffect(() => {
+    if (isControllerModalOpen && selectedSpriteForController?.controller) {
+      const existingConfig = selectedSpriteForController.controller.config;
+      setConfig(existingConfig);
+    } else if (isControllerModalOpen && !selectedSpriteForController?.controller) {
+      setConfig({
+        keywords: {
+          up: "w",
+          down: "s",
+          left: "a",
+          right: "d",
+          jump: " "
+        },
+        status: {
+          up: ["0"],
+          down: ["0"],
+          left: ["0"],
+          right: ["0"],
+          jump: ["0"],
+          fall: ["0"],
+          idle: ["0"]
+        },
+        speed: 5,
+        jumpForce: 15
+      });
+    }
+  }, [isControllerModalOpen, selectedSpriteForController]);
+
   const handleConfigChange = (
-    action: keyof ControllerProps['keywords'] | 'idle',
+    action: keyof ControllerProps['status'],
     field: 'key' | 'pattern',
     value: string
   ) => {
     setConfig(prev => {
       const newConfig = { ...prev };
-      if (field === 'key' && action !== 'idle') {
+      if (field === 'key' && action !== 'idle' && action !== 'fall') {
         newConfig.keywords[action as keyof ControllerProps['keywords']] = value;
       } else if (field === 'pattern') {
         newConfig.status[action] = [value];
@@ -51,13 +84,26 @@ export default function ControllerModal() {
     }));
   };
 
+  const handleJumpForceChange = (value: number) => {
+    setConfig(prev => ({
+      ...prev,
+      jumpForce: value
+    }));
+  };
+
   const handleCancel = () => {
     setIsControllerModalOpen(false);
     setSelectedSpriteForController(null);
   };
 
   const handleSave = () => {
-    selectedSpriteForController?.manager.controller(config);
+    if (isEditing && selectedSpriteForController?.controller) {
+      selectedSpriteForController.controller.keywords = config.keywords;
+      selectedSpriteForController.controller.speed = config.speed || 5;
+      selectedSpriteForController.controller.jumpForce = new Vector(0, config.jumpForce || 15);
+    } else {
+      selectedSpriteForController?.manager.controller(config);
+    }
     handleCancel();
   };
 
@@ -74,19 +120,19 @@ export default function ControllerModal() {
           <X className="w-6 h-6" />
         </Button>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Create Controller
+          {isEditing ? 'Edit Controller' : 'Create Controller'}
         </h3>
         <div className="space-y-4 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Actions</label>
             <div className="space-y-3">
-              {(['up', 'down', 'left', 'right', 'jump', 'idle'] as const).map((action) => {
+              {(['up', 'down', 'left', 'right', 'jump', 'fall', 'idle'] as const).map((action) => {
                 const usedKeys = Object.values(config.keywords);
                 return (
                   <div key={action} className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center">
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400 capitalize">{action}</span>
-                    {action !== 'idle' ? (
+                    {action !== 'idle' && action !== 'fall' ? (
                       <Select
                         value={REVERSE_KEY_MAPPING[config.keywords[action]]}
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -121,24 +167,28 @@ export default function ControllerModal() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Movement Speed: {config.speed}x
-            </label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              step="1"
-              value={config.speed}
-              onChange={(e) => handleSpeedChange(parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-            />
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-              <span>1x</span>
-              <span>10x</span>
-            </div>
-          </div>
+          <Range
+            label="Movement Speed"
+            min={1}
+            max={10}
+            step={1}
+            value={config.speed}
+            onChange={(e) => handleSpeedChange(parseInt(e.target.value))}
+            formatValue={(value) => `${value}x`}
+            variant="primary"
+            fullWidth
+          />
+
+          <Range
+            label="Jump Force"
+            min={5}
+            max={50}
+            step={1}
+            value={config.jumpForce}
+            onChange={(e) => handleJumpForceChange(parseInt(e.target.value))}
+            variant="success"
+            fullWidth
+          />
 
           <Button
             onClick={handleSave}
@@ -146,7 +196,7 @@ export default function ControllerModal() {
             fullWidth
             size="lg"
           >
-            Create Controller
+            {isEditing ? 'Update Controller' : 'Create Controller'}
           </Button>
         </div>
       </div>

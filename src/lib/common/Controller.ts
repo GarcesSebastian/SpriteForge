@@ -33,7 +33,11 @@ export class Controller {
     /** Current velocity vector for physics simulation */
     private _velocity: Vector = Vector.zero;
     /** Jump force applied when jumping (positive Y moves down) */
-    private _jumpForce: Vector = new Vector(0, 15);
+    private _jumpForce: Vector;
+    /** Cool down for jump */
+    private _coolDownJump: number = 0.8 * 1000; // Miliseconds
+    /** Last jump time */
+    private _lastJumpTime: number = performance.now();
     /** Gravity force constantly applied during jumps */
     private _gravity: Vector = new Vector(0, 0.9);
     /** Whether the controlled shape is currently on the ground */
@@ -53,13 +57,15 @@ export class Controller {
     public constructor(props: ControllerProps) {
         this._keywords = props.keywords ?? { up: "w", down: "s", left: "a", right: "d", jump: "space" };
         this._speed = props.speed ?? 1;
+        this._jumpForce = new Vector(0, props.jumpForce ?? 15);
         this._status = props.status ?? {
-            up: ["0(10)"],
-            down: ["0(10)"],
-            left: ["0(10)"],
-            right: ["0(10)"],
-            jump: ["0(10)"],
-            idle: ["0(10)"]
+            up: ["0"],
+            down: ["0"],
+            left: ["0"],
+            right: ["0"],
+            jump: ["0"],
+            fall: ["0"],
+            idle: ["0"]
         };
 
         this._setup();
@@ -156,16 +162,17 @@ export class Controller {
             movement = movement.add(this._config.right);
         }
 
-        if (this._keysPressed.has(this._keywords.jump) && this._isOnGround) {
+        if (this._keysPressed.has(this._keywords.jump) && this._isOnGround && performance.now() - this._lastJumpTime > this._coolDownJump) {
             this._lastPosition = this._target.position;
             this._isOnGround = false;
             this._velocity = this._jumpForce.scale(-1);
+            this._lastJumpTime = performance.now();
         }
 
         if (this._keysPressed.size === 0) {
             newStatus = "idle";
         } else {
-            if (this._keysPressed.has(this._keywords.jump)) {
+            if (this._keysPressed.has(this._keywords.jump) && this._isOnGround) {
                 newStatus = "jump";
             } else if (this._keysPressed.has(this._keywords.up)) {
                 newStatus = "up";
@@ -178,6 +185,10 @@ export class Controller {
             } else {
                 newStatus = "idle";
             }
+        }
+
+        if (!this._isOnGround && newStatus !== "jump") {
+            newStatus = "fall";
         }
 
         if (newStatus !== this._currentStatus) {
@@ -229,14 +240,23 @@ export class Controller {
     }
 
     /**
+     * Gets the current jump force
+     * @returns The jump force value
+     */
+    public get jumpForce(): Vector {
+        return this._jumpForce;
+    }
+
+    /**
      * Gets the current controller configuration.
-     * @returns The configuration object containing keywords, status, and speed.
+     * @returns The configuration object containing keywords, status, speed, and jumpForce.
      */
     public get config(): ControllerProps {
         return {
             keywords: this._keywords,
             status: this._status,
             speed: this._speed,
+            jumpForce: this._jumpForce.y,
         };
     }
 
@@ -254,6 +274,14 @@ export class Controller {
      */
     public set speed(value: number) {
         this._speed = value;
+    }
+
+    /**
+     * Sets the jump force
+     * @param value - New jump force value (higher = stronger jump)
+     */
+    public set jumpForce(value: Vector) {
+        this._jumpForce = value;
     }
 
     /**

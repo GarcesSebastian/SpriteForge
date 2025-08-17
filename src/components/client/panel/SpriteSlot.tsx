@@ -56,6 +56,11 @@ export default function SpriteSlot({
     }
   };
 
+  const handleEditController = () => {
+    setIsControllerModalOpen(true);
+    setSelectedSpriteForController(sprite);
+  };
+
   return (
     <div 
       className={`
@@ -188,15 +193,32 @@ export default function SpriteSlot({
 
           <div className="flex items-center space-x-2">
             <span className="text-xs text-gray-400 w-8">Control</span>
-            <Button
-              onClick={handleControllerToggle}
-              variant={sprite.controller ? "danger" : "success"}
-              className={`flex-1 h-6 text-xs ${
-                !sprite.controller ? 'bg-green-600/50 hover:bg-green-600 text-green-300 border border-green-500/50' : 'bg-red-600/50 hover:bg-red-600 text-red-300 border border-red-500/50'
-              }`}
-            >
-              {sprite.controller ? 'Remove' : 'Create'}
-            </Button>
+            {sprite.controller ? (
+              <div className="flex space-x-1 flex-1">
+                <Button
+                  onClick={handleEditController}
+                  variant="primary"
+                  className="flex-1 h-6 text-xs bg-blue-600/50 hover:bg-blue-600 text-blue-300 border border-blue-500/50"
+                >
+                  Edit
+                </Button>
+                <Button
+                  onClick={handleControllerToggle}
+                  variant="danger"
+                  className="flex-1 h-6 text-xs bg-red-600/50 hover:bg-red-600 text-red-300 border border-red-500/50"
+                >
+                  Remove
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={handleControllerToggle}
+                variant="success"
+                className="flex-1 h-6 text-xs bg-green-600/50 hover:bg-green-600 text-green-300 border border-green-500/50"
+              >
+                Create
+              </Button>
+            )}
           </div>
         </div>
       </div>

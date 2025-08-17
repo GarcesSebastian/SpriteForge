@@ -12,6 +12,7 @@ interface ControllerStatus {
     left: string[]
     right: string[]
     jump: string[]
+    fall: string[]
     idle: string[]
 }
 
@@ -26,4 +27,5 @@ interface ControllerProps {
     keywords: ControllerKeyWords
     status: ControllerStatus
     speed?: number
+    jumpForce?: number
 }

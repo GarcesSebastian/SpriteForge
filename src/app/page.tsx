@@ -120,8 +120,9 @@ export default function Home() {
         down: ["0:3"],
         left: ["12:15"],
         right: ["8:11"],
-        jump: ["4(10)"],
-        idle: ["0(10)"]
+        jump: ["4"],
+        fall: ["8"],
+        idle: ["0"]
       },
       speed: 5
     });
