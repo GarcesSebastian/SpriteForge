@@ -19,7 +19,7 @@ export default function SpriteSlot({
   onDelete,
 }: SpriteSlotProps) {
   const [, forceUpdate] = useState({});
-  const { setIsControllerModalOpen, setSelectedSpriteForController } = useApp();
+  const { setIsControllerModalOpen, setSelectedSpriteForController, spriteControlled, setSpriteControlled } = useApp();
 
   const handleTogglePlay = () => {
     if (sprite.isPlaying()) {
@@ -61,10 +61,30 @@ export default function SpriteSlot({
     setSelectedSpriteForController(sprite);
   };
 
+  const handleControllerBindToggle = () => {
+    if (!sprite.controller) return;
+
+    const isCurrentlyControlled = spriteControlled === sprite;
+    
+    if (isCurrentlyControlled) {
+      sprite.controller.unbind();
+      setSpriteControlled(null);
+    } else {
+      if (spriteControlled && spriteControlled.controller) {
+        spriteControlled.controller.unbind();
+      }
+      
+      sprite.controller.bind(sprite);
+      setSpriteControlled(sprite);
+    }
+    
+    forceUpdate({});
+  };
+
   return (
     <div 
       className={`
-        relative flex-shrink-0 w-full h-full bg-gray-700/40 rounded-lg border transition-all duration-200
+        relative flex-shrink-0 w-full min-h-full bg-gray-700/40 rounded-lg border transition-all duration-200
         ${isSelected 
           ? 'border-blue-400/60 bg-gradient-to-br from-blue-500/10 to-blue-600/5 shadow-lg shadow-blue-500/20' 
           : 'border-gray-600/40 hover:border-gray-500/60'
@@ -84,7 +104,7 @@ export default function SpriteSlot({
         )}
       </div>
 
-      <div className="p-3 h-full flex flex-col">
+      <div className="p-3 flex flex-col min-h-0">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2 min-w-0 flex-1">
             <div className="w-2 h-2 rounded-full bg-gray-400 flex-shrink-0" />
@@ -114,7 +134,7 @@ export default function SpriteSlot({
           </div>
         </div>
 
-        <div className="flex-1 bg-gray-800/50 rounded border border-gray-600/30 mb-2 overflow-hidden">
+        <div className="flex-1 bg-gray-800/50 rounded border border-gray-600/30 mb-3 overflow-hidden py-2">
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-xs text-gray-500">
               {sprite.spriteGrid.rows}×{sprite.spriteGrid.cols}
@@ -122,7 +142,7 @@ export default function SpriteSlot({
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Button
             onClick={handleTogglePlay}
             variant={isPlaying ? "danger" : "success"}
@@ -146,20 +166,23 @@ export default function SpriteSlot({
           </Button>
 
           <div className="flex items-center space-x-2">
-            <span className="text-xs text-gray-400 w-8">Speed</span>
-            <Select
-              value={sprite.speed || 1}
-              onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-              variant="filled"
-              className="flex-1 text-xs px-2 py-1"
-            >
-              <option value={0.25}>0.25x</option>
-              <option value={0.5}>0.5x</option>
-              <option value={1}>1x</option>
-              <option value={1.5}>1.5x</option>
-              <option value={2}>2x</option>
-              <option value={3}>3x</option>
-            </Select>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-gray-400 w-8">Speed</span>
+              <Select
+                value={sprite.speed || 1}
+                onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
+                variant="filled"
+                className="flex-1 text-xs px-2 py-1"
+              >
+                <option value={0.25}>0.25x</option>
+                <option value={0.5}>0.5x</option>
+                <option value={1}>1x</option>
+                <option value={1.5}>1.5x</option>
+                <option value={2}>2x</option>
+                <option value={3}>3x</option>
+              </Select>
+            </div>
+
           </div>
 
           <div className="flex items-center space-x-2">
@@ -191,33 +214,43 @@ export default function SpriteSlot({
             </Button>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <span className="text-xs text-gray-400 w-8">Control</span>
-            {sprite.controller ? (
-              <div className="flex space-x-1 flex-1">
-                <Button
-                  onClick={handleEditController}
-                  variant="primary"
-                  className="flex-1 h-6 text-xs bg-blue-600/50 hover:bg-blue-600 text-blue-300 border border-blue-500/50"
-                >
-                  Edit
-                </Button>
-                <Button
-                  onClick={handleControllerToggle}
-                  variant="danger"
-                  className="flex-1 h-6 text-xs bg-red-600/50 hover:bg-red-600 text-red-300 border border-red-500/50"
-                >
-                  Remove
-                </Button>
-              </div>
-            ) : (
+          <div className="space-y-1">
+            <div className="flex items-center">
+              <span className="text-xs text-gray-400 w-12">Control</span>
               <Button
                 onClick={handleControllerToggle}
-                variant="success"
-                className="flex-1 h-6 text-xs bg-green-600/50 hover:bg-green-600 text-green-300 border border-green-500/50"
+                variant={sprite.controller ? "danger" : "success"}
+                className={`flex-1 h-6 text-xs ${
+                  sprite.controller ? 'bg-red-600/50 hover:bg-red-600 text-red-300 border border-red-500/50' :
+                  'bg-green-600/50 hover:bg-green-600 text-green-300 border border-green-500/50'
+                }`}
               >
-                Create
+                {sprite.controller ? 'Remove' : 'Create'}
               </Button>
+            </div>
+            
+            {sprite.controller && (
+              <div className="flex items-center">
+                <div className="flex space-x-1 flex-1">
+                  <Button
+                    onClick={handleControllerBindToggle}
+                    variant={spriteControlled === sprite ? "primary" : "ghost"}
+                    className={`flex-1 h-6 text-xs ${
+                      spriteControlled === sprite ? 'bg-green-600/50 hover:bg-green-600 text-green-300 border border-green-500/50' : 
+                      'bg-gray-600/50 hover:bg-gray-600 text-gray-300 border border-gray-500/50'
+                    }`}
+                  >
+                    {spriteControlled === sprite ? 'Active' : 'Bind'}
+                  </Button>
+                  <Button
+                    onClick={handleEditController}
+                    variant="primary"
+                    className="flex-1 h-6 text-xs bg-blue-600/50 hover:bg-blue-600 text-blue-300 border border-blue-500/50"
+                  >
+                    Edit
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
         </div>

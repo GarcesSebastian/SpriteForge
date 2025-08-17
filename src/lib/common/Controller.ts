@@ -3,6 +3,7 @@ import { Shape } from "../instances/Shape"
 import { Sprite } from "../instances/_shapes/Sprite";
 import { v4 as uuidv4 } from "uuid";
 import { Render } from "../Render";
+import { Arrow } from "../instances/_shapes/Arrow";
 
 /**
  * Controller class for handling keyboard input, movement, physics, and animations
@@ -34,8 +35,15 @@ export class Controller {
     /** Current animation status for state management */
     private _currentStatus: string | null = null;
 
+    /** Debug arrow for velocity */
+    private _velocityArrow: Arrow;
+    /** Debug arrow for gravity */
+    private _gravityArrow: Arrow;
+
     /** Last ground position for jump physics calculations */
     private _lastPosition: Vector = Vector.zero;
+    /** Direction of movement */
+    private _direction: Vector = Vector.zero;
     /** Current velocity vector for physics simulation */
     private _velocity: Vector = Vector.zero;
     /** Jump force applied when jumping (positive Y moves down) */
@@ -45,7 +53,7 @@ export class Controller {
     /** Last jump time */
     private _lastJumpTime: number = performance.now();
     /** Gravity force constantly applied during jumps */
-    private _gravity: Vector = new Vector(0, 0.9);
+    private _gravity: Vector = new Vector(0, 0.5);
     /** Whether the controlled shape is currently on the ground */
     private _isOnGround: boolean = true;
     /** Animation frame ID for the update loop */
@@ -74,6 +82,21 @@ export class Controller {
             fall: ["0"],
             idle: ["0"]
         };
+
+        this._velocityArrow = render.creator.Arrow({
+            position: Vector.zero,
+            target: Vector.zero,
+            color: "red",
+            strokeWidth: 3
+        });
+
+        this._gravityArrow = render.creator.Arrow({
+            position: Vector.zero,
+            target: Vector.zero,
+            color: "blue",
+            strokeWidth: 3
+        });
+
 
         this._render = render;
         render._controllers.set(this._id, this);
@@ -121,9 +144,39 @@ export class Controller {
      * @private
      */
     private _update(): void {
+        this._updateDebug();
         this._updatePhysics();
         this._updateMovement();
         this._animationId = requestAnimationFrame(this._updateBind);
+    }
+
+    private _updateDebug(): void {
+        if (!this._target || !(this._target as Sprite).debug) {
+            this._gravityArrow.visible = false;
+            this._velocityArrow.visible = false;
+            return;
+        }
+
+        this._velocityArrow.visible = true;
+        this._gravityArrow.visible = !this._isOnGround;
+
+        const width = this._getWidthSprite();
+        const height = this._getHeightSprite();
+        const centerOffset = new Vector(width / 2, height / 2);
+        
+        let totalMovement = Vector.zero;
+        
+        if (this._direction.x !== 0 || this._direction.y !== 0) {
+            totalMovement = totalMovement.add(this._direction.normalize().scale(this._speed));
+        }
+        
+        totalMovement = totalMovement.add(this._velocity);
+        
+        this._velocityArrow.position = this._target.position.add(centerOffset);
+        this._velocityArrow.target = this._velocityArrow.position.add(totalMovement.normalize().scale(100));
+        
+        this._gravityArrow.position = this._target.position.add(centerOffset);
+        this._gravityArrow.target = this._gravityArrow.position.add(this._gravity.normalize().scale(100));
     }
 
     /**
@@ -170,6 +223,8 @@ export class Controller {
         if (this._keysPressed.has(this._keywords.right)) {
             movement = movement.add(this._config.right);
         }
+
+        this._direction = movement;
 
         if (this._keysPressed.has(this._keywords.jump) && this._isOnGround && performance.now() - this._lastJumpTime > this._coolDownJump) {
             this._lastPosition = this._target.position;
@@ -230,6 +285,26 @@ export class Controller {
      */
     private _hasRestorePatternMethod(target: Shape): target is Shape & { _restorePattern: () => void } {
         return '_restorePattern' in target && typeof (target as Sprite)._restorePattern === 'function';
+    }
+
+    /**
+     * Gets the width of the sprite
+     * @returns The width of the sprite
+     * @private
+     */
+    private _getWidthSprite(): number {
+        if (!this._target) return 0;
+        return (this._target as Sprite).getWidth();
+    }
+
+    /**
+     * Gets the height of the sprite
+     * @returns The height of the sprite
+     * @private
+     */
+    private _getHeightSprite(): number {
+        if (!this._target) return 0;
+        return (this._target as Sprite).getHeight();
     }
 
     /**
@@ -314,6 +389,14 @@ export class Controller {
 
         this._target = null;
         this._restore();
+    }
+
+    /**
+     * Checks if the controller is currently bound to a shape
+     * @returns True if the controller is bound, false otherwise
+     */
+    public isBind(): boolean {
+        return this._target !== null;
     }
 
     /**

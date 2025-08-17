@@ -13,6 +13,8 @@ interface AppContextProps {
     setIsControllerModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     selectedSpriteForController: Sprite | null;
     setSelectedSpriteForController: React.Dispatch<React.SetStateAction<Sprite | null>>;
+    spriteControlled: Sprite | null;
+    setSpriteControlled: React.Dispatch<React.SetStateAction<Sprite | null>>;
 }
 
 export const AppContext = createContext<AppContextProps | null>(null);
@@ -22,7 +24,8 @@ export const AppContextProvider = ({ children } : { children: React.ReactNode })
     const [isPlaying, setIsPlaying] = useState(false);
     const [isControllerModalOpen, setIsControllerModalOpen] = useState(false);
     const [selectedSpriteForController, setSelectedSpriteForController] = useState<Sprite | null>(null);
-  
+    const [spriteControlled, setSpriteControlled] = useState<Sprite | null>(null);
+
     const setup = (canvas: HTMLCanvasElement) => {
       if (!canvas) return;
   
@@ -44,7 +47,12 @@ export const AppContextProvider = ({ children } : { children: React.ReactNode })
     }, [isPlaying, render]);
 
     return (
-        <AppContext.Provider value={{ setup, render, isPlaying, setIsPlaying, isControllerModalOpen, setIsControllerModalOpen, selectedSpriteForController, setSelectedSpriteForController }}>
+        <AppContext.Provider value={{ 
+            setup, render, isPlaying, 
+            setIsPlaying, isControllerModalOpen, setIsControllerModalOpen, 
+            selectedSpriteForController, setSelectedSpriteForController,
+            spriteControlled, setSpriteControlled 
+        }}>
             {children}
         </AppContext.Provider>
     )

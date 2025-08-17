@@ -4,6 +4,7 @@ import { Render } from "../Render";
 import { Sprite as _Sprite } from "../instances/_shapes/Sprite";
 import { Rect as _Rect } from "../instances/_shapes/Rect";
 import { Transformer as _Transformer } from "../common/Transformer";
+import { Arrow as _Arrow, ArrowProps } from "../instances/_shapes/Arrow";
 
 /**
  * Factory class for creating shapes and utility objects within a render context
@@ -53,6 +54,17 @@ export class RenderCreator {
         return sprite;
     }
     
+    /**
+     * Creates a new arrow shape and emits creation event
+     * @param props - Configuration properties for the arrow
+     * @returns A new Arrow instance
+     */
+    public Arrow(props: ArrowProps): _Arrow {
+        const arrow = new _Arrow(props, this._render);
+        this._render.emit("create", { shape: arrow });
+        return arrow;
+    }
+
     /**
      * Creates a new 2D vector with the specified coordinates
      * @param x - The x component of the vector
