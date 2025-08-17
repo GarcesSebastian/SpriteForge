@@ -17,6 +17,22 @@ export class Vector {
     }
 
     /**
+     * Checks if the vector is zero (both components are zero)
+     * @returns True if the vector is zero, false otherwise
+     */
+    public isZero(): boolean {
+        return this.x === 0 && this.y === 0;
+    }
+
+    /**
+     * Checks if the vector components are NaN (Not-a-Number)
+     * @returns True if either component is NaN, false otherwise
+     */
+    public isNaN(): boolean {
+        return isNaN(this.x) || isNaN(this.y);
+    }
+
+    /**
      * Subtracts another vector from this vector
      * @param vector - The vector to subtract
      * @returns A new Vector representing the difference
@@ -62,6 +78,30 @@ export class Vector {
     }
 
     /**
+     * Inverts the direction of this vector
+     * @returns A new Vector with inverted components
+     */
+    public invert(): Vector {
+        return new Vector(-this.x, -this.y);
+    }
+
+    /**
+     * Inverts the x-component of this vector
+     * @returns A new Vector with inverted x-component
+     */
+    public invertX(): Vector {
+        return new Vector(-this.x, this.y);
+    }
+
+    /**
+     * Inverts the y-component of this vector
+     * @returns A new Vector with inverted y-component
+     */
+    public invertY(): Vector {
+        return new Vector(this.x, -this.y);
+    }
+
+    /**
      * Calculates the length (magnitude) of this vector
      * @returns The Euclidean length of the vector
      */
@@ -84,5 +124,45 @@ export class Vector {
      */
     public clone(): Vector {
         return new Vector(this.x, this.y);
+    }
+
+    /**
+     * Returns a zero vector (0, 0)
+     * @returns A new Vector with both components set to 0
+     */
+    public static get zero(): Vector {
+        return new Vector(0, 0);
+    }
+
+    /**
+     * Returns an up vector (0, -1)
+     * @returns A new Vector pointing upwards
+     */
+    public static get up(): Vector {
+        return new Vector(0, -1);
+    }
+
+    /**
+     * Returns a down vector (0, 1)
+     * @returns A new Vector pointing downwards
+     */
+    public static get down(): Vector {
+        return new Vector(0, 1);
+    }
+
+    /**
+     * Returns a left vector (-1, 0)
+     * @returns A new Vector pointing left
+     */
+    public static get left(): Vector {
+        return new Vector(-1, 0);
+    }
+
+    /**
+     * Returns a right vector (1, 0)
+     * @returns A new Vector pointing right
+     */
+    public static get right(): Vector {
+        return new Vector(1, 0);
     }
 }

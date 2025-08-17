@@ -1,6 +1,7 @@
 import { Shape } from "../instances/Shape";
 import { BodyVelocity } from "../common/BodyVelocity";
 import { Vector } from "../common/Vector";
+import { Controller } from "../common/Controller";
 
 /**
  * Manager class for handling shape-specific operations and physics
@@ -29,5 +30,21 @@ export class ShapeManager {
             speed: speed,
             shape: this._shape
         });
+    }
+
+    /**
+     * Adds keyboard control to the shape
+     * @param keywords - The keywords for movement (up, down, left, right)
+     * @param speed - The speed multiplier for movement
+     */
+    public controller(props: ControllerProps): void {
+        if (this._shape.controller) return;
+        const controller = new Controller({
+            keywords: props.keywords,
+            speed: props.speed,
+            status: props.status
+        });
+
+        this._shape.controller = controller;
     }
 }

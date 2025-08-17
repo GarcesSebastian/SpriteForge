@@ -64,7 +64,6 @@ export class Sprite extends Shape {
             this._processedFrames = this._parsePattern(this.pattern);
         }
 
-
         this._setup();
     }
 
@@ -319,7 +318,12 @@ export class Sprite extends Shape {
      * Resumes or starts the sprite animation
      * @returns This sprite instance for method chaining
      */
-    public play(): Sprite {
+    public play(pattern?: string[]): Sprite {
+        if (pattern) {
+            this.pattern = pattern;
+            this._processedFrames = this._parsePattern(pattern);
+            this._patternIndex = 0;
+        }
         this._paused = false;
         this.emit("play", { target: this });
         return this;

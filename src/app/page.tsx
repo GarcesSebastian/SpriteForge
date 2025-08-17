@@ -6,7 +6,6 @@ import { Sprite } from "@/lib/instances/_shapes/Sprite";
 import BottomPanel from "@/components/client/BottomPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
 import { FloatingGitHubButton } from "@/components/client/FloatingGitHubButton";
-import { Utils } from "@/lib/lib/Utils";
 
 interface SpritesDefault {
     url: string;
@@ -16,14 +15,6 @@ interface SpritesDefault {
     scale?: number;
     ignoreFrames?: number[];
 }
-
-const sprites_default: SpritesDefault[] = [
-    { url: "/Animations/Explosive_Strike.png", rows: 1, cols: 9 },
-    { url: "/Warrior/pone.png", rows: 8, cols: 8, pattern: ["8:15"], scale: 3 },
-    { url: "/Warrior/pone.png", rows: 8, cols: 8, pattern: ["16:23"], scale: 3 },
-    { url: "/Warrior/sprite.png", rows: 17, cols: 6, pattern: ["18:25"], scale: 3 },
-    { url: "/Warrior/sprite.png", rows: 17, cols: 6, pattern: ["18:25", "1(30)", "26:36", "36(15)"], scale: 3 }
-]
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -43,8 +34,19 @@ export default function Home() {
       if (args.shape instanceof Sprite) {
         setSprites((prev) => [...prev, args.shape as unknown as Sprite]);
 
-        args.shape.on("select", () => setSelectedSprites((prev) => [...prev, args.shape as unknown as Sprite]));
-        args.shape.on("deselect", () => setSelectedSprites((prev) => prev.filter(sprite => sprite.id !== args.shape.id)));
+        args.shape.on("select", () => {
+          setSelectedSprites((prev) => [...prev, args.shape as unknown as Sprite])
+          if (args.shape instanceof Sprite && args.shape.controller) {
+            args.shape.controller.bind(args.shape);
+          }
+        });
+
+        args.shape.on("deselect", () => {
+          setSelectedSprites((prev) => prev.filter(sprite => sprite.id !== args.shape.id))
+          if (args.shape instanceof Sprite && args.shape.controller) {
+            args.shape.controller.unbind();
+          }
+        });
         args.shape.on("play", () => setPlayingSprites((prev) => [...prev, args.shape as unknown as Sprite]));
         args.shape.on("pause", () => setPlayingSprites((prev) => prev.filter(sprite => sprite.id !== args.shape.id)));
       }
@@ -105,45 +107,34 @@ export default function Home() {
     if (!render) return;
 
     render.creator.Transformer();
-
-    sprites_default.forEach(sprite => {
-      render.creator.Sprite({
-        position: render.creator.Vector(Utils.randomInt(0, render.canvas.width - 200), Utils.randomInt(0, render.canvas.height - 200)),
-        src: sprite.url,
-        spriteGrid: { rows: sprite.rows, cols: sprite.cols },
-        pattern: sprite.pattern,
-        ignoreFrames: sprite.ignoreFrames,
-        scale: sprite.scale,
-        dragging: true
-      }).setDebug(true);
-    })
-
-    const circle = render.creator.Circle({
+    const spriteController = render.creator.Sprite({
       position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
-      radius: 50,
-      zIndex: 2,
+      src: "/character.png",
+      spriteGrid: { rows: 4, cols: 4 },
+      pattern: ["0(10)"],
+      scale: 3,
       dragging: true
     });
 
-    circle.on("dragstart", () => {
-      console.log("Drag start Circle");
-    })
-
-    circle.on("drag", () => {
-      console.log("Drag Circle");
-    })
-
-    circle.on("dragend", () => {
-      console.log("Drag end Circle");
-    })
-
-    const rect = render.creator.Rect({
-      position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
-      width: 100,
-      height: 100,
-      rotation: 0,
-      dragging: true
-    })
+    spriteController.manager.controller({
+      keywords: {
+        up: "w",
+        down: "s",
+        left: "a",
+        right: "d",
+        jump: " "
+      },
+      status: {
+        up: ["4:7"],
+        down: ["0:3"],
+        left: ["12:15"],
+        right: ["8:11"],
+        jump: ["4(10)"],
+        idle: ["0(10)"]
+      },
+      speed: 5
+    });
+    
   }, [render]);
 
   const handlePlay = () => {

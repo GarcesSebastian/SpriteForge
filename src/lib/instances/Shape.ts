@@ -5,6 +5,7 @@ import { BodyVelocity } from "../common/BodyVelocity";
 import { ShapeManager } from "../managers/Shape.manager";
 import { Transformer } from "../common/Transformer";
 import { ShapeProvider } from "../providers/Shape.provider";
+import { Controller } from "../common/Controller";
 
 /**
  * Abstract base class for all shape primitives in the rendering system.
@@ -24,6 +25,8 @@ export abstract class Shape extends ShapeProvider {
     public position: Vector;
     /** Manages the shape's physics properties like velocity and acceleration. Null if no physics applied. */
     public bodyVelocity: BodyVelocity | null = null;
+    /** Manages the shape's controller properties like keywords and speed. Null if no controller applied. */
+    public controller: Controller | null = null;
     /** The stacking order of the shape. Higher values are drawn on top. */
     public zIndex: number;
     /** If true, this shape can be used as a clipping mask. */
