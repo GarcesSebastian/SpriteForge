@@ -23,6 +23,7 @@ export class RenderManager {
      */
     public addChild(child: Shape) : void {
         this._render.childrens.set(child.id, child);
+        this._render._autoSave();
     }
 
     /**
@@ -31,6 +32,7 @@ export class RenderManager {
      */
     public removeChild(child: Shape) : void {
         this._render.childrens.delete(child.id);
+        this._render._autoSave();
     }
 
     /**

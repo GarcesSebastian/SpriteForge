@@ -165,6 +165,7 @@ export class Rect extends Shape {
     public _rawData() : RectRawData {
         return {
             id: this.id,
+            type: "rect",
             position: this.position,
             rotation: this.rotation,
             zIndex: this.zIndex,

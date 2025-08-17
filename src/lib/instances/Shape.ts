@@ -160,10 +160,11 @@ export abstract class Shape extends ShapeProvider {
 
     /**
      * Creates a new shape instance from raw data.
-     * @param data - The raw data of the shape.
+     * @param _data - The raw data of the shape.
+     * @param _render - The render instance.
      * @returns A new `Shape` instance with identical properties.
      */
-    public static _fromRawData(data: ShapeRawData, render: Render) : Shape {
+    public static _fromRawData(_data: ShapeRawData, _render: Render) : Shape {
         throw new Error("Method not implemented.");
     }
 

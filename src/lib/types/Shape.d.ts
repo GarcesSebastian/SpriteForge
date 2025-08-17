@@ -1,3 +1,5 @@
+type ShapeType = "circle" | "rect" | "sprite" | "arrow";
+
 interface ShapeProps {
     dragging?: boolean;
     position: Vector;
@@ -9,6 +11,7 @@ interface ShapeProps {
 
 interface ShapeRawData {
     id: string;
+    type: ShapeType;
     position: Vector;
     rotation: number;
     zIndex: number;

@@ -125,6 +125,7 @@ export class Circle extends Shape {
     public _rawData() : CircleRawData {
         return {
             id: this.id,
+            type: "circle",
             position: this.position,
             rotation: this.rotation,
             zIndex: this.zIndex,

@@ -96,6 +96,7 @@ export class Arrow extends Shape {
     public _rawData() : ArrowRawData {
         return {
             id: this.id,
+            type: "arrow",
             position: this.position,
             rotation: this.rotation,
             zIndex: this.zIndex,

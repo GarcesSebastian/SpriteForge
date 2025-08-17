@@ -511,6 +511,7 @@ export class Sprite extends Shape {
     public _rawData() : SpriteRawData {
         return {
             id: this.id,
+            type: "sprite",
             position: this.position,
             rotation: this.rotation,
             zIndex: this.zIndex,
