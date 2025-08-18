@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AppContextProvider } from "@/contexts/AppContext";
 import { SocketProvider } from "@/contexts/SocketContext";
 import "@/styles/globals.css";
+import AuthProvider from "@/providers/AuthProvider";
 
 export const metadata: Metadata = {
   title: 'SpriteForge - Advanced Sprite Animation Testing Platform',
@@ -97,11 +98,13 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body className="h-full overflow-hidden antialiased">
-        <SocketProvider>
-          <AppContextProvider>
-            {children}
-          </AppContextProvider>
-        </SocketProvider>
+        <AuthProvider>
+          <SocketProvider>
+            <AppContextProvider>
+              {children}
+            </AppContextProvider>
+          </SocketProvider>
+        </AuthProvider>
       </body>
     </html>
   );

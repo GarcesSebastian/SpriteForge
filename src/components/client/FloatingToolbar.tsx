@@ -1,10 +1,13 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react";
+import { LogOut, User, Share2 } from 'lucide-react';
 import { Button } from "@/components/common";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import SpriteCreationForm from "./floating-toolbar/SpriteCreationForm";
 import MobileSpriteCreationForm from "./floating-toolbar/MobileSpriteCreationForm";
+import ShareForm from './floating-toolbar/ShareForm';
+import { signIn, signOut, useSession } from "next-auth/react";
 
 interface FloatingToolbarProps {
   onCreateSprite: (props: SpriteProps) => void;
@@ -13,7 +16,7 @@ interface FloatingToolbarProps {
   onStop: () => void;
 }
 
-type DropdownType = 'sprite' | null;
+type DropdownType = 'sprite' | 'share' | null;
 
 export default function FloatingToolbar({
   onCreateSprite,
@@ -21,6 +24,7 @@ export default function FloatingToolbar({
   onPlay,
   onStop,
 }: FloatingToolbarProps) {
+  const { data: session } = useSession();
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery('(max-width: 640px)');
@@ -46,7 +50,7 @@ export default function FloatingToolbar({
     <>
       <div className="fixed top-6 left-6 z-40" ref={dropdownRef}>
         <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-xl p-3">
-          <div className="flex space-x-1">
+          <div className="flex items-center space-x-1">
             <Button
               onClick={isPlaying ? onStop : onPlay}
               variant={isPlaying ? "danger" : "success"}
@@ -83,6 +87,51 @@ export default function FloatingToolbar({
                   <SpriteCreationForm onCreateSprite={onCreateSprite} onClose={handleCloseForm} />
               )}
             </div>
+
+            <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+
+            {session && session.user ? (
+              <>
+                <div className="relative">
+                  <Button
+                    onClick={() => signOut()}
+                    variant="ghost"
+                    size="icon"
+                    className="group relative hover:scale-105 active:scale-95"
+                    title={`Logout ${session.user.name}`}
+                  >
+                    <img src={session.user.image!} alt={session.user.name!} className="w-9 h-9 rounded-full" />
+                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <LogOut className="w-5 h-5 text-white" />
+                    </div>
+                  </Button>
+                </div>
+                <div className="relative">
+                  <Button
+                    onClick={() => setActiveDropdown(activeDropdown === 'share' ? null : 'share')}
+                    variant="ghost"
+                    size="icon"
+                    className={`group relative hover:scale-105 active:scale-95 ${
+                      activeDropdown === 'share' ? 'ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''
+                    }`}
+                    title="Share"
+                  >
+                    <Share2 className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-white" />
+                  </Button>
+                  {activeDropdown === 'share' && <ShareForm onClose={handleCloseForm} />}
+                </div>
+              </>
+            ) : (
+              <Button
+                onClick={() => signIn('google')}
+                variant="auth"
+                size="icon"
+                className="group relative hover:scale-105 active:scale-95"
+                title="Authenticate"
+              >
+                <User className="w-5 h-5 text-white" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
