@@ -97,6 +97,11 @@ export class Render extends RenderProvider {
         window.addEventListener("mousemove", this._onMouseMoveBind);
         window.addEventListener("mousedown", this._onMouseDownBind);
         window.addEventListener("mouseup", this._onMouseUpBind);
+
+        /**
+         * Prevents default context menu (right-click) behavior
+         */
+        this.canvas.addEventListener("contextmenu", (event) => event.preventDefault());
     }
 
     /**

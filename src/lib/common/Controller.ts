@@ -48,8 +48,10 @@ export class Controller {
     private _velocity: Vector = Vector.zero;
     /** Jump force applied when jumping (positive Y moves down) */
     private _jumpForce: Vector;
+    /** Whether the controller is currently jumping */
+    private _isJumping: boolean = false;
     /** Cool down for jump */
-    private _coolDownJump: number = 0.8 * 1000; // Miliseconds
+    private _coolDownJump: number = 0.15 * 1000; // Miliseconds
     /** Last jump time */
     private _lastJumpTime: number = performance.now();
     /** Gravity force constantly applied during jumps */
@@ -226,11 +228,11 @@ export class Controller {
 
         this._direction = movement;
 
-        if (this._keysPressed.has(this._keywords.jump) && this._isOnGround && performance.now() - this._lastJumpTime > this._coolDownJump) {
+        if (this._keysPressed.has(this._keywords.jump) && !this._isJumping && this._isOnGround && performance.now() - this._lastJumpTime > this._coolDownJump) {
             this._lastPosition = this._target.position;
             this._isOnGround = false;
             this._velocity = this._jumpForce.scale(-1);
-            this._lastJumpTime = performance.now();
+            this._isJumping = true;
         }
 
         if (this._keysPressed.size === 0) {
@@ -251,8 +253,17 @@ export class Controller {
             }
         }
 
-        if (!this._isOnGround && newStatus !== "jump") {
+        if (this._velocity.y < 0 && !this._isOnGround) {
+            newStatus = "jump";
+        }
+
+        if (this._velocity.y > 0 && !this._isOnGround) {
             newStatus = "fall";
+        }
+
+        if (this._isOnGround && this._isJumping) {
+            this._lastJumpTime = performance.now();
+            this._isJumping = false;
         }
 
         if (newStatus !== this._currentStatus) {
