@@ -88,9 +88,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!render) return;
-
     render.creator.Transformer();
-    
   }, [render]);
 
   const handlePlay = () => {

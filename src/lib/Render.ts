@@ -82,6 +82,82 @@ export class Render extends RenderProvider {
     private config() : void {
         this.resize();
         this.boundary();
+        this._defaultSprites();
+    }
+
+    /**
+     * Creates default sprites for testing and demonstration purposes
+     * @private
+     */
+    private _defaultSprites() : void {
+        const config = localStorage.getItem("config");
+        if (config) {
+            const parsedConfig = JSON.parse(config);
+            if (parsedConfig.setup) return;
+        }
+
+        localStorage.setItem("config", JSON.stringify({
+            setup: true
+        }));
+
+        const default_sprites = [
+            { 
+                src: "/Warrior/sprite.png", 
+                pattern: ["18:25"], 
+                spriteGrid: { rows: 17, cols: 6 }, 
+                position: { x: 0.1 * this.canvas.width, y: 0.1 * this.canvas.height } 
+            },
+            { 
+                src: "/Warrior/sprite.png", 
+                pattern: ["26:36"], 
+                spriteGrid: { rows: 17, cols: 6 }, 
+                position: { x: 0.3 * this.canvas.width, y: 0.7 * this.canvas.height } 
+            },
+            { 
+                src: "/Warrior/sprite.png", 
+                pattern: ["18:25", "0(15)", "26:36", "36(15)"], 
+                spriteGrid: { rows: 17, cols: 6 }, 
+                position: { x: 0.2 * this.canvas.width, y: 0.4 * this.canvas.height } 
+            },
+        ]
+
+        default_sprites.forEach(sprite => {
+            this.creator.Sprite({
+                src: sprite.src,
+                spriteGrid: sprite.spriteGrid,
+                pattern: sprite.pattern,
+                scale: 3,
+                position: this.creator.Vector(sprite.position.x, sprite.position.y),
+            }).setDebug(true);
+        })
+
+        const spriteController = this.creator.Sprite({
+            position: this.creator.Vector(0.8 * this.canvas.width, 0.5 * this.canvas.height),
+            src: "/character.png",
+            spriteGrid: { rows: 4, cols: 4 },
+            scale: 3,
+            dragging: true
+        }).setDebug(true);
+
+        spriteController.manager.controller({
+            keywords: {
+                up: "w",
+                down: "s",
+                left: "a",
+                right: "d",
+                jump: " "
+            },
+            status: {
+                up: ["4:7"],
+                down: ["0:3"],
+                left: ["12:15"],
+                right: ["8:11"],
+                jump: ["4"],
+                fall: ["8"],
+                idle: ["0"]
+            },
+            speed: 5
+        });
     }
 
     /**
@@ -550,6 +626,14 @@ export class Render extends RenderProvider {
      */
     public autoSave() : void {
         localStorage.setItem("canvas", JSON.stringify(this.serialize()));
+    }
+
+    /**
+     * Clears the save data and removes all shapes from the render
+     */
+    public clearSave() : void {
+        localStorage.clear();
+        this.childrens.clear();
     }
 
     /**

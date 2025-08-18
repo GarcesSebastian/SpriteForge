@@ -246,40 +246,6 @@ export class Transformer {
             this._shifted = true;
         }
 
-        if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "d") {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            
-            const spriteController = this._render.creator.Sprite({
-                position: this._render.creator.Vector(this._render.canvas.width / 2, this._render.canvas.height / 2),
-                src: "/character.png",
-                spriteGrid: { rows: 4, cols: 4 },
-                scale: 3,
-                dragging: true
-            });
-
-            spriteController.manager.controller({
-                keywords: {
-                    up: "w",
-                    down: "s",
-                    left: "a",
-                    right: "d",
-                    jump: " "
-                },
-                status: {
-                    up: ["4:7"],
-                    down: ["0:3"],
-                    left: ["12:15"],
-                    right: ["8:11"],
-                    jump: ["4"],
-                    fall: ["8"],
-                    idle: ["0"]
-                },
-                speed: 5
-            });
-        }
-
         if (e.ctrlKey && e.key.toLowerCase() === "f") {
             e.preventDefault();
             this._nodes.forEach(node => {

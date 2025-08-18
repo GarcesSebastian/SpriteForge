@@ -109,13 +109,6 @@ export default function BottomPanel({
 
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        onTouchStart={(e) => {
-          e.stopPropagation();
-        }}
-        onTouchEnd={(e) => {
-          e.stopPropagation();
-          setIsCollapsed(!isCollapsed);
-        }}
         className={`
           absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full
           w-20 h-10 bg-gradient-to-t from-blue-600/90 to-blue-500/90 backdrop-blur-lg
@@ -125,7 +118,6 @@ export default function BottomPanel({
           transition-all duration-300 shadow-xl z-10
           ${isCollapsed ? 'animate-pulse shadow-blue-500/30' : 'shadow-blue-600/20'}
         `}
-        style={{ touchAction: 'manipulation' }}
       >
         <svg 
           className={`w-5 h-5 text-white transition-transform duration-300 ${
