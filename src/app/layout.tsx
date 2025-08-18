@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import "@/styles/globals.css";
-
 import { AppContextProvider } from "@/contexts/AppContext";
 import { SocketProvider } from "@/contexts/SocketContext";
 import "@/styles/globals.css";
