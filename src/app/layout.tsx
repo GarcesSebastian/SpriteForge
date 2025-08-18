@@ -93,6 +93,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full bg-gray-900">
       <head>
+        <meta name="google-site-verification" content="BT6A1CYMlT549EKMmzXOaKlJkD7C7MST2SNmGmQmj5c" />
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="shortcut icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
