@@ -10,7 +10,7 @@ export default function Head() {
             "name": "SpriteForge",
             "alternateName": "SpriteForge - Advanced Sprite Animation Testing Platform",
             "description": "Professional web platform for testing, previewing, and fine-tuning sprite animations in real-time. Perfect for game developers, animators, and digital artists.",
-            "url": "https://spriteforge.dev",
+            "url": "https://spriteforge.garcessebastian.com",
             "applicationCategory": "GameApplication",
             "applicationSubCategory": "Development Tool",
             "operatingSystem": "Web Browser",
@@ -43,7 +43,7 @@ export default function Head() {
               "Export capabilities"
             ],
             "screenshot": [
-              "https://spriteforge.dev/logo.png"
+              "https://spriteforge.garcessebastian.com/logo.png"
             ],
             "aggregateRating": {
               "@type": "AggregateRating",

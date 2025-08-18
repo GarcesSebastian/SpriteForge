@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://spriteforge.dev/sitemap.xml
+Sitemap: https://spriteforge.garcessebastian.com/sitemap.xml
 
 # Specific crawling rules
 User-agent: Googlebot

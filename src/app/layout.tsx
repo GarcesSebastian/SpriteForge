@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'SpriteForge - Advanced Sprite Animation Testing Platform',
     description: 'Professional web platform for testing, previewing, and fine-tuning sprite animations in real-time. Perfect for game developers, animators, and digital artists.',
-    url: 'https://spriteforge.dev',
+    url: 'https://spriteforge.garcessebastian.com',
     siteName: 'SpriteForge',
     images: [
       {
