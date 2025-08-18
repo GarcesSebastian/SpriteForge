@@ -29,7 +29,7 @@ export const FloatingGitHubButton: FC<FloatingGitHubButtonProps> = ({ url }) => 
                     </svg>
                 </Button>
             </a>
-            <div className="absolute right-full top-1/2 mr-4 -translate-y-1/2 scale-90 whitespace-nowrap rounded-md bg-gray-900 px-3 py-1.5 text-sm font-semibold text-white opacity-0 transition-all duration-200 group-hover:scale-100 group-hover:opacity-100">
+            <div className="absolute right-full top-1/2 mr-4 -translate-y-1/2 scale-90 whitespace-nowrap rounded-md bg-gray-900 px-3 py-1.5 text-sm font-semibold text-white opacity-0 transition-all duration-200 group-hover:scale-100 group-hover:opacity-100 hidden md:block">
                 ¡Anímate a contribuir!
                 <div className="absolute left-full top-1/2 -translate-y-1/2">
                     <div className="h-0 w-0 border-y-4 border-y-transparent border-l-4 border-l-gray-900"></div>
