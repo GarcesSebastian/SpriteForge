@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'Sebxstt' }],
   creator: 'Sebxstt',
   publisher: 'Sebxstt',
-  metadataBase: new URL('https://spriteforge.dev'),
+  metadataBase: new URL('https://spriteforge.garcessebastian.com'),
   openGraph: {
     title: 'SpriteForge - Advanced Sprite Animation Testing Platform',
     description: 'Professional web platform for testing, previewing, and fine-tuning sprite animations in real-time. Perfect for game developers, animators, and digital artists.',
