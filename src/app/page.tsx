@@ -90,46 +90,33 @@ export default function Home() {
     if (!render) return;
 
     render.creator.Transformer();
-    const spriteController = render.creator.Sprite({
-      position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
-      src: "/character.png",
-      spriteGrid: { rows: 4, cols: 4 },
-      scale: 3,
-      dragging: true
-    });
+    // const spriteController = render.creator.Sprite({
+    //   position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
+    //   src: "/character.png",
+    //   spriteGrid: { rows: 4, cols: 4 },
+    //   scale: 3,
+    //   dragging: true
+    // });
 
-    spriteController.manager.controller({
-      keywords: {
-        up: "w",
-        down: "s",
-        left: "a",
-        right: "d",
-        jump: " "
-      },
-      status: {
-        up: ["4:7"],
-        down: ["0:3"],
-        left: ["12:15"],
-        right: ["8:11"],
-        jump: ["4"],
-        fall: ["8"],
-        idle: ["0"]
-      },
-      speed: 5
-    });
-
-    const circle = render.creator.Circle({
-      position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
-      radius: 50,
-      color: "red"
-    });
-
-    const rect = render.creator.Rect({
-      position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
-      width: 100,
-      height: 100,
-      color: "blue"
-    });
+    // spriteController.manager.controller({
+    //   keywords: {
+    //     up: "w",
+    //     down: "s",
+    //     left: "a",
+    //     right: "d",
+    //     jump: " "
+    //   },
+    //   status: {
+    //     up: ["4:7"],
+    //     down: ["0:3"],
+    //     left: ["12:15"],
+    //     right: ["8:11"],
+    //     jump: ["4"],
+    //     fall: ["8"],
+    //     idle: ["0"]
+    //   },
+    //   speed: 5
+    // });
     
   }, [render]);
 

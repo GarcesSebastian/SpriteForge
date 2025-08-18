@@ -34,6 +34,8 @@ interface SpriteRawData extends ShapeRawData {
     speed: number;
     loop: boolean;
     controller?: ControllerRawData;
+    isPlaying: boolean;
+    isDebugged: boolean;
 }
 
 interface ArrowRawData extends ShapeRawData {

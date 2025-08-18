@@ -455,7 +455,7 @@ export class Render extends RenderProvider {
     private render(): void {
         this.clear();
 
-        this._childs().forEach(shape => shape.update());
+        this._childs().sort((a, b) => a.zIndex - b.zIndex).forEach(shape => shape.update());
         this._transformer?.update();
 
         this._updateFps();

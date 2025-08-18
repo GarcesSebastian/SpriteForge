@@ -89,7 +89,8 @@ export class Controller {
             position: Vector.zero,
             target: Vector.zero,
             color: "red",
-            strokeWidth: 3
+            strokeWidth: 3,
+            zIndex: 1000
         });
 
         this._velocityArrow._autoSave = false;
@@ -98,7 +99,8 @@ export class Controller {
             position: Vector.zero,
             target: Vector.zero,
             color: "blue",
-            strokeWidth: 3
+            strokeWidth: 3,
+            zIndex: 1000
         });
 
         this._gravityArrow._autoSave = false;
@@ -276,7 +278,7 @@ export class Controller {
             }
         }
 
-        if (movement.x !== 0 || movement.y !== 0) {
+        if (movement.x !== 0 || movement.y !== 0 && this._isOnGround) {
             this._target.position = this._target.position.add(movement.normalize().scale(this._speed));
             this._render.autoSave();
         }

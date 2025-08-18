@@ -8,14 +8,12 @@ import { useApp } from "@/hooks/useApp"
 interface SpriteSlotProps {
   sprite: Sprite;
   isSelected: boolean;
-  isPlaying: boolean;
   onDelete: (sprite: Sprite) => void;
 }
 
 export default function SpriteSlot({
   sprite,
   isSelected,
-  isPlaying,
   onDelete,
 }: SpriteSlotProps) {
   const [, forceUpdate] = useState({});
@@ -89,7 +87,7 @@ export default function SpriteSlot({
           ? 'border-blue-400/60 bg-gradient-to-br from-blue-500/10 to-blue-600/5 shadow-lg shadow-blue-500/20' 
           : 'border-gray-600/40 hover:border-gray-500/60'
         }
-        ${isPlaying 
+        ${sprite.isPlaying() 
           ? 'shadow-[0_0_10px_rgba(34,197,94,0.3)]' 
           : ''
         }
@@ -99,7 +97,7 @@ export default function SpriteSlot({
         {isSelected && (
           <div className="flex-1 bg-gradient-to-r from-blue-400 to-blue-500" />
         )}
-        {isPlaying && (
+        {sprite.isPlaying() && (
           <div className="flex-1 bg-gradient-to-r from-green-400 to-green-500 animate-pulse" />
         )}
       </div>
@@ -145,10 +143,10 @@ export default function SpriteSlot({
         <div className="space-y-1.5">
           <Button
             onClick={handleTogglePlay}
-            variant={isPlaying ? "danger" : "success"}
+            variant={sprite.isPlaying() ? "danger" : "success"}
             className="w-full h-8 space-x-2"
           >
-            {isPlaying ? (
+            {sprite.isPlaying() ? (
               <>
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zM13 8a1 1 0 012 0v4a1 1 0 11-2 0V8z" clipRule="evenodd" />

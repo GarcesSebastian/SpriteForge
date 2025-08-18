@@ -189,14 +189,12 @@ export default function BottomPanel({
               <div className="grid gap-3 pb-2 auto-rows-max grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                 {sprites.map((sprite) => {
                   const isSelected = selectedSprites.some(selected => selected.id === sprite.id);
-                  const isPlaying = playingSprites.some(playing => playing.id === sprite.id);
                   
                   return (
                     <SpriteSlot
                       key={sprite.id}
                       sprite={sprite}
                       isSelected={isSelected}
-                      isPlaying={isPlaying}
                       onDelete={onDeleteSprite}
                     />
                   );

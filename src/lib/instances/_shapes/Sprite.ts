@@ -168,10 +168,7 @@ export class Sprite extends Shape {
 
             this._widthFrame = this._width / this.spriteGrid.cols;
             this._heightFrame = this._height / this.spriteGrid.rows;
-            setTimeout(() => {
-                this._loading = false;
-                this.play();
-            }, 1000);
+            this._loading = false;
         };
     }
     
@@ -270,6 +267,7 @@ export class Sprite extends Shape {
     public setWidth(width: number): Sprite {
         this._width = width;
         this.scale = width / this._widthFrame;
+        this._render.autoSave();
         return this;
     }
 
@@ -281,6 +279,7 @@ export class Sprite extends Shape {
     public setHeight(height: number): Sprite {
         this._height = height;
         this.scale = height / this._heightFrame;
+        this._render.autoSave();
         return this;
     }
 
@@ -292,6 +291,7 @@ export class Sprite extends Shape {
      */
     public setDebug(debugged: boolean): Sprite {
         this._debugged = debugged;
+        this._render.autoSave();
         return this;
     }
 
@@ -302,6 +302,7 @@ export class Sprite extends Shape {
      */
     public setSpeed(speed: number): Sprite {
         this.speed = speed;
+        this._render.autoSave();
         return this;
     }
 
@@ -312,6 +313,7 @@ export class Sprite extends Shape {
      */
     public setLoop(loop: boolean): Sprite {
         this.loop = loop;
+        this._render.autoSave();
         return this;
     }
 
@@ -322,6 +324,7 @@ export class Sprite extends Shape {
     public pause(): Sprite {
         this._paused = true;
         this.emit("pause", { target: this });
+        this._render.autoSave();
         return this;
     }
 
@@ -338,6 +341,7 @@ export class Sprite extends Shape {
         }
         this._paused = false;
         this.emit("play", { target: this });
+        this._render.autoSave();
         return this;
     }
 
@@ -517,7 +521,9 @@ export class Sprite extends Shape {
             speed: this.speed ?? 1,
             loop: this.loop ?? false,
             scale: this.scale ?? 1,
-            controller: this.controller?._rawData()
+            controller: this.controller?._rawData(),
+            isPlaying: this.isPlaying(),
+            isDebugged: this.isDebugging()
         };
     }
 
@@ -548,7 +554,11 @@ export class Sprite extends Shape {
             sprite.controller = Controller._fromRawData(data.controller, render);
         }
 
+        sprite.setDebug(data.isDebugged);
         render.emit("create", { shape: sprite });
+        
+        if (data.isPlaying) sprite.play();
+        else sprite.pause();
         
         return sprite;
     }
