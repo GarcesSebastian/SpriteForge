@@ -7,7 +7,6 @@ import BottomPanel from "@/components/client/BottomPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
 import { FloatingGitHubButton } from "@/components/client/FloatingGitHubButton";
 import ControllerModal from "@/components/client/ControllerModal";
-import WelcomeMessage from "@/components/client/WelcomeMessage";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -117,8 +116,6 @@ export default function Home() {
         id="canvas" 
         className="w-full h-full"
       />
-      
-      <WelcomeMessage isVisible={sprites.length === 0} />
       
       <FloatingToolbar 
         onCreateSprite={handleCreateSprite}

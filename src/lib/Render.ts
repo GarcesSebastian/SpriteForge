@@ -22,6 +22,9 @@ export class Render extends RenderProvider {
     public _controllers: Map<string, Controller> = new Map();
     public _transformer: Transformer | null = null;
 
+    private _backgroundImage: HTMLImageElement = new Image();
+    private _backgroundImageLoaded: boolean = false;
+
     private _mouseVector: Vector = new Vector(0, 0);
     private _target: Shape | this = this;
     private _frameId: number | null = null;
@@ -73,6 +76,11 @@ export class Render extends RenderProvider {
         this.config();
         this.events();
         this.canvas.focus();
+
+        this._backgroundImage.src = "/logo-dark-no-bg.png";
+        this._backgroundImage.onload = () => {
+            this._backgroundImageLoaded = true;
+        };
     }
 
     /**
@@ -530,6 +538,32 @@ export class Render extends RenderProvider {
      */
     private render(): void {
         this.clear();
+
+        if (this._backgroundImageLoaded) {
+            this.ctx.globalAlpha = 0.2;
+            
+            const imageAspectRatio = this._backgroundImage.width / this._backgroundImage.height;
+            
+            let scaledWidth, scaledHeight;
+            const maxSize = Math.min(this.canvas.width, this.canvas.height) * 0.6;
+            
+            if (imageAspectRatio > 1) {
+                scaledWidth = maxSize;
+                scaledHeight = maxSize / imageAspectRatio;
+            } else {
+                scaledHeight = maxSize;
+                scaledWidth = maxSize * imageAspectRatio;
+            }
+            
+            this.ctx.drawImage(
+                this._backgroundImage,
+                this.canvas.width / 2 - scaledWidth / 2,
+                this.canvas.height / 2 - scaledHeight / 2,
+                scaledWidth,
+                scaledHeight
+            );
+            this.ctx.globalAlpha = 1.0;
+        }
 
         this._childs().sort((a, b) => a.zIndex - b.zIndex).forEach(shape => shape.update());
         this._transformer?.update();
