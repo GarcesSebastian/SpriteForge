@@ -92,6 +92,8 @@ export class Controller {
             strokeWidth: 3
         });
 
+        this._velocityArrow._autoSave = false;
+
         this._gravityArrow = render.creator.Arrow({
             position: Vector.zero,
             target: Vector.zero,
@@ -99,6 +101,7 @@ export class Controller {
             strokeWidth: 3
         });
 
+        this._gravityArrow._autoSave = false;
 
         this._render = render;
         render._controllers.set(this._id, this);
@@ -275,6 +278,7 @@ export class Controller {
 
         if (movement.x !== 0 || movement.y !== 0) {
             this._target.position = this._target.position.add(movement.normalize().scale(this._speed));
+            this._render.autoSave();
         }
     }
 
@@ -387,6 +391,7 @@ export class Controller {
     public bind(shape: Shape): void {
         this._target = shape;
         this._restore();
+        this._render.autoSave();
     }
 
     /**
@@ -400,6 +405,7 @@ export class Controller {
 
         this._target = null;
         this._restore();
+        this._render.autoSave();
     }
 
     /**
@@ -448,7 +454,6 @@ export class Controller {
      */
     public static _fromRawData(data: ControllerRawData, render: Render) : Controller {
         const controller = new Controller(data, render, data.id);
-        console.log("controller", controller);
         return controller;
     }
 }

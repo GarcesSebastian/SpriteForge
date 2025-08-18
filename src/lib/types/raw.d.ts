@@ -6,7 +6,6 @@ interface ShapeRawData {
     position: Vector;
     rotation: number;
     zIndex: number;
-    mask: boolean;
     dragging: boolean;
     visible: boolean;
 }

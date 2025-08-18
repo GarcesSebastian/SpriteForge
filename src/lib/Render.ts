@@ -123,7 +123,6 @@ export class Render extends RenderProvider {
                 zIndex: 1000
             });
             
-            this._boundary.mask = false;
             this._boundary.dragging = false;
         });
 
@@ -176,6 +175,68 @@ export class Render extends RenderProvider {
     }
 
     /**
+     * Returns the shapes in the render in order of their zIndex
+     * @private
+     */
+    private _childs() : Shape[] {
+        return [...this.childrens.values()]
+            .map((item, index) => ({ item, index }))
+            .sort((a, b) => b.index - a.index)
+            .map(({item}) => item)
+            .sort((a, b) => b.zIndex - a.zIndex);
+    }
+
+    /**
+     * Returns the shapes in the render in reverse order
+     * @private
+     */
+    private _childsInvert() : Shape[] {
+        return this._childs().reverse();
+    }
+
+    /**
+     * Returns the shapes under the given instance in order of their zIndex
+     * @private
+     */
+    private _getNodesUnder(instance: Shape) : Shape[] {
+        const allChilds = [...this.childrens.values()]
+            .map((item, index) => ({ item, index }))
+            .sort((a, b) => b.index - a.index)
+            .map(({item, index}) => ({item, index}));
+        
+        const instanceData = allChilds.find(child => child.item.id === instance.id);
+        if (!instanceData) return [];
+        
+        return allChilds
+            .filter(child => 
+                child.item.zIndex < instance.zIndex || 
+                (child.item.zIndex === instance.zIndex && child.index < instanceData.index)
+            )
+            .map(child => child.item);
+    }
+
+    /**
+     * Returns the shapes above the given instance in order of their zIndex
+     * @private
+     */
+    private _getNodesAbove(instance: Shape) : Shape[] {
+        const allChilds = [...this.childrens.values()]
+            .map((item, index) => ({ item, index }))
+            .sort((a, b) => b.index - a.index)
+            .map(({item, index}) => ({item, index}));
+        
+        const instanceData = allChilds.find(child => child.item.id === instance.id);
+        if (!instanceData) return [];
+        
+        return allChilds
+            .filter(child => 
+                child.item.zIndex > instance.zIndex || 
+                (child.item.zIndex === instance.zIndex && child.index > instanceData.index)
+            )
+            .map(child => child.item);
+    }
+
+    /**
      * Handles mouse click events and determines click targets
      * Performs hit testing on shapes, updates target, and emits click events
      * @param event - The mouse event containing click information
@@ -192,8 +253,7 @@ export class Render extends RenderProvider {
         if (target !== this.canvas) return;
         if (x < 0 || x > width || y < 0 || y > height) return;
 
-        this._target = [...this.childrens.values()].sort((a, b) => b.zIndex - a.zIndex)
-            .find((child) => child._isClicked()) ?? this;
+        this._target = this._childsInvert().find((child) => child._isClicked()) ?? this;
 
         this.emit("click", {
             pointer: {
@@ -232,8 +292,7 @@ export class Render extends RenderProvider {
         if (target !== this.canvas) return;
         if (x < 0 || x > width || y < 0 || y > height) return;
 
-        this._target = [...this.childrens.values()].sort((a, b) => b.zIndex - a.zIndex)
-            .find((child) => child._isClicked()) ?? this;
+        this._target = this._childsInvert().find((child) => child._isClicked()) ?? this;
 
         this.emit("touchstart", {
             pointer: {
@@ -315,8 +374,7 @@ export class Render extends RenderProvider {
 
         if (x < 0 || x > width || y < 0 || y > height) return;
 
-        this._target = [...this.childrens.values()].sort((a, b) => b.zIndex - a.zIndex)
-            .find((child) => child._isClicked()) ?? this;
+        this._target = this._childsInvert().find((child) => child._isClicked()) ?? this;
 
         this.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
     }
@@ -343,7 +401,7 @@ export class Render extends RenderProvider {
     private _getNodesInBoundary(): Shape[] {
         if (!this._boundary) return [];
 
-        return [...this.childrens.values()].filter(shape => {
+        return this._childs().filter(shape => {
             if (shape === this._boundary) return false;
             return shape._isShapeInBoundary(this._boundary!.position.x, this._boundary!.position.y, this._boundary!.width, this._boundary!.height);
         });
@@ -391,37 +449,13 @@ export class Render extends RenderProvider {
 
     /**
      * Main render loop that draws all shapes and UI elements
-     * Handles shape sorting, masking, and frame rate display
+     * Handles shape sorting, and frame rate display
      * @private
      */
     private render(): void {
         this.clear();
 
-        const shapes = [...this.childrens.values()].sort((a, b) => a.zIndex - b.zIndex);
-        const normalShapes = shapes.filter(shape => !shape.mask);
-        const maskShapes = shapes.filter(shape => shape.mask);
-
-        normalShapes.forEach((shape) => {
-            const affectingMasks = maskShapes.filter(mask => mask.zIndex > shape.zIndex);
-            
-            if (affectingMasks.length > 0) {
-                this.ctx.save();
-                
-                shape.update();
-                
-                this.ctx.globalCompositeOperation = 'destination-out';
-                affectingMasks.forEach(mask => {
-                    this.ctx.beginPath();
-                    mask._mask();
-                    this.ctx.fill();
-                });
-                
-                this.ctx.restore();
-            } else {
-                shape.update();
-            }
-        });
-
+        this._childs().forEach(shape => shape.update());
         this._transformer?.update();
 
         this._updateFps();
@@ -485,7 +519,7 @@ export class Render extends RenderProvider {
      * @returns Array of shape raw data objects
      */
     public serialize() : ShapeRawData[] {
-        return [...this.childrens.values()].map((child) => child._rawData());
+        return [...this.childrens.values()].filter((child) => child instanceof Shape && child._autoSave).map((child) => child._rawData());
     }
 
     /**
@@ -493,21 +527,37 @@ export class Render extends RenderProvider {
      * @param data - Array of shape raw data objects
      */
     public deserialize(data: ShapeRawData[]) : void {
-        data.forEach((child) => {
-            if (child.type === "circle") {
-                Circle._fromRawData(child as CircleRawData, this);
-            } else if (child.type === "rect") {
-                Rect._fromRawData(child as RectRawData, this);
-            } else if (child.type === "sprite") {
-                Sprite._fromRawData(child as SpriteRawData, this);
-            } else if (child.type === "arrow") {
-                Arrow._fromRawData(child as ArrowRawData, this);
-            }
-        });
+        try {
+            data.forEach((child) => {
+                if (child.type === "circle") {
+                    Circle._fromRawData(child as CircleRawData, this);
+                } else if (child.type === "rect") {
+                    Rect._fromRawData(child as RectRawData, this);
+                } else if (child.type === "sprite") {
+                    Sprite._fromRawData(child as SpriteRawData, this);
+                } else if (child.type === "arrow") {
+                    Arrow._fromRawData(child as ArrowRawData, this);
+                }
+            });
+        } catch (error) {
+            console.error("Error deserializing shape data:", error);
+        }
     }
 
-    public _autoSave() : void {
-        // TODO: Implement autosave functionality
+    /**
+     * Auto save the render instance and its children into raw data
+     * @returns Array of shape raw data objects
+     */
+    public autoSave() : void {
+        localStorage.setItem("canvas", JSON.stringify(this.serialize()));
+    }
+
+    /**
+     * Loads the render instance and its children from raw data
+     * Should be called after event listeners are registered
+     */
+    public load(data: ShapeRawData[]) : void {
+        this.deserialize(data);
     }
 
     /**

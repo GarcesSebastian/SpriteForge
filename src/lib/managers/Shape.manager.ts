@@ -30,6 +30,8 @@ export class ShapeManager {
             speed: speed,
             shape: this._shape
         });
+
+        this._shape.render.autoSave();
     }
 
     /**
@@ -46,5 +48,6 @@ export class ShapeManager {
         }, this._shape.render);
 
         this._shape.controller = controller;
+        this._shape.render.autoSave();
     }
 }

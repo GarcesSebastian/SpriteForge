@@ -29,14 +29,14 @@ export abstract class Shape extends ShapeProvider {
     public controller: Controller | null = null;
     /** The stacking order of the shape. Higher values are drawn on top. */
     public zIndex: number;
-    /** If true, this shape can be used as a clipping mask. */
-    public mask: boolean;
     /** Rotation of the shape in radians, relative to its origin. */
     public rotation: number;
     /** Indicates if the shape is currently being dragged by the user. */
     public dragging: boolean;
     /** If false, the shape will not be rendered. */
     public visible: boolean;
+    /** If true, the shape will be automatically saved to the render instance. */
+    public _autoSave: boolean = true;
     
     /** Manages shape-specific functionalities and properties. */
     public manager: ShapeManager;
@@ -52,7 +52,6 @@ export abstract class Shape extends ShapeProvider {
      * @param props - Configuration properties for the shape.
      * @param props.position - Initial position of the shape. Defaults to (0, 0).
      * @param props.zIndex - Stacking order. Defaults to 0.
-     * @param props.mask - Whether the shape acts as a mask. Defaults to false.
      * @param props.rotation - Initial rotation in radians. Defaults to 0.
      * @param props.dragging - Initial dragging state. Defaults to false.
      * @param props.visible - Initial visibility. Defaults to true.
@@ -62,7 +61,6 @@ export abstract class Shape extends ShapeProvider {
         super();
         this.position = props.position ?? new Vector(0, 0);
         this.zIndex = props.zIndex ?? 0;
-        this.mask = props.mask ?? false;
         this.rotation = props.rotation ?? 0;
         this._id = id ?? uuidv4();
         this.manager = new ShapeManager(this);
@@ -94,13 +92,6 @@ export abstract class Shape extends ShapeProvider {
      * @returns `true` if this shape overlaps the boundary area, otherwise `false`.
      */
     public abstract _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean;
-    
-    /**
-     * @internal
-     * Abstract method to create a clipping path for the shape on the canvas context.
-     * Must be implemented by concrete shape classes.
-     */
-    public abstract _mask() : void;
 
     /**
      * Gets the unique identifier for this shape.

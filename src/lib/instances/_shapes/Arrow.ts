@@ -12,8 +12,8 @@ export class Arrow extends Shape {
     private _angle: number;
     private _direction: Vector;
 
-    constructor(props: ArrowProps, render: Render) {
-        super(props, render);
+    constructor(props: ArrowProps, render: Render, id?: string) {
+        super(props, render, id);
         this._ctx = render.ctx;
         this.target = props.target;
         this.color = props.color ?? "#fff";
@@ -79,8 +79,6 @@ export class Arrow extends Shape {
         return false;
     }
 
-    public _mask(): void {}
-
     public clone(): Arrow {
         return this._render.creator.Arrow({
             ...this,
@@ -100,7 +98,6 @@ export class Arrow extends Shape {
             position: this.position,
             rotation: this.rotation,
             zIndex: this.zIndex,
-            mask: this.mask,
             dragging: this.dragging,
             visible: this.visible,
             target: this.target,
@@ -116,18 +113,18 @@ export class Arrow extends Shape {
      * @returns A new `Arrow` instance with identical properties.
      */
     public static _fromRawData(data: ArrowRawData, render: Render) : Arrow {
-        const arrow = render.creator.Arrow(data);
+        const arrow = new Arrow(data, render, data.id);
         arrow.position = data.position;
         arrow.rotation = data.rotation;
         arrow.zIndex = data.zIndex;
-        arrow.mask = data.mask;
         arrow.dragging = data.dragging;
         arrow.visible = data.visible;
         arrow.target = data.target;
         arrow.color = data.color;
         arrow.strokeWidth = data.strokeWidth;
-        arrow.id = data.id;
 
+        render.emit("create", { shape: arrow });
+        
         return arrow;
     }
 }

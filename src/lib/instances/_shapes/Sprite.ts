@@ -1,6 +1,7 @@
 import { Controller } from "@/lib/common/Controller";
 import { Render } from "../../Render";
 import { Shape } from "../Shape";
+import { Vector } from "@/lib/common/Vector";
 
 export type SpriteGrid = {
     rows: number,
@@ -145,16 +146,6 @@ export class Sprite extends Shape {
                localX <= spriteWidth &&
                localY >= 0 && 
                localY <= spriteHeight;
-    }
-
-    /**
-     * Applies masking effects to the sprite (currently empty implementation)
-     * @todo Implement sprite masking functionality
-     */
-    public _mask() : void {
-        const spriteWidth = this._getWidthFrame();
-        const spriteHeight = this._getHeightFrame();
-        this._ctx.rect(this.position.x, this.position.y, spriteWidth, spriteHeight);
     }
 
     /**
@@ -498,7 +489,6 @@ export class Sprite extends Shape {
             loop: this.loop,
             scale: this.scale,
             zIndex: this.zIndex,
-            mask: this.mask,
             rotation: this.rotation,
             visible: this.visible
         });
@@ -516,7 +506,6 @@ export class Sprite extends Shape {
             position: this.position,
             rotation: this.rotation,
             zIndex: this.zIndex,
-            mask: this.mask,
             dragging: this.dragging,
             visible: this.visible,
             src: this.src,
@@ -524,7 +513,7 @@ export class Sprite extends Shape {
             ignoreFrames: this.ignoreFrames,
             startFrame: this.startFrame,
             endFrame: this.endFrame,
-            pattern: this.pattern ?? [],
+            pattern: this._patternBackup ?? [],
             speed: this.speed ?? 1,
             loop: this.loop ?? false,
             scale: this.scale ?? 1,
@@ -539,26 +528,27 @@ export class Sprite extends Shape {
      * @returns A new `Sprite` instance with identical properties.
      */
     public static _fromRawData(data: SpriteRawData, render: Render) : Sprite {
-        const sprite = render.creator.Sprite(data, data.id);
-        sprite.position = data.position;
-        sprite.rotation = data.rotation;
-        sprite.zIndex = data.zIndex;
-        sprite.mask = data.mask;
-        sprite.dragging = data.dragging;
-        sprite.visible = data.visible;
+        const sprite = new Sprite(data, render, data.id);
         sprite.src = data.src;
         sprite.spriteGrid = data.spriteGrid;
         sprite.ignoreFrames = data.ignoreFrames;
         sprite.startFrame = data.startFrame;
         sprite.endFrame = data.endFrame;
         sprite.pattern = data.pattern;
+        sprite.scale = data.scale;
         sprite.speed = data.speed;
         sprite.loop = data.loop;
-        sprite.scale = data.scale;
+        sprite.position = new Vector(data.position.x, data.position.y);
+        sprite.rotation = data.rotation;
+        sprite.zIndex = data.zIndex;
+        sprite.dragging = data.dragging;
+        sprite.visible = data.visible;
 
         if (data.controller) {
             sprite.controller = Controller._fromRawData(data.controller, render);
         }
+
+        render.emit("create", { shape: sprite });
         
         return sprite;
     }

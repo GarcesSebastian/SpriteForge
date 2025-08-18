@@ -39,6 +39,7 @@ export default function Home() {
     if (!render || !createCallbackRef.current) return;
 
     render.on("create", createCallbackRef.current);
+    render.load(JSON.parse(localStorage.getItem("canvas") ?? "[]"));
 
     return () => {
       if (render && createCallbackRef.current) {
@@ -115,6 +116,19 @@ export default function Home() {
         idle: ["0"]
       },
       speed: 5
+    });
+
+    const circle = render.creator.Circle({
+      position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
+      radius: 50,
+      color: "red"
+    });
+
+    const rect = render.creator.Rect({
+      position: render.creator.Vector(render.canvas.width / 2, render.canvas.height / 2),
+      width: 100,
+      height: 100,
+      color: "blue"
     });
     
   }, [render]);

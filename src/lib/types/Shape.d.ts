@@ -2,7 +2,6 @@ interface ShapeProps {
     dragging?: boolean;
     position: Vector;
     zIndex?: number;
-    mask?: boolean;
     rotation?: number;
     visible?: boolean;
 }

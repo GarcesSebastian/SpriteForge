@@ -37,8 +37,8 @@ export class Rect extends Shape {
      * @param props.borderColor - Border color. Defaults to "transparent".
      * @param render - The main `Render` context for drawing operations.
      */
-    public constructor(props: RectProps, render: Render) {
-        super(props, render);
+    public constructor(props: RectProps, render: Render, id?: string) {
+        super(props, render, id);
         this._ctx = render.ctx;
         this.width = props.width;
         this.height = props.height;
@@ -95,14 +95,6 @@ export class Rect extends Shape {
                localX <= this.width &&
                localY >= 0 && 
                localY <= this.height;
-    }
-
-    /**
-     * @internal
-     * Creates a rectangular clipping path on the canvas context.
-     */
-    public _mask() : void {
-        this._ctx.rect(this.position.x, this.position.y, this.width, this.height);
     }
 
     /**
@@ -169,11 +161,10 @@ export class Rect extends Shape {
             position: this.position,
             rotation: this.rotation,
             zIndex: this.zIndex,
-            mask: this.mask,
             dragging: this.dragging,
             visible: this.visible,
-            width: this.width,
-            height: this.height,
+            width: this.width ?? 0,
+            height: this.height ?? 0,
             color: this.color,
             borderWidth: this.borderWidth,
             borderColor: this.borderColor,
@@ -187,11 +178,10 @@ export class Rect extends Shape {
      * @returns A new `Rect` instance with identical properties.
      */
     public static _fromRawData(data: RectRawData, render: Render) : Rect {
-        const rect = render.creator.Rect(data);
+        const rect = new Rect(data, render, data.id);
         rect.position = data.position;
         rect.rotation = data.rotation;
         rect.zIndex = data.zIndex;
-        rect.mask = data.mask;
         rect.dragging = data.dragging;
         rect.visible = data.visible;
         rect.width = data.width;
@@ -199,8 +189,9 @@ export class Rect extends Shape {
         rect.color = data.color;
         rect.borderWidth = data.borderWidth;
         rect.borderColor = data.borderColor;
-        rect.id = data.id;
 
+        render.emit("create", { shape: rect });
+        
         return rect;
     }
 }

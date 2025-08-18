@@ -231,6 +231,8 @@ export class Transformer {
             this._initialNodeStates = [];
             this._render._enableSelect();
         }
+
+        this._render.autoSave();
     }
 
     /**
@@ -265,11 +267,6 @@ export class Transformer {
             this.clear();
         }
 
-        if (e.ctrlKey && e.key.toLowerCase() === "c") {
-            e.preventDefault();
-            this._nodes.forEach(node => node.mask = !node.mask);
-        }
-
         if (e.ctrlKey && e.key.toLowerCase() === "d") {
             e.preventDefault();
             const nodesCloned = this._nodes.map(node => node.clone());
@@ -287,6 +284,13 @@ export class Transformer {
                 }
             });
         }
+
+        if (e.ctrlKey && e.key.toLowerCase() === "s") {
+            e.preventDefault();
+            const serialized = this._render.serialize();
+            localStorage.setItem("canvas", JSON.stringify(serialized));
+        }
+            
     }
 
     /**

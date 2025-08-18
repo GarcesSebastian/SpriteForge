@@ -1,5 +1,6 @@
 import { Shape } from "../Shape";
 import { Render } from "../../Render";
+import { Vector } from "@/lib/common/Vector";
 
 /**
  * Circular shape implementation for the rendering system.
@@ -28,8 +29,8 @@ export class Circle extends Shape {
      * @param props.color - Fill color of the circle. Defaults to "#fff".
      * @param render - The main `Render` context for drawing operations.
      */
-    public constructor(props: CircleProps, render: Render) {
-        super(props, render);
+    public constructor(props: CircleProps, render: Render, id?: string) {
+        super(props, render, id);
         this._ctx = render.ctx;
         this.radius = props.radius ?? 10;
         this.color = props.color ?? "#fff";
@@ -51,14 +52,6 @@ export class Circle extends Shape {
         this._ctx.fillStyle = this.color;
         this._ctx.fill();
         this._ctx.closePath();
-    }
-
-    /**
-     * @internal
-     * Creates a circular clipping path on the canvas context.
-     */
-    public _mask() : void {
-        this._ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
     }
 
     /**
@@ -129,7 +122,6 @@ export class Circle extends Shape {
             position: this.position,
             rotation: this.rotation,
             zIndex: this.zIndex,
-            mask: this.mask,
             dragging: this.dragging,
             visible: this.visible,
             radius: this.radius,
@@ -144,17 +136,17 @@ export class Circle extends Shape {
      * @returns A new `Circle` instance with identical properties.
      */
     public static _fromRawData(data: CircleRawData, render: Render) : Circle {
-        const circle = render.creator.Circle(data);
-        circle.position = data.position;
+        const circle = new Circle(data, render, data.id);
+        circle.position = new Vector(data.position.x, data.position.y);
         circle.rotation = data.rotation;
         circle.zIndex = data.zIndex;
-        circle.mask = data.mask;
         circle.dragging = data.dragging;
         circle.visible = data.visible;
         circle.radius = data.radius;
         circle.color = data.color;
-        circle.id = data.id;
 
+        render.emit("create", { shape: circle });
+        
         return circle;
     }
 }
