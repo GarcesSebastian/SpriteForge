@@ -159,6 +159,8 @@ export class Sprite extends Shape {
 
         this._image.onerror = () => {
             this._loading = false;
+            this.src = "/logo.png";
+            this._setup();
         };
         
         this._image.onload = () => {

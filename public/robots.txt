@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://spriteforge.dev/sitemap.xml
+
+# Specific crawling rules
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Block unnecessary paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /private/
+
+# Allow important assets
+Allow: /icons/
+Allow: /screenshots/
+Allow: /og-image.png
+Allow: /twitter-image.png

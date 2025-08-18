@@ -133,7 +133,7 @@ export class Render extends RenderProvider {
 
         const spriteController = this.creator.Sprite({
             position: this.creator.Vector(0.8 * this.canvas.width, 0.5 * this.canvas.height),
-            src: "/character.png",
+            src: "/Warrior/character.png",
             spriteGrid: { rows: 4, cols: 4 },
             scale: 3,
             dragging: true
