@@ -48,8 +48,8 @@ export class RenderCreator {
      * @param props - Configuration properties for the sprite
      * @returns A new Sprite instance
      */
-    public Sprite(props: SpriteProps): _Sprite {
-        const sprite = new _Sprite(props, this._render);
+    public Sprite(props: SpriteProps, id?: string): _Sprite {
+        const sprite = new _Sprite(props, this._render, id);
         this._render.emit("create", { shape: sprite });
         return sprite;
     }

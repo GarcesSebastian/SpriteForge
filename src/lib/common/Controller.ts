@@ -70,8 +70,8 @@ export class Controller {
      * @param props.status - Animation patterns for different states
      * @param props.speed - Movement speed multiplier (default: 1)
      */
-    public constructor(props: ControllerProps, render: Render) {
-        this._id = uuidv4();
+    public constructor(props: ControllerProps, render: Render, id?: string) {
+        this._id = id ?? uuidv4();
         this._keywords = props.keywords ?? { up: "w", down: "s", left: "a", right: "d", jump: "space" };
         this._speed = props.speed ?? 1;
         this._jumpForce = new Vector(0, props.jumpForce ?? 15);
@@ -422,5 +422,33 @@ export class Controller {
 
         this._render._controllers.delete(this._id);
         this.unbind();
+    }
+
+    /**
+     * @internal
+     * Returns the raw data of the controller.
+     * @returns The raw data of the controller.
+     */
+    public _rawData() : ControllerRawData {
+        return {
+            id: this._id,
+            type: "controller",
+            keywords: this._keywords,
+            status: this._status,
+            speed: this._speed,
+            jumpForce: this._jumpForce.y,
+        };
+    }
+
+    /**
+     * @internal
+     * Creates a new controller instance from raw data.
+     * @param data - The raw data of the controller.
+     * @returns A new `Controller` instance with identical properties.
+     */
+    public static _fromRawData(data: ControllerRawData, render: Render) : Controller {
+        const controller = new Controller(data, render, data.id);
+        console.log("controller", controller);
+        return controller;
     }
 }

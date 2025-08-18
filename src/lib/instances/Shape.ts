@@ -58,13 +58,13 @@ export abstract class Shape extends ShapeProvider {
      * @param props.visible - Initial visibility. Defaults to true.
      * @param render - The main `Render` context for drawing operations.
      */
-    public constructor(props: ShapeProps, render: Render) {
+    public constructor(props: ShapeProps, render: Render, id?: string) {
         super();
         this.position = props.position ?? new Vector(0, 0);
         this.zIndex = props.zIndex ?? 0;
         this.mask = props.mask ?? false;
         this.rotation = props.rotation ?? 0;
-        this._id = uuidv4();
+        this._id = id ?? uuidv4();
         this.manager = new ShapeManager(this);
         this.dragging = props.dragging ?? false;
         this.visible = props.visible ?? true;

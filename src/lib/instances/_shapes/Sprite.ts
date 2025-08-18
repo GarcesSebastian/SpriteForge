@@ -1,3 +1,4 @@
+import { Controller } from "@/lib/common/Controller";
 import { Render } from "../../Render";
 import { Shape } from "../Shape";
 
@@ -48,8 +49,8 @@ export class Sprite extends Shape {
      * @param props - Configuration properties for the sprite
      * @param render - Render context for drawing operations
      */
-    public constructor(props: SpriteProps, render: Render) {
-        super(props, render);
+    public constructor(props: SpriteProps, render: Render, id?: string) {
+        super(props, render, id);
         this._ctx = render.ctx;
         this.src = props.src;
         this.spriteGrid = props.spriteGrid ?? { rows: 1, cols: 1 };
@@ -527,6 +528,7 @@ export class Sprite extends Shape {
             speed: this.speed ?? 1,
             loop: this.loop ?? false,
             scale: this.scale ?? 1,
+            controller: this.controller?._rawData()
         };
     }
 
@@ -537,7 +539,7 @@ export class Sprite extends Shape {
      * @returns A new `Sprite` instance with identical properties.
      */
     public static _fromRawData(data: SpriteRawData, render: Render) : Sprite {
-        const sprite = render.creator.Sprite(data);
+        const sprite = render.creator.Sprite(data, data.id);
         sprite.position = data.position;
         sprite.rotation = data.rotation;
         sprite.zIndex = data.zIndex;
@@ -553,8 +555,11 @@ export class Sprite extends Shape {
         sprite.speed = data.speed;
         sprite.loop = data.loop;
         sprite.scale = data.scale;
-        sprite.id = data.id;
 
+        if (data.controller) {
+            sprite.controller = Controller._fromRawData(data.controller, render);
+        }
+        
         return sprite;
     }
 }
