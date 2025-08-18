@@ -540,7 +540,7 @@ export class Render extends RenderProvider {
         this.clear();
 
         if (this._backgroundImageLoaded) {
-            this.ctx.globalAlpha = 0.2;
+            this.ctx.globalAlpha = 0.1;
             
             const imageAspectRatio = this._backgroundImage.width / this._backgroundImage.height;
             
