@@ -1,26 +1,37 @@
+# Bloquear todo por defecto y luego permitir lo necesario
 User-agent: *
-Allow: /
-
-# Sitemap
-Sitemap: https://spriteforge.garcessebastian.com/sitemap.xml
-
-# Specific crawling rules
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 1
-
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-# Block unnecessary paths
 Disallow: /api/
 Disallow: /_next/
 Disallow: /admin/
 Disallow: /private/
-
-# Allow important assets
 Allow: /icons/
 Allow: /screenshots/
 Allow: /og-image.png
 Allow: /twitter-image.png
+
+# Sitemap
+Sitemap: https://spriteforge.garcessebastian.com/sitemap.xml
+
+# Reglas específicas para Google
+User-agent: Googlebot
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /private/
+Allow: /icons/
+Allow: /screenshots/
+Allow: /og-image.png
+Allow: /twitter-image.png
+Crawl-delay: 1
+
+# Reglas específicas para Bing
+User-agent: Bingbot
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /private/
+Allow: /icons/
+Allow: /screenshots/
+Allow: /og-image.png
+Allow: /twitter-image.png
+Crawl-delay: 1
