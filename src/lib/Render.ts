@@ -113,19 +113,19 @@ export class Render extends RenderProvider {
 
         const default_sprites = [
             { 
-                src: "/Warrior/sprite.png", 
+                src: "/assets/Warrior/sprite.png", 
                 pattern: ["18:25"], 
                 spriteGrid: { rows: 17, cols: 6 }, 
                 position: { x: 0.1 * this.canvas.width, y: 0.1 * this.canvas.height } 
             },
             { 
-                src: "/Warrior/sprite.png", 
+                src: "/assets/Warrior/sprite.png", 
                 pattern: ["26:36"], 
                 spriteGrid: { rows: 17, cols: 6 }, 
                 position: { x: 0.3 * this.canvas.width, y: 0.7 * this.canvas.height } 
             },
             { 
-                src: "/Warrior/sprite.png", 
+                src: "/assets/Warrior/sprite.png", 
                 pattern: ["18:25", "0(15)", "26:36", "36(15)"], 
                 spriteGrid: { rows: 17, cols: 6 }, 
                 position: { x: 0.2 * this.canvas.width, y: 0.4 * this.canvas.height } 
@@ -144,7 +144,7 @@ export class Render extends RenderProvider {
 
         const spriteController = this.creator.Sprite({
             position: this.creator.Vector(0.8 * this.canvas.width, 0.5 * this.canvas.height),
-            src: "/Warrior/character.png",
+            src: "/assets/Warrior/character.png",
             spriteGrid: { rows: 4, cols: 4 },
             scale: 3,
             dragging: true

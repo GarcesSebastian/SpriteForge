@@ -1,4 +1,4 @@
-type ShapeType = "circle" | "rect" | "sprite" | "arrow" | "controller";
+type ShapeType = "circle" | "rect" | "sprite" | "arrow" | "pointer" | "controller";
 
 interface ShapeRawData {
     id: string;

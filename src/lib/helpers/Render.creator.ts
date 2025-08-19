@@ -5,6 +5,7 @@ import { Sprite as _Sprite } from "../instances/_shapes/Sprite";
 import { Rect as _Rect } from "../instances/_shapes/Rect";
 import { Transformer as _Transformer } from "../common/Transformer";
 import { Arrow as _Arrow } from "../instances/_shapes/Arrow";
+import { Pointer as _Pointer, PointerProps } from "../instances/_shapes/Pointer";
 
 /**
  * Factory class for creating shapes and utility objects within a render context
@@ -63,6 +64,12 @@ export class RenderCreator {
         const arrow = new _Arrow(props, this._render);
         this._render.emit("create", { shape: arrow });
         return arrow;
+    }
+
+    public Pointer(props: PointerProps): _Pointer {
+        const pointer = new _Pointer(props, this._render);
+        this._render.emit("create", { shape: pointer });
+        return pointer;
     }
 
     /**

@@ -72,28 +72,6 @@ export abstract class Shape extends ShapeProvider {
     }
 
     /**
-     * @internal
-     * Abstract method to determine if a point (usually the mouse cursor) is inside the shape.
-     * Must be implemented by concrete shape classes.
-     * @returns `true` if the point is inside the shape, otherwise `false`.
-     */
-    public abstract _isClicked() : boolean;
-
-    /**
-     * @internal
-     * Checks whether this shape intersects with a specified rectangular boundary.
-     * All coordinates and dimensions are in canvas pixels (top-left origin).
-     * Must be implemented by concrete shape classes.
-     *
-     * @param boundaryX - X coordinate of the boundary's top-left corner (px).
-     * @param boundaryY - Y coordinate of the boundary's top-left corner (px).
-     * @param boundaryWidth - Width of the boundary area (px).
-     * @param boundaryHeight - Height of the boundary area (px).
-     * @returns `true` if this shape overlaps the boundary area, otherwise `false`.
-     */
-    public abstract _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean;
-
-    /**
      * Gets the unique identifier for this shape.
      * @returns The UUID string identifier.
      */
@@ -116,6 +94,28 @@ export abstract class Shape extends ShapeProvider {
     public get render() : Render {
         return this._render;
     }
+
+    /**
+     * @internal
+     * Abstract method to determine if a point (usually the mouse cursor) is inside the shape.
+     * Must be implemented by concrete shape classes.
+     * @returns `true` if the point is inside the shape, otherwise `false`.
+     */
+    public abstract _isClicked() : boolean;
+
+    /**
+     * @internal
+     * Checks whether this shape intersects with a specified rectangular boundary.
+     * All coordinates and dimensions are in canvas pixels (top-left origin).
+     * Must be implemented by concrete shape classes.
+     *
+     * @param boundaryX - X coordinate of the boundary's top-left corner (px).
+     * @param boundaryY - Y coordinate of the boundary's top-left corner (px).
+     * @param boundaryWidth - Width of the boundary area (px).
+     * @param boundaryHeight - Height of the boundary area (px).
+     * @returns `true` if this shape overlaps the boundary area, otherwise `false`.
+     */
+    public abstract _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean;
 
     /**
      * Draws the shape on the canvas.
