@@ -71,5 +71,5 @@ body {
 }
 
 canvas {
-  cursor: url('/cursor.svg') 12 12, auto;
+  cursor: url('/assets/cursor.svg') 12 12, auto;
 }
