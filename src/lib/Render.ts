@@ -38,8 +38,10 @@ export class Render extends RenderProvider {
     private _onMouseDownBind: (event: MouseEvent) => void = this._onMouseDown.bind(this);
     private _onMouseUpBind: (event: MouseEvent) => void = this._onMouseUp.bind(this);
 
-    private _isTouched: boolean = false;
     private _allowPan: boolean = true;
+    private _panStart: Vector | null = null;
+
+    private _isTouched: boolean = false;
     
     private _boundary: Rect | null = null;
     private _boundaryStart: Vector | null = null;
@@ -442,6 +444,15 @@ export class Render extends RenderProvider {
         const { left, top } = this.canvas.getBoundingClientRect();
         this._mouseVector = this.creator.Vector(clientX - left, clientY - top);
 
+        if (this._allowPan && this._panStart) {
+            const delta = this._mouseVector.sub(this._panStart);
+            this._childs().forEach(child => {
+                child.position.x += delta.x;
+                child.position.y += delta.y;
+            });
+            this._panStart = this._mouseVector;
+        }
+
         this.emit("mousemove", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
     
@@ -461,6 +472,12 @@ export class Render extends RenderProvider {
 
         this._target = this._childsInvert().find((child) => child._isClicked()) ?? this;
 
+        if (this._target instanceof Render && event.button === 1) {
+            this._allowPan = true;
+            this._panStart = this.creator.Vector(x, y);
+            return;
+        }
+
         this.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
     }
     
@@ -473,6 +490,11 @@ export class Render extends RenderProvider {
     private _onMouseUp(event: MouseEvent) : void {
         const { clientX, clientY } = event;
         const { left, top } = this.canvas.getBoundingClientRect();
+
+        if (this._target instanceof Render && event.button === 1) {
+            this._allowPan = false;
+            this._panStart = null;
+        }
         
         this.emit("mouseup", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
