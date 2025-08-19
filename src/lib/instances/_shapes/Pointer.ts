@@ -4,11 +4,13 @@ import { Vector } from "@/lib/common/Vector";
 
 export interface PointerProps extends ShapeProps {
     scale?: number;
+    name?: string;
     color?: string;
 }
 
 export interface PointerRawData extends ShapeRawData {
     scale: number;
+    name: string | undefined;
     color: string;
 }
 
@@ -19,17 +21,20 @@ export class Pointer extends Shape {
     private _imageLoaded: boolean = false;
 
     private _scale: number;
+    private _name: string | undefined;
     private _color: string;
 
     constructor(props: PointerProps, render: Render, id?: string) {
         super(props, render, id);
         this._ctx = render.ctx;
         this._scale = props.scale ?? 1;
+        this._name = props.name;
         this._color = props.color ?? "white";
+
         this.setup();
     }
 
-    private _loadSvg(): Promise<HTMLImageElement> {
+    private _svg(): Promise<HTMLImageElement> {
         return new Promise(async (resolve) => {
             const response = await fetch("/assets/cursor.svg");
             let svgTxt = await response.text();
@@ -55,17 +60,10 @@ export class Pointer extends Shape {
         });
     }
 
-    public get width(): number {
-        return this._image.width * this._scale;
-    }
-
-    public get height(): number {
-        return this._image.height * this._scale;
-    }
-
     public async setup(): Promise<void> {
         this._autoSave = false;
-        this._image = await this._loadSvg();
+
+        this._image = await this._svg();
         this._imageLoaded = true;
     }
 
@@ -77,10 +75,30 @@ export class Pointer extends Shape {
         return false;
     }
 
+    public get width(): number {
+        return this._image.width * this._scale;
+    }
+
+    public get height(): number {
+        return this._image.height * this._scale;
+    }
+
     public draw(): void {
         if (!this._imageLoaded) return;
         
         this._ctx.drawImage(this._image, this.position.x, this.position.y, this._image.width * this._scale, this._image.height * this._scale);
+
+        if (this._name) {
+            const measureText = this._ctx.measureText(this._name);
+            const textWidth = measureText.width;
+            const textHeight = measureText.fontBoundingBoxAscent + measureText.fontBoundingBoxDescent;
+
+            this._ctx.fillText(
+                this._name,
+                this.position.x + this.width / 2 - textWidth / 2,
+                this.position.y + this.height + textHeight
+            );
+        }
     }
 
     public update(): void {
@@ -99,6 +117,7 @@ export class Pointer extends Shape {
         return {
             id: this.id,
             type: "pointer",
+            name: this._name,
             position: this.position,
             rotation: this.rotation,
             zIndex: this.zIndex,
@@ -117,6 +136,7 @@ export class Pointer extends Shape {
             dragging: _data.dragging,
             visible: _data.visible,
             scale: _data.scale,
+            name: _data.name,
             color: _data.color,
         };
 
@@ -124,5 +144,9 @@ export class Pointer extends Shape {
         shape.setup();
         
         return shape;
+    }
+
+    public destroy(): void {
+        super.destroy();
     }
 }

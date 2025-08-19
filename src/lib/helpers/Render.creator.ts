@@ -66,6 +66,11 @@ export class RenderCreator {
         return arrow;
     }
 
+    /**
+     * Creates a new pointer shape and emits creation event
+     * @param props - Configuration properties for the pointer
+     * @returns A new Pointer instance
+     */
     public Pointer(props: PointerProps): _Pointer {
         const pointer = new _Pointer(props, this._render);
         this._render.emit("create", { shape: pointer });

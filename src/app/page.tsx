@@ -39,6 +39,11 @@ export default function Home() {
 
     render.on("create", createCallbackRef.current);
     render.load(JSON.parse(localStorage.getItem("canvas") ?? "[]"));
+    render.addCollaborator({
+      id: "1",
+      name: "Collaborator 1",
+      color: "#10b981",
+    })
 
     return () => {
       if (render && createCallbackRef.current) {

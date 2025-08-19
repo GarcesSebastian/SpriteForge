@@ -9,6 +9,7 @@ import { Controller } from "./common/Controller";
 import { Circle } from "./instances/_shapes/Circle";
 import { Sprite } from "./instances/_shapes/Sprite";
 import { Arrow } from "./instances/_shapes/Arrow";
+import { Pointer } from "./instances/_shapes/Pointer";
 
 /**
  * Main rendering engine for canvas-based 2D graphics and shape management
@@ -19,6 +20,7 @@ export class Render extends RenderProvider {
     public ctx: CanvasRenderingContext2D;
 
     public childrens: Map<string, Shape> = new Map();
+    public collaborators: Map<string, Shape> = new Map();
     public _controllers: Map<string, Controller> = new Map();
     public _transformer: Transformer | null = null;
 
@@ -645,6 +647,32 @@ export class Render extends RenderProvider {
      */
     public mousePositionRelative() : Vector {
         return this._mouseVector;
+    }
+
+    /**
+     * Adds a collaborator to the render context
+     * @param collaborator - The collaborator to add
+     */
+    public addCollaborator(collaborator: Collaborator) : void {
+        const shape = new Pointer({
+            position: new Vector(300, 300),
+            name: collaborator.name,
+            color: collaborator.color,
+        }, this, collaborator.id);
+
+        this.collaborators.set(collaborator.id, shape);
+    }
+
+    /**
+     * Removes a collaborator from the render context
+     * @param collaboratorId - The ID of the collaborator to remove
+     */
+    public removeCollaborator(collaboratorId: string) : void {
+        const shape = this.collaborators.get(collaboratorId);
+        if (!shape) return;
+        
+        shape.destroy();
+        this.collaborators.delete(collaboratorId);
     }
 
     /**

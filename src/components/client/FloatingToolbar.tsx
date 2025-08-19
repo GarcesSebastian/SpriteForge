@@ -8,6 +8,8 @@ import SpriteCreationForm from "./floating-toolbar/SpriteCreationForm";
 import MobileSpriteCreationForm from "./floating-toolbar/MobileSpriteCreationForm";
 import ShareForm from './floating-toolbar/ShareForm';
 import { signIn, signOut, useSession } from "next-auth/react";
+import Cookies from 'js-cookie';
+import { useApp } from "@/hooks/useApp";
 
 interface FloatingToolbarProps {
   onCreateSprite: (props: SpriteProps) => void;
@@ -24,8 +26,10 @@ export default function FloatingToolbar({
   onPlay,
   onStop,
 }: FloatingToolbarProps) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const { render } = useApp();
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery('(max-width: 640px)');
 
@@ -45,6 +49,65 @@ export default function FloatingToolbar({
   const handleCloseForm = () => {
     setActiveDropdown(null);
   };
+
+  useEffect(() => {
+    if (!session || !session.user) return;
+    if (status == "authenticated") {
+      setLoading(true);
+
+      const authUser = async () => {
+        console.log(JSON.stringify(render?.serialize()));
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/auth`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: session.user?.email,
+              username: session.user?.name,
+              avatar: session.user?.image,
+              context: JSON.stringify(render?.serialize()),
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to authenticate user");
+          }
+
+          const { token } = await response.json();
+          Cookies.set("token", token);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      authUser();
+    }
+  }, [status]);
+
+  const signOutUser = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${Cookies.get("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to sign out user");
+      }
+
+      Cookies.remove("token");
+      signOut();
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <>
@@ -90,11 +153,11 @@ export default function FloatingToolbar({
 
             <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
-            {session && session.user ? (
+            {status === "authenticated" && session.user ? (
               <>
                 <div className="relative">
                   <Button
-                    onClick={() => signOut()}
+                    onClick={signOutUser}
                     variant="ghost"
                     size="icon"
                     className="group relative hover:scale-105 active:scale-95"
