@@ -69,7 +69,3 @@ body {
 .panel-scroll::-webkit-scrollbar-thumb:active {
   background: rgba(59, 130, 246, 0.7);
 }
-
-canvas {
-  cursor: url('/assets/cursor.svg') 12 12, auto;
-}
