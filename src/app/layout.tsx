@@ -98,12 +98,6 @@ export const metadata: Metadata = {
     { media: '(prefers-color-scheme: light)', color: '#3B82F6' },
     { media: '(prefers-color-scheme: dark)', color: '#1E40AF' },
   ],
-  manifest: '/manifest.json',
-  icons: {
-    icon: '/logo-dark-no-bg.png',
-    shortcut: '/logo-dark-no-bg.png',
-    apple: '/logo-dark-no-bg.png',
-  },
   appleWebApp: {
     title: 'SpriteForge',
     statusBarStyle: 'black-translucent',
@@ -121,6 +115,11 @@ export default function RootLayout({
     <html lang="en" className="h-full bg-gray-900">
       <head>
         <meta name="google-site-verification" content="BT6A1CYMlT549EKMmzXOaKlJkD7C7MST2SNmGmQmj5c" />
+        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="h-full overflow-hidden antialiased">
         <AuthProvider>
