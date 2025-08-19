@@ -39,6 +39,7 @@ export class Render extends RenderProvider {
     private _onMouseUpBind: (event: MouseEvent) => void = this._onMouseUp.bind(this);
 
     private _isTouched: boolean = false;
+    private _allowPan: boolean = true;
     
     private _boundary: Rect | null = null;
     private _boundaryStart: Vector | null = null;
