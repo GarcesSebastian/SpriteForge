@@ -68,13 +68,9 @@ export const metadata: Metadata = {
   ],
   manifest: '/manifest.json',
   icons: {
-    icon: [
-      { url: '/logo.png', sizes: '32x32', type: 'image/png' },
-      { url: '/logo.png', sizes: '16x16', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/logo.png', sizes: '180x180', type: 'image/png' },
-    ],
+    icon: '/logo-dark-no-bg.png',
+    shortcut: '/logo-dark-no-bg.png',
+    apple: '/logo-dark-no-bg.png',
   },
   appleWebApp: {
     title: 'SpriteForge',
@@ -93,9 +89,6 @@ export default function RootLayout({
     <html lang="en" className="h-full bg-gray-900">
       <head>
         <meta name="google-site-verification" content="BT6A1CYMlT549EKMmzXOaKlJkD7C7MST2SNmGmQmj5c" />
-        <link rel="icon" href="/logo.png" type="image/png" />
-        <link rel="shortcut icon" href="/logo.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body className="h-full overflow-hidden antialiased">
         <AuthProvider>
