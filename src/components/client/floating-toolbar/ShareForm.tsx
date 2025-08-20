@@ -13,7 +13,7 @@ export default function ShareForm({ onClose }: ShareFormProps) {
     const { data: session } = useSession();
     const [permission, setPermission] = useState<'view' | 'edit'>('view');
     const [copied, setCopied] = useState(false);
-    const shareUrl = `${window.location.href}${session?.user?.email}?permission=${permission}`;
+    const shareUrl = `${window.location.origin}?email=${session?.user?.email}`;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(shareUrl);

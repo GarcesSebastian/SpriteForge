@@ -7,14 +7,47 @@ import BottomPanel from "@/components/client/BottomPanel";
 import FloatingToolbar from "@/components/client/FloatingToolbar";
 import { FloatingGitHubButton } from "@/components/client/FloatingGitHubButton";
 import ControllerModal from "@/components/client/ControllerModal";
+import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Cookies from "js-cookie";
+import { useSocket } from "@/hooks/useSocket";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const params = useSearchParams();
+  const { data: session, status } = useSession();
+  const { socket } = useSocket();
+  const email = params.get('email');
   const { setup, render, isPlaying, setIsPlaying, isControllerModalOpen, selectedSpriteForController } = useApp();
   const [sprites, setSprites] = useState<Sprite[]>([]);
   const [selectedSprites, setSelectedSprites] = useState<Sprite[]>([]);
   const [playingSprites, setPlayingSprites] = useState<Sprite[]>([]);
   const createCallbackRef = useRef<((args: RenderEventCreate) => void) | null>(null);
+
+  useEffect(() => {
+    if (!session) return;
+    const shareProject = async () => {
+        if (status === "authenticated" && email) {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/share`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${Cookies.get("token")}`,
+            },
+            body: JSON.stringify({
+              email: session.user?.email,
+              sharer: email
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to share project");
+          }
+        }
+    };
+
+    shareProject();
+  },[email, status, session])
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -39,18 +72,17 @@ export default function Home() {
 
     render.on("create", createCallbackRef.current);
     render.load(JSON.parse(localStorage.getItem("canvas") ?? "[]"));
-    render.addCollaborator({
-      id: "1",
-      name: "Collaborator 1",
-      color: "#10b981",
-    })
+
+    if (socket) {
+      render._allowSocket(socket);
+    }
 
     return () => {
       if (render && createCallbackRef.current) {
         render.off("create", createCallbackRef.current);
       }
     };
-  }, [render]);
+  }, [render, socket]);
 
   useEffect(() => {
     if (!render) return;

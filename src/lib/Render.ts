@@ -10,6 +10,7 @@ import { Circle } from "./instances/_shapes/Circle";
 import { Sprite } from "./instances/_shapes/Sprite";
 import { Arrow } from "./instances/_shapes/Arrow";
 import { Pointer } from "./instances/_shapes/Pointer";
+import { Socket } from "socket.io-client";
 
 /**
  * Main rendering engine for canvas-based 2D graphics and shape management
@@ -18,8 +19,10 @@ import { Pointer } from "./instances/_shapes/Pointer";
 export class Render extends RenderProvider {
     public canvas: HTMLCanvasElement;
     public ctx: CanvasRenderingContext2D;
+    public _socket: Socket | null = null;
 
     public childrens: Map<string, Shape> = new Map();
+    public currentUser: { email: string } | null = null;
     public collaborators: Map<string, Shape> = new Map();
     public _controllers: Map<string, Controller> = new Map();
     public _transformer: Transformer | null = null;
@@ -39,6 +42,8 @@ export class Render extends RenderProvider {
     private _onMouseMoveBind: (event: MouseEvent) => void = this._onMouseMove.bind(this);
     private _onMouseDownBind: (event: MouseEvent) => void = this._onMouseDown.bind(this);
     private _onMouseUpBind: (event: MouseEvent) => void = this._onMouseUp.bind(this);
+
+    private _onSocketMouseMoveBind: (event: SocketEvents["mousemove"]) => void = this._onSocketMouseMove.bind(this);
 
     private _allowPan: boolean = true;
     private _panStart: Vector | null = null;
@@ -191,6 +196,10 @@ export class Render extends RenderProvider {
          * Prevents default context menu (right-click) behavior
          */
         this.canvas.addEventListener("contextmenu", (event) => event.preventDefault());
+
+        if (this._socket) {
+            this._socket.on("mousemove", this._onSocketMouseMoveBind);
+        }
     }
 
     /**
@@ -326,6 +335,22 @@ export class Render extends RenderProvider {
     }
 
     /**
+     * Handles mouse move events from collaborators
+     * Updates the position of collaborators based on their email
+     * @param event - The mouse move event containing pointer information
+     * @private
+     */
+    private _onSocketMouseMove(event: SocketEvents["mousemove"]) : void {
+        console.log(event);
+        this.collaborators.forEach(collaborator => {
+            if (collaborator instanceof Pointer && collaborator.email === event.email) {
+                collaborator.position.x = event.pointer.absolute.x;
+                collaborator.position.y = event.pointer.absolute.y;
+            }
+        })
+    }
+
+    /**
      * Handles mouse click events and determines click targets
      * Performs hit testing on shapes, updates target, and emits click events
      * @param event - The mouse event containing click information
@@ -455,6 +480,16 @@ export class Render extends RenderProvider {
             this._panStart = this._mouseVector;
         }
 
+        if (this._socket) {
+            this._socket.emit("mousemove", { 
+                pointer: { 
+                    absolute: { x: clientX, y: clientY }, 
+                    relative: { x: clientX - left, y: clientY - top } 
+                },
+                email: this.currentUser?.email
+            });
+        }
+
         this.emit("mousemove", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
     }
     
@@ -480,7 +515,13 @@ export class Render extends RenderProvider {
             return;
         }
 
-        this.emit("mousedown", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(x, y) }, target: this._target });
+        this.emit("mousedown", { 
+            pointer: { 
+                absolute: this.creator.Vector(clientX, clientY), 
+                relative: this.creator.Vector(x, y) 
+            }, 
+            target: this._target 
+        });
     }
     
     /**
@@ -596,6 +637,35 @@ export class Render extends RenderProvider {
         this._updateFps();
         this._showFps();
         this._frameId = requestAnimationFrame(this._renderBind);
+    }
+
+    /**
+     * Sets the current user for the render
+     * @param email - The email of the current user
+     * @returns This render instance for method chaining
+     */
+    public setCurrentUser(email: string) : Render {
+        this.currentUser = { email };
+        return this;
+    }
+
+    /**
+     * Allows the render to use a socket for real-time collaboration
+     * @param socket - The socket instance to use
+     * @returns This render instance for method chaining
+     */
+    public _allowSocket(socket: Socket) : Render {
+        this._socket = socket;
+        return this;
+    }
+
+    /**
+     * Denies the render from using a socket for real-time collaboration
+     * @returns This render instance for method chaining
+     */
+    public _denySocket() : Render {
+        this._socket = null;
+        return this;
     }
 
     /**

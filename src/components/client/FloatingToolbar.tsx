@@ -10,6 +10,7 @@ import ShareForm from './floating-toolbar/ShareForm';
 import { signIn, signOut, useSession } from "next-auth/react";
 import Cookies from 'js-cookie';
 import { useApp } from "@/hooks/useApp";
+import { useSocket } from "@/hooks/useSocket";
 
 interface FloatingToolbarProps {
   onCreateSprite: (props: SpriteProps) => void;
@@ -28,6 +29,7 @@ export default function FloatingToolbar({
 }: FloatingToolbarProps) {
   const { data: session, status } = useSession();
   const { render } = useApp();
+  const { socket } = useSocket();
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -56,7 +58,6 @@ export default function FloatingToolbar({
       setLoading(true);
 
       const authUser = async () => {
-        console.log(JSON.stringify(render?.serialize()));
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/auth`, {
             method: "POST",
@@ -75,8 +76,18 @@ export default function FloatingToolbar({
             throw new Error("Failed to authenticate user");
           }
 
-          const { token } = await response.json();
+          const { token, user } = await response.json();
           Cookies.set("token", token);
+
+          if (socket) {
+            socket.emit("hello", {
+              email: user.email,
+              collaborators: user.collaborators,
+              token,
+            });
+          }
+
+          render?.setCurrentUser(user.email);
         } catch (error) {
           console.log(error);
         } finally {

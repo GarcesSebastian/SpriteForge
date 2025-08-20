@@ -5,12 +5,14 @@ import { Vector } from "@/lib/common/Vector";
 export interface PointerProps extends ShapeProps {
     scale?: number;
     name?: string;
+    email?: string;
     color?: string;
 }
 
 export interface PointerRawData extends ShapeRawData {
     scale: number;
     name: string | undefined;
+    email: string | undefined;
     color: string;
 }
 
@@ -22,6 +24,7 @@ export class Pointer extends Shape {
 
     private _scale: number;
     private _name: string | undefined;
+    private _email: string | undefined;
     private _color: string;
 
     constructor(props: PointerProps, render: Render, id?: string) {
@@ -29,6 +32,7 @@ export class Pointer extends Shape {
         this._ctx = render.ctx;
         this._scale = props.scale ?? 1;
         this._name = props.name;
+        this._email = props.email;
         this._color = props.color ?? "white";
 
         this.setup();
@@ -73,6 +77,10 @@ export class Pointer extends Shape {
 
     public _isShapeInBoundary(boundaryX: number, boundaryY: number, boundaryWidth: number, boundaryHeight: number): boolean {
         return false;
+    }
+
+    public get email(): string | undefined {
+        return this._email;
     }
 
     public get width(): number {
@@ -125,6 +133,7 @@ export class Pointer extends Shape {
             visible: this.visible,
             scale: this._scale,
             color: this._color,
+            email: this._email,
         };
     }
 
@@ -138,6 +147,7 @@ export class Pointer extends Shape {
             scale: _data.scale,
             name: _data.name,
             color: _data.color,
+            email: _data.email,
         };
 
         const shape = new Pointer(props, _render, _data.id);
