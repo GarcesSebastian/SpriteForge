@@ -196,10 +196,6 @@ export class Render extends RenderProvider {
          * Prevents default context menu (right-click) behavior
          */
         this.canvas.addEventListener("contextmenu", (event) => event.preventDefault());
-
-        if (this._socket) {
-            this._socket.on("mousemove", this._onSocketMouseMoveBind);
-        }
     }
 
     /**
@@ -656,6 +652,13 @@ export class Render extends RenderProvider {
      */
     public _allowSocket(socket: Socket) : Render {
         this._socket = socket;
+
+        if (this._socket) {
+            this._socket.on("mousemove", (data: SocketEvents["mousemove"]) => {
+                console.log("mousemove", data);
+            });
+        }
+
         return this;
     }
 

@@ -82,7 +82,6 @@ export default function FloatingToolbar({
           if (socket) {
             socket.emit("hello", {
               email: user.email,
-              collaborators: user.collaborators,
               token,
             });
           }
@@ -90,6 +89,7 @@ export default function FloatingToolbar({
           render?.setCurrentUser(user.email);
         } catch (error) {
           console.log(error);
+          signOut();
         } finally {
           setLoading(false);
         }
