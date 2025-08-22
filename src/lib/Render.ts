@@ -10,7 +10,6 @@ import { Circle } from "./instances/_shapes/Circle";
 import { Sprite } from "./instances/_shapes/Sprite";
 import { Arrow } from "./instances/_shapes/Arrow";
 import { Pointer } from "./instances/_shapes/Pointer";
-import { Socket } from "socket.io-client";
 
 /**
  * Main rendering engine for canvas-based 2D graphics and shape management
@@ -19,7 +18,6 @@ import { Socket } from "socket.io-client";
 export class Render extends RenderProvider {
     public canvas: HTMLCanvasElement;
     public ctx: CanvasRenderingContext2D;
-    public _socket: Socket | null = null;
 
     public childrens: Map<string, Shape> = new Map();
     public currentUser: { email: string } | null = null;
@@ -43,7 +41,8 @@ export class Render extends RenderProvider {
     private _onMouseDownBind: (event: MouseEvent) => void = this._onMouseDown.bind(this);
     private _onMouseUpBind: (event: MouseEvent) => void = this._onMouseUp.bind(this);
 
-    private _onSocketMouseMoveBind: (event: SocketEvents["mousemove"]) => void = this._onSocketMouseMove.bind(this);
+    private _onSocketMouseMoveBind: (event: SocketEvents["user:mousemove"]) => void = this._onSocketMouseMove.bind(this);
+    private _onSocketCollaboratorBind: (event: SocketEvents["user:collaborator"]) => void = this._onSocketCollaborator.bind(this);
 
     private _allowPan: boolean = true;
     private _panStart: Vector | null = null;
@@ -336,7 +335,7 @@ export class Render extends RenderProvider {
      * @param event - The mouse move event containing pointer information
      * @private
      */
-    private _onSocketMouseMove(event: SocketEvents["mousemove"]) : void {
+    private _onSocketMouseMove(event: SocketEvents["user:mousemove"]) : void {
         console.log(event);
         this.collaborators.forEach(collaborator => {
             if (collaborator instanceof Pointer && collaborator.email === event.email) {
@@ -344,6 +343,10 @@ export class Render extends RenderProvider {
                 collaborator.position.y = event.pointer.absolute.y;
             }
         })
+    }
+
+    public _onSocketCollaborator(event: SocketEvents["user:collaborator"]) : void {
+        console.log(event);
     }
 
     /**
@@ -474,16 +477,6 @@ export class Render extends RenderProvider {
                 child.position.y += delta.y;
             });
             this._panStart = this._mouseVector;
-        }
-
-        if (this._socket) {
-            this._socket.emit("mousemove", { 
-                pointer: { 
-                    absolute: { x: clientX, y: clientY }, 
-                    relative: { x: clientX - left, y: clientY - top } 
-                },
-                email: this.currentUser?.email
-            });
         }
 
         this.emit("mousemove", { pointer: { absolute: this.creator.Vector(clientX, clientY), relative: this.creator.Vector(clientX - left, clientY - top) }, target: this._target });
@@ -642,32 +635,6 @@ export class Render extends RenderProvider {
      */
     public setCurrentUser(email: string) : Render {
         this.currentUser = { email };
-        return this;
-    }
-
-    /**
-     * Allows the render to use a socket for real-time collaboration
-     * @param socket - The socket instance to use
-     * @returns This render instance for method chaining
-     */
-    public _allowSocket(socket: Socket) : Render {
-        this._socket = socket;
-
-        if (this._socket) {
-            this._socket.on("mousemove", (data: SocketEvents["mousemove"]) => {
-                console.log("mousemove", data);
-            });
-        }
-
-        return this;
-    }
-
-    /**
-     * Denies the render from using a socket for real-time collaboration
-     * @returns This render instance for method chaining
-     */
-    public _denySocket() : Render {
-        this._socket = null;
         return this;
     }
 

@@ -1,16 +1,10 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react";
-import { LogOut, User, Share2 } from 'lucide-react';
 import { Button } from "@/components/common";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import SpriteCreationForm from "./floating-toolbar/SpriteCreationForm";
 import MobileSpriteCreationForm from "./floating-toolbar/MobileSpriteCreationForm";
-import ShareForm from './floating-toolbar/ShareForm';
-import { signIn, signOut, useSession } from "next-auth/react";
-import Cookies from 'js-cookie';
-import { useApp } from "@/hooks/useApp";
-import { useSocket } from "@/hooks/useSocket";
 
 interface FloatingToolbarProps {
   onCreateSprite: (props: SpriteProps) => void;
@@ -27,11 +21,7 @@ export default function FloatingToolbar({
   onPlay,
   onStop,
 }: FloatingToolbarProps) {
-  const { data: session, status } = useSession();
-  const { render } = useApp();
-  const { socket } = useSocket();
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
-  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery('(max-width: 640px)');
 
@@ -51,74 +41,6 @@ export default function FloatingToolbar({
   const handleCloseForm = () => {
     setActiveDropdown(null);
   };
-
-  useEffect(() => {
-    if (!session || !session.user) return;
-    if (status == "authenticated") {
-      setLoading(true);
-
-      const authUser = async () => {
-        try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/auth`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: session.user?.email,
-              username: session.user?.name,
-              avatar: session.user?.image,
-              context: JSON.stringify(render?.serialize()),
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to authenticate user");
-          }
-
-          const { token, user } = await response.json();
-          Cookies.set("token", token);
-
-          if (socket) {
-            socket.emit("hello", {
-              email: user.email,
-              token,
-            });
-          }
-
-          render?.setCurrentUser(user.email);
-        } catch (error) {
-          console.log(error);
-          signOut();
-        } finally {
-          setLoading(false);
-        }
-      }
-
-      authUser();
-    }
-  }, [status]);
-
-  const signOutUser = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/logout`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${Cookies.get("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to sign out user");
-      }
-
-      Cookies.remove("token");
-      signOut();
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   return (
     <>
@@ -161,51 +83,6 @@ export default function FloatingToolbar({
                   <SpriteCreationForm onCreateSprite={onCreateSprite} onClose={handleCloseForm} />
               )}
             </div>
-
-            <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
-
-            {status === "authenticated" && session.user ? (
-              <>
-                <div className="relative">
-                  <Button
-                    onClick={signOutUser}
-                    variant="ghost"
-                    size="icon"
-                    className="group relative hover:scale-105 active:scale-95"
-                    title={`Logout ${session.user.name}`}
-                  >
-                    <img src={session.user.image!} alt={session.user.name!} className="w-9 h-9 rounded-full" />
-                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <LogOut className="w-5 h-5 text-white" />
-                    </div>
-                  </Button>
-                </div>
-                <div className="relative">
-                  <Button
-                    onClick={() => setActiveDropdown(activeDropdown === 'share' ? null : 'share')}
-                    variant="ghost"
-                    size="icon"
-                    className={`group relative hover:scale-105 active:scale-95 ${
-                      activeDropdown === 'share' ? 'ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''
-                    }`}
-                    title="Share"
-                  >
-                    <Share2 className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-white" />
-                  </Button>
-                  {activeDropdown === 'share' && <ShareForm onClose={handleCloseForm} />}
-                </div>
-              </>
-            ) : (
-              <Button
-                onClick={() => signIn('google')}
-                variant="auth"
-                size="icon"
-                className="group relative hover:scale-105 active:scale-95"
-                title="Authenticate"
-              >
-                <User className="w-5 h-5 text-white" />
-              </Button>
-            )}
           </div>
         </div>
       </div>
